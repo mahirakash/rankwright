@@ -1,21 +1,21 @@
 # CI integration
 
-`omnirank audit --fail-on <gates>` exits `1` when a named gate has an error-severity
+`rankwright audit --fail-on <gates>` exits `1` when a named gate has an error-severity
 finding, and `0` otherwise — that is the entire integration surface. This page shows a
 working GitHub Actions workflow, a GitLab CI job, and a generic shell script, plus how to
 choose which gates to gate the build on (and which ones a blanket "fail on everything"
 policy silently cannot protect you from).
 
-OmniRank is not published to PyPI as of v0.1.1, so every example below installs straight
+Rankwright is not published to PyPI as of v0.1.1, so every example below installs straight
 from git. The `pip install "package @ git+URL#subdirectory=..."` syntax used here was
-verified to work against the real repository (`pip install "omnirank @
-git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"` installs cleanly
-and puts a working `omnirank` command on `PATH`).
+verified to work against the real repository (`pip install "rankwright @
+git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"` installs cleanly
+and puts a working `rankwright` command on `PATH`).
 
 ## GitHub Actions
 
 ```yaml
-name: OmniRank audit
+name: Rankwright audit
 
 on:
   pull_request:
@@ -32,22 +32,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install OmniRank
+      - name: Install Rankwright
         run: |
-          pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
+          pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
 
       - name: Audit
         run: |
-          omnirank audit --config omnirank.config.json \
-            --out omnirank-report.json \
+          rankwright audit --config rankwright.config.json \
+            --out rankwright-report.json \
             --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
 
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: omnirank-report
-          path: omnirank-report.json
+          name: rankwright-report
+          path: rankwright-report.json
 ```
 
 `--fail-on` is what fails the job — the step's own exit code (`1`) fails the GitHub
@@ -58,22 +58,22 @@ shows.
 
 This mirrors the pattern this repository's own `.github/workflows/ci.yml` uses for its
 "zero-config audit smoke test" job, adapted here for auditing a downstream site rather
-than testing OmniRank itself.
+than testing Rankwright itself.
 
 ## GitLab CI
 
 ```yaml
-omnirank-audit:
+rankwright-audit:
   image: python:3.12-slim
   stage: test
   script:
-    - pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
-    - omnirank audit --config omnirank.config.json --out omnirank-report.json
+    - pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
+    - rankwright audit --config rankwright.config.json --out rankwright-report.json
         --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
   artifacts:
     when: always
     paths:
-      - omnirank-report.json
+      - rankwright-report.json
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -88,11 +88,11 @@ report as a build artifact regardless of outcome (`when: always`).
 #!/usr/bin/env bash
 set -euo pipefail
 
-python3 -m venv .venv-omnirank
-source .venv-omnirank/bin/activate
-pip install -q "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
+python3 -m venv .venv-rankwright
+source .venv-rankwright/bin/activate
+pip install -q "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
 
-omnirank audit --config omnirank.config.json --out omnirank-report.json \
+rankwright audit --config rankwright.config.json --out rankwright-report.json \
   --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
 
 status=$?
@@ -100,7 +100,7 @@ deactivate
 exit "$status"
 ```
 
-`set -euo pipefail` means the script itself exits non-zero the moment `omnirank audit`
+`set -euo pipefail` means the script itself exits non-zero the moment `rankwright audit`
 does — you generally do not even need the explicit `status=$?` capture unless you want to
 run cleanup after a failure, as shown here.
 
@@ -109,7 +109,7 @@ run cleanup after a failure, as shown here.
 Not every gate name in the schema's `audit.failOn` enum can actually cause `--fail-on` to
 fail a build, and putting all 42 in the list creates false confidence rather than more
 protection. Recounted directly against every gate's severity in
-`scripts/py/omnirank/gates/` and against what `audit_site()` actually calls (not just what
+`scripts/py/rankwright/gates/` and against what `audit_site()` actually calls (not just what
 the schema accepts):
 
 **16 gates are warning-only and 4 more are info-only — listing any of these 20 in
@@ -120,7 +120,7 @@ advice) from the original gate set, the site-level gates `duplicate-title`,
 `duplicate-description`, `canonical-cluster`, `hreflang-reciprocity`, the `perf` gates
 `page-weight`, `compression`, `render-blocking`, and — new in v0.4.0 — `heading-order`,
 `image-alt`, `schema-required` (all warning-only), plus `hsts`, `nosniff`, `csp`,
-`referrer-policy` (all info-only: OmniRank reports these as inventory facts about your
+`referrer-policy` (all info-only: Rankwright reports these as inventory facts about your
 security headers, never grades them, and `info` severity costs nothing — see
 [audit-guide.md#security-v040](audit-guide.md#security-v040)). `link-text` is the one
 exception that mixes: its `.empty` id is `warning` and its `.generic` id is `info`, but
@@ -134,9 +134,9 @@ because that gate structurally cannot trigger a failure.
 The check that would have produced it, `hygiene.check_removed()`, is real and tested, but
 needs an explicit list of URLs your site used to serve — no config field supplies that
 list, so `audit_site()` had no way to call it automatically, and `crawl-hygiene` could
-never actually fire from a plain `omnirank audit` run. Rather than leave a
+never actually fire from a plain `rankwright audit` run. Rather than leave a
 config-accepted gate name that can never fire, v0.2.1 removed it from
-`schemas/omnirank.config.schema.json`. See
+`schemas/rankwright.config.schema.json`. See
 [audit-guide.md](audit-guide.md#crawl-hygiene-and-sitemap-health-as-of-v021).
 
 **`sitemap-health` is not inert, and now covers more than it used to.** `_collect()` in
@@ -144,7 +144,7 @@ config-accepted gate name that can never fire, v0.2.1 removed it from
 "sitemap-health"` (the `seo.page.unreachable` finding). As of v0.2.1,
 `hygiene.check_sitemap()` is also wired into `audit_site()` — for sitemap URLs
 `_collect()` couldn't already confirm reachable, it further distinguishes a redirecting
-entry (warning) from a genuinely dead one (error). Verify this yourself: `omnirank audit
+entry (warning) from a genuinely dead one (error). Verify this yourself: `rankwright audit
 https://example.com/nope-xyz --fail-on sitemap-health` exits `1`.
 
 **That leaves 21 gates that can actually produce an error-severity finding and gate a
@@ -182,6 +182,6 @@ hidden; `--fail-on` only controls the exit code.
 - [audit-guide.md](audit-guide.md#gate-reference) — every gate, its severity, and what
   triggers it
 - [configuration.md](configuration.md#audit) — setting a default `audit.failOn` in
-  `omnirank.config.json` so `--fail-on` can be omitted in CI and driven by the committed
+  `rankwright.config.json` so `--fail-on` can be omitted in CI and driven by the committed
   config instead
 - [troubleshooting.md](troubleshooting.md) — reading a red `--fail-on` gate in CI logs

@@ -1,15 +1,15 @@
 # Configuration reference
 
-`omnirank.config.json` is optional — `omnirank audit <url>` and `omnirank geo <url>` both
+`rankwright.config.json` is optional — `rankwright audit <url>` and `rankwright geo <url>` both
 work with zero configuration. Since the in-memory config a bare URL builds has no `geo`
-section, a bare `omnirank geo <url>` also has no configured `geo.license` — as of v0.2.1
+section, a bare `rankwright geo <url>` also has no configured `geo.license` — as of v0.2.1
 that generates the artifacts anyway (granting no reuse rights) and prints a notice to
 stderr saying so, rather than refusing to run. See [`geo`](#geo) below and
 [geo-artifacts-guide.md](geo-artifacts-guide.md#the-citation-licence-block). A config
 file also unlocks CI gating (`audit.failOn`), first-party facts (`nap`, `identifiers`,
 `statistics`), and secret-backed integrations (`secrets`).
 
-Every field below is transcribed from `schemas/omnirank.config.schema.json`, the actual
+Every field below is transcribed from `schemas/rankwright.config.schema.json`, the actual
 JSON Schema `load_config()` validates against — nothing here is guessed. The root object
 and every nested object use `"additionalProperties": false`, so a typo'd field name fails
 validation rather than being silently ignored.
@@ -89,7 +89,7 @@ whoever reads it next.
 
 **Status: Schema-only.** None of these fields are read by `audit` or `geo-artifacts` in
 v0.2.0 — in particular, `geo`'s `--out` flag (default `public`) is independent of
-`stack.publicDir`; setting the config field does **not** change where `omnirank geo`
+`stack.publicDir`; setting the config field does **not** change where `rankwright geo`
 writes files. Pass `--out` explicitly if you want it to land elsewhere. This section
 exists for forward compatibility with adapters on the roadmap (WordPress, Jekyll,
 Shopify, Astro, Vue, Svelte, targeted at v1.0 per the README).
@@ -121,7 +121,7 @@ user-agents the gate checks (see [audit-guide.md](audit-guide.md#geo) for the fu
 
 **`license` defaults to no grant, never to a guessed licence.** These generated files
 are published into your site's public web root, so the licence text is a real, standing
-grant of reuse rights over your content, not a value OmniRank can safely guess. Omitting
+grant of reuse rights over your content, not a value Rankwright can safely guess. Omitting
 `geo.license` resolves to the same "grant nothing" behaviour as the explicit `"none"`
 opt-out — generation still succeeds — and the CLI prints a one-line stderr notice naming
 the key, so the choice isn't made silently. See
@@ -158,28 +158,28 @@ A **band object** is `{"unit": "words" | "chars", "min": <integer ≥ 1>, "max":
 }
 ```
 
-**Why this section exists.** OmniRank's built-in default band — 40–60 words — is
+**Why this section exists.** Rankwright's built-in default band — 40–60 words — is
 calibrated for space-delimited Latin text. `str.split()` (how the `words` unit is
 counted) returns a single token for an entire Chinese, Japanese, Korean, Thai, Lao,
 Khmer, Burmese, Tibetan or Dzongkha paragraph, because none of those scripts use spaces
 to separate words. Word counting is meaningless there, so those languages are grouped
-into the `cjk` script family and OmniRank measures **characters** for them instead
+into the `cjk` script family and Rankwright measures **characters** for them instead
 (whitespace-stripped character count). Bengali, Hindi, Tamil, Telugu, Kannada,
 Malayalam, Gujarati, Punjabi, Odia, Sinhala, Nepali, Assamese and Marathi (the
 `brahmic` family) as well as Arabic, Persian, Urdu, Pashto, Sindhi and Kurdish (the
 `arabic` family) remain space-delimited — `str.split()` works normally there, so they
-keep **word** counting. See `scripts/py/omnirank/bands.py::script_of` for the exact
+keep **word** counting. See `scripts/py/rankwright/bands.py::script_of` for the exact
 BCP-47-tag-to-family mapping.
 
 **Band resolution order** (`bands.resolve_band`), most specific first:
 
 1. `aeo.answerBlock.byScript[script]` — an explicit override for this page's script
    family, if the config sets one.
-2. The **built-in band for that script**, if OmniRank ships one. Today the only
+2. The **built-in band for that script**, if Rankwright ships one. Today the only
    built-in is `cjk` → 80–200 characters (`_BUILTIN_BY_SCRIPT` in `bands.py`); `latin`,
    `brahmic`, `arabic` and `cyrillic` have none.
 3. `aeo.answerBlock.default` — the site's own general-purpose band, if configured.
-4. `DEFAULT_BAND` — OmniRank's hard-coded fallback, 40–60 words.
+4. `DEFAULT_BAND` — Rankwright's hard-coded fallback, 40–60 words.
 
 **Step 2 deliberately outranks step 3.** A script-specific built-in beats the config's
 script-agnostic `default` on purpose: `default` says nothing about which script it was
@@ -211,7 +211,7 @@ Type: object, free-form string map. **Status: Schema-only** — validated, not r
 | Field | Type | Required | Default (in code) | Description |
 |---|---|---|---|---|
 | `sampleSize` | integer, minimum `0` | no | `200` | Maximum URLs pulled from the sitemap for a crawl. `0` means no limit — every sitemap URL is checked. |
-| `failOn` | array of gate-name enum values | no | `[]` | Gate names that make `omnirank audit` exit `1` when they carry an error-severity finding. Overridden by the CLI's `--fail-on` flag when that flag is present at all (even with zero names). |
+| `failOn` | array of gate-name enum values | no | `[]` | Gate names that make `rankwright audit` exit `1` when they carry an error-severity finding. Overridden by the CLI's `--fail-on` flag when that flag is present at all (even with zero names). |
 
 `failOn`'s allowed values (the full 28-name gate enum): `h1`, `canonical`,
 `title-length`, `description-length`, `hreflang`, `og`, `image-dims`, `answer-block`,
@@ -222,7 +222,7 @@ Type: object, free-form string map. **Status: Schema-only** — validated, not r
 `compression`, `render-blocking`.
 
 As of v0.2.1, `crawl-hygiene` is no longer one of these values. It used to validate
-successfully but matched **no finding a plain `omnirank audit` run could ever produce**:
+successfully but matched **no finding a plain `rankwright audit` run could ever produce**:
 the check that would have emitted it (`hygiene.check_removed()`) is a real, tested Python
 function, but needs an explicit removed-URL list no config field supplies, so
 `audit_site()` had no way to call it automatically. A config-accepted gate name that can
@@ -289,13 +289,13 @@ itself, at validation time, before any code that would read a secret ever runs.
 ```
 
 **Why literal secrets are rejected at the schema level.** A config file gets committed to
-version control. If OmniRank accepted `"secrets": {"serpapi": "sk-live-abc123"}`, that
+version control. If Rankwright accepted `"secrets": {"serpapi": "sk-live-abc123"}`, that
 literal key would end up in git history — permanently, even after later removal. Real
 error, produced by `Draft202012Validator` when a literal value is given:
 
 ```
-$ python3 -m omnirank.cli audit --config bad-secret.json
-omnirank: Config failed validation: secrets/serpapi: 'sk-abc123literal' does not match '^env:[A-Z_][A-Z0-9_]*$'
+$ python3 -m rankwright.cli audit --config bad-secret.json
+rankwright: Config failed validation: secrets/serpapi: 'sk-abc123literal' does not match '^env:[A-Z_][A-Z0-9_]*$'
 ```
 
 Exit code `2`. The config is rejected outright — the audit does not run with a partial or
@@ -317,12 +317,12 @@ the roadmap skills that do (rank tracking, citation testing).
 
 ## A complete, valid example
 
-This is `templates/omnirank.config.example.json`, verified to pass schema validation by
+This is `templates/rankwright.config.example.json`, verified to pass schema validation by
 `tests/test_config_schema.py::test_example_config_validates`:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/bemoshiur/OmniRank/main/schemas/omnirank.config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
   "site": {
     "name": "TICON System Limited",
     "legalName": "TICON System Limited",
@@ -374,7 +374,7 @@ This is `templates/omnirank.config.example.json`, verified to pass schema valida
 Copy it as a starting point:
 
 ```bash
-cp templates/omnirank.config.example.json omnirank.config.json
+cp templates/rankwright.config.example.json rankwright.config.json
 ```
 
 Then edit `site`, `nap`, `sameAs`, and `audit.failOn` for your own site — everything else
@@ -382,7 +382,7 @@ is optional.
 
 ## Validating your config before running
 
-`omnirank audit --config ...` and `omnirank geo --config ...` both validate on load and
+`rankwright audit --config ...` and `rankwright geo --config ...` both validate on load and
 refuse to proceed on failure (exit code `2`), so the fastest check is simply running one
 of them. To validate without auditing anything, use the schema directly:
 
@@ -391,8 +391,8 @@ python3 - <<'EOF'
 import json
 from jsonschema import Draft202012Validator
 
-schema = json.load(open("schemas/omnirank.config.schema.json"))
-config = json.load(open("omnirank.config.json"))
+schema = json.load(open("schemas/rankwright.config.schema.json"))
+config = json.load(open("rankwright.config.json"))
 errors = list(Draft202012Validator(schema).iter_errors(config))
 if errors:
     for e in errors:
@@ -402,7 +402,7 @@ else:
 EOF
 ```
 
-This is exactly the check `load_config()` runs internally (`omnirank/config.py`), so a
+This is exactly the check `load_config()` runs internally (`rankwright/config.py`), so a
 clean result here means the CLI will accept the file.
 
 ## See also

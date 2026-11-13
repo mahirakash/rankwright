@@ -15,7 +15,7 @@ export interface Statistic {
   [key: string]: unknown;
 }
 
-export interface OmniRankConfig {
+export interface RankwrightConfig {
   site: {
     name: string;
     legalName?: string;
@@ -32,7 +32,7 @@ export interface OmniRankConfig {
 
 /**
  * Raised when the config is unusable for generation. Mirrors Python's
- * `omnirank.config.ConfigError` -- never swallowed.
+ * `rankwright.config.ConfigError` -- never swallowed.
  *
  * As of v0.2.1 an absent `geo.license` no longer raises this (see below) -- it is
  * kept exported as public API for any other unusable-config case, present or
@@ -56,12 +56,12 @@ export class ConfigError extends Error {
 // owner's behalf -- and has no downside, so an absent geo.license now resolves
 // exactly like the explicit "none" opt-out instead of throwing. (The Python CLI
 // surfaces a one-line stderr notice for this case; this library has no CLI of its
-// own, so there is nothing analogous to add here -- see scripts/py/omnirank/cli.py.)
+// own, so there is nothing analogous to add here -- see scripts/py/rankwright/cli.py.)
 export const NO_LICENSE_SENTINEL = "none";
 
-const siteUrl = (c: OmniRankConfig) => c.site.url.replace(/\/+$/, "");
+const siteUrl = (c: RankwrightConfig) => c.site.url.replace(/\/+$/, "");
 
-const attribution = (c: OmniRankConfig) =>
+const attribution = (c: RankwrightConfig) =>
   c.geo?.attribution ?? c.site.legalName ?? c.site.name;
 
 /**
@@ -70,7 +70,7 @@ const attribution = (c: OmniRankConfig) =>
  * An absent `geo.license` resolves identically to an explicit `"none"`/`null` --
  * see the comment above `NO_LICENSE_SENTINEL` for why.
  */
-function resolveLicense(c: OmniRankConfig): string | null {
+function resolveLicense(c: RankwrightConfig): string | null {
   const value = c.geo?.license;
   if (value === null || value === undefined) return null;
   if (typeof value === "string" && value.trim().toLowerCase() === NO_LICENSE_SENTINEL) {
@@ -79,7 +79,7 @@ function resolveLicense(c: OmniRankConfig): string | null {
   return value;
 }
 
-function licenceBlock(c: OmniRankConfig): string {
+function licenceBlock(c: RankwrightConfig): string {
   const licence = resolveLicense(c);
   if (licence === null) {
     return [
@@ -98,7 +98,7 @@ function licenceBlock(c: OmniRankConfig): string {
   ].join("\n");
 }
 
-export function buildLlmsTxt(c: OmniRankConfig, pages: Page[]): string {
+export function buildLlmsTxt(c: RankwrightConfig, pages: Page[]): string {
   const lines = [`# ${c.site.name}`, ""];
   if (c.site.legalName) lines.push(`> Published by ${c.site.legalName}.`, "");
   lines.push(`Canonical site: ${siteUrl(c)}`, "", `## Pages (${pages.length})`, "");
@@ -110,7 +110,7 @@ export function buildLlmsTxt(c: OmniRankConfig, pages: Page[]): string {
   return lines.join("\n");
 }
 
-export function buildLlmsFull(c: OmniRankConfig, pages: Page[]): string {
+export function buildLlmsFull(c: RankwrightConfig, pages: Page[]): string {
   const lines = [`# ${c.site.name} — full corpus`, ""];
   for (const p of pages) {
     lines.push(`## ${p.title || p.url}`, "", `URL: ${p.url}`, "");
@@ -135,14 +135,14 @@ export interface Facts extends Record<string, unknown> {
   license: string;
   attribution: string;
   legalName?: string;
-  locales?: NonNullable<OmniRankConfig["site"]["locales"]>;
+  locales?: NonNullable<RankwrightConfig["site"]["locales"]>;
   nap?: Record<string, unknown>;
   identifiers?: Record<string, string>;
   sameAs?: string[];
   statistics?: Statistic[];
 }
 
-export function buildFacts(c: OmniRankConfig): Facts {
+export function buildFacts(c: RankwrightConfig): Facts {
   const licence = resolveLicense(c);
   const facts: Record<string, unknown> = {
     name: c.site.name,
@@ -177,7 +177,7 @@ export function buildFacts(c: OmniRankConfig): Facts {
  * paths route to the S3 origin and a dynamic route returns 403.
  */
 export async function generate(
-  c: OmniRankConfig,
+  c: RankwrightConfig,
   pages: Page[],
   outDir: string,
 ): Promise<string[]> {

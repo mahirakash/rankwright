@@ -1,5 +1,5 @@
 
-from omnirank import robots
+from rankwright import robots
 
 SIMPLE = "User-agent: *\nDisallow: /private/\n"
 WILDCARD = "User-agent: *\nDisallow: /*.pdf$\n"

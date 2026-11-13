@@ -1,17 +1,17 @@
-# OmniRank
+# Rankwright
 
-OmniRank audits a website's SEO, AEO, GEO, performance and security signals against its
+Rankwright audits a website's SEO, AEO, GEO, performance and security signals against its
 real HTML, generates `llms.txt`, `llms-full.txt` and `facts.json` for citation, and
 locates the exact source file behind each finding. Version 0.4.0 ships two Claude Code
-skills, `audit` and `geo-artifacts`, plus the `omnirank fix` diff preview, which writes
+skills, `audit` and `geo-artifacts`, plus the `rankwright fix` diff preview, which writes
 nothing.
 
 Three audiences — search crawlers, answer engines, and generative AI systems — parse the
 same rendered HTML. A page that is crawlable, has a liftable answer near the top, and
-publishes machine-readable ground truth wins all three at once, which is why OmniRank
+publishes machine-readable ground truth wins all three at once, which is why Rankwright
 audits one artifact instead of running three separate tools. Since v0.3.0 it can also say
 *which file* is wrong, via the locator described in [[The-Locator]]. **v0.4.0's theme is
-"OmniRank finds where your site contradicts itself"** — five new gates catch a site's own
+"Rankwright finds where your site contradicts itself"** — five new gates catch a site's own
 declarations disagreeing with each other, at 100% precision, plus a new `security` layer
 and Google rich-result validation. See [[Contradictions]] and [[Security-Layer]].
 
@@ -21,7 +21,7 @@ and Google rich-result validation. See [[Contradictions]] and [[Security-Layer]]
 |---|---|---|
 | `audit` | **Shipped** | Scores SEO, AEO, GEO, performance and security gates against a site's real HTML, including a site-level cross-URL pass and an indexability-contradictions pass, and reports `observed` / `expected` / `fix` for every gap. See [[Audit-Skill]]. |
 | `geo-artifacts` | **Shipped** | Generates `llms.txt`, `llms-full.txt` and `facts.json`, each with an explicit citation licence. See [[GEO-Artifacts-Skill]]. |
-| `omnirank fix` *(CLI preview)* | **Shipped** | Resolves a finding's URL to its source file and prints the diff it would apply for the four `mechanical` findings. **Writes nothing** — there is no `--write` flag. See [[Fix-Preview]]. |
+| `rankwright fix` *(CLI preview)* | **Shipped** | Resolves a finding's URL to its source file and prints the diff it would apply for the four `mechanical` findings. **Writes nothing** — there is no `--write` flag. See [[Fix-Preview]]. |
 
 That is the entire shipped surface of v0.4.0. `fix` is a CLI subcommand of the `audit`
 skill's package, not a third registered Claude Code skill — `.claude-plugin/plugin.json`
@@ -74,15 +74,15 @@ None of these six skills exist in the installed package today — asking Claude 
 Three commands, no configuration file required:
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git && cd OmniRank
+git clone https://github.com/mahirakash/rankwright.git && cd Rankwright
 python3 -m venv .venv && source .venv/bin/activate && make install
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 ```
 
-To see what OmniRank would fix, without writing anything:
+To see what Rankwright would fix, without writing anything:
 
 ```bash
-python3 -m omnirank.cli fix https://example.com --root .
+python3 -m rankwright.cli fix https://example.com --root .
 ```
 
 Full walkthrough with real pasted output, exit codes, and what to do if a step fails:
@@ -93,25 +93,25 @@ Full walkthrough with real pasted output, exit codes, and what to do if a step f
 | Page | What it covers |
 |---|---|
 | [[Quick-Start]] | Zero to first audit, numbered steps, real terminal output |
-| [[Configuration-Reference]] | Every `omnirank.config.json` field, generated from the JSON Schema |
+| [[Configuration-Reference]] | Every `rankwright.config.json` field, generated from the JSON Schema |
 | [[Audit-Skill]] | The `audit` skill and CLI: every gate, severity, trigger and fix; the scoring formula |
 | [[Security-Layer]] | The new `security` layer: what each gate detects, and its honest limits |
 | [[Contradictions]] | The new indexability-contradiction gates: a real true positive, and their limits |
 | [[GEO-Artifacts-Skill]] | `llms.txt` / `llms-full.txt` / `facts.json`; Python vs Node paths; the OpenNext 403 trap |
-| [[Fix-Preview]] | What `omnirank fix` does, its flags, and why it writes nothing |
+| [[Fix-Preview]] | What `rankwright fix` does, its flags, and why it writes nothing |
 | [[Fix-Tiers-and-Applicability]] | The `fixTier` × `applicability` model that decides what is safe to fix |
-| [[The-Locator]] | How OmniRank resolves a URL to the source file that owns it |
+| [[The-Locator]] | How Rankwright resolves a URL to the source file that owns it |
 | [[Finding-Reference]] | All 67 finding ids, generated from the registry — layer, gate, severity, fixTier |
 | [[Report-Schema]] | The finding shape, the `<layer>.<gate>.<condition>` id convention, `notEvaluated` |
 | [[CI-Recipes]] | GitHub Actions, GitLab CI, generic shell, and choosing `--fail-on` gates |
 | [[Claude-Code-Setup]] | Installing via the release ZIP or a clone; real trigger phrases per skill |
 | [[Troubleshooting]] | Real error text for likely failures, with the fix for each |
-| [[FAQ]] | Direct, honest answers — including what OmniRank does not do |
+| [[FAQ]] | Direct, honest answers — including what Rankwright does not do |
 | [[Glossary]] | SEO/AEO/GEO/SMM terms, each defined in a standalone, quotable answer |
 | [[Research-and-Evidence]] | The published research this project builds on, cited precisely |
 | [[Roadmap]] | Shipped vs planned, by target version |
 
-## What OmniRank does not do
+## What Rankwright does not do
 
 - **It does not force rankings.** Nothing can. It scores the signals search and answer
   engines are known to use and hands you a prioritised list of gaps to close.
@@ -120,12 +120,12 @@ Full walkthrough with real pasted output, exit codes, and what to do if a step f
 - **It does not generate AI slop.** Every generated page expects a human edit pass before
   publishing.
 - **It does not edit your site.** `audit` only diagnoses; `geo-artifacts` writes only the
-  three GEO artifacts it generates; `omnirank fix` prints a diff and writes nothing —
+  three GEO artifacts it generates; `rankwright fix` prints a diff and writes nothing —
   there is no `--write` flag. Writing ships once the locator is proven against real
   repositories and the write guarantees it depends on are implemented and tested, not on
   a release number.
 
-See the project README's ["What OmniRank does not do"](https://github.com/bemoshiur/OmniRank#what-omnirank-does-not-do)
+See the project README's ["What Rankwright does not do"](https://github.com/mahirakash/rankwright#what-rankwright-does-not-do)
 section for the complete list, and [[FAQ]] for the honest, uncomfortable questions
 answered directly.
 
@@ -133,8 +133,9 @@ answered directly.
 
 | | |
 |---|---|
-| Source repository | [github.com/bemoshiur/OmniRank](https://github.com/bemoshiur/OmniRank) |
-| Documentation (in-repo) | [docs/](https://github.com/bemoshiur/OmniRank/tree/main/docs) |
-| Issues | [github.com/bemoshiur/OmniRank/issues](https://github.com/bemoshiur/OmniRank/issues/new/choose) |
-| Maintainer | [S M Moshiur Rahman](https://github.com/bemoshiur), TICON System Limited, Dhaka |
-| Licence | Code [MIT](https://github.com/bemoshiur/OmniRank/blob/main/LICENSE) · Content [CC BY 4.0](https://github.com/bemoshiur/OmniRank/blob/main/LICENSE-CONTENT) |
+| Source repository | [github.com/mahirakash/rankwright](https://github.com/mahirakash/rankwright) |
+| Documentation (in-repo) | [docs/](https://github.com/mahirakash/rankwright/tree/main/docs) |
+| Issues | [github.com/mahirakash/rankwright/issues](https://github.com/mahirakash/rankwright/issues/new/choose) |
+| Maintainer | [@mahirakash](https://github.com/mahirakash) |
+| Based on | [OmniRank](https://github.com/bemoshiur/OmniRank) by S M Moshiur Rahman, TICON System Limited, Dhaka |
+| Licence | Code [MIT](https://github.com/mahirakash/rankwright/blob/main/LICENSE) · Content [CC BY 4.0](https://github.com/mahirakash/rankwright/blob/main/LICENSE-CONTENT) |

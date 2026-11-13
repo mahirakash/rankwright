@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/bemoshiur/OmniRank/main/schemas/omnirank.config.schema.json",
-  "title": "OmniRank site configuration",
+  "$id": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
+  "title": "Rankwright site configuration",
   "type": "object",
   "required": ["site"],
   "additionalProperties": false,
@@ -66,7 +66,7 @@
           "enum": ["next-app-router", "next-pages", "next-pages-router", "astro",
                    "nuxt", "sveltekit", "wordpress", "jekyll", "hugo", "eleventy",
                    "shopify", "static", "other"],
-          "description": "Routing convention. `next-pages` is the historical spelling of `next-pages-router` and both remain valid. `shopify` and `other` have no locator implementation, so findings on those projects are display-only. omnirank fix detects this from disk when it is unset."
+          "description": "Routing convention. `next-pages` is the historical spelling of `next-pages-router` and both remain valid. `shopify` and `other` have no locator implementation, so findings on those projects are display-only. rankwright fix detects this from disk when it is unset."
         },
         "srcDir": { "type": "string" },
         "publicDir": { "type": "string" },
@@ -87,7 +87,7 @@
       "properties": {
         "license": {
           "type": ["string", "null"],
-          "description": "Content reuse licence to state in llms.txt/llms-full.txt and facts.json (e.g. \"CC-BY-4.0\"). Absent: `omnirank geo` grants no reuse rights (same as \"none\" below) and prints a one-line stderr notice naming this key, so the choice isn't made silently. Set to a real licence string to grant reuse rights. Set to the string \"none\" (or JSON null) to state the no-grant choice explicitly and silence the notice -- functionally identical to leaving it unset, but a deliberate record of the choice."
+          "description": "Content reuse licence to state in llms.txt/llms-full.txt and facts.json (e.g. \"CC-BY-4.0\"). Absent: `rankwright geo` grants no reuse rights (same as \"none\" below) and prints a one-line stderr notice naming this key, so the choice isn't made silently. Set to a real licence string to grant reuse rights. Set to the string \"none\" (or JSON null) to state the no-grant choice explicitly and silence the notice -- functionally identical to leaving it unset, but a deliberate record of the choice."
         },
         "attribution": { "type": "string" },
         "answerBlockSelector": { "type": "string" }

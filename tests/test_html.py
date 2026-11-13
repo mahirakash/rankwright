@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from omnirank.html import (
+from rankwright.html import (
     find_all_rel,
     find_ldjson_scripts,
     find_meta,

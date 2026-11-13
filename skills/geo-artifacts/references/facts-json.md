@@ -33,7 +33,7 @@ string, array, or object.
 
 ## The `statistics` item shape
 
-Each entry in `omnirank.config.json`'s top-level `statistics` array requires `name` and
+Each entry in `rankwright.config.json`'s top-level `statistics` array requires `name` and
 `value`. `unit`, `sampleSize`, `methodology`, `asOf`, `source`, and `published` are all
 optional. Whatever fields an entry carries — including `published` itself — pass straight
 through into `facts.json` unchanged; nothing is stripped before it reaches the file.
@@ -50,12 +50,12 @@ through into `facts.json` unchanged; nothing is stripped before it reaches the f
 
 ## `license` has no default — but an unset one still generates
 
-`geo.license` is not required in `omnirank.config.json`, but it is never guessed either:
+`geo.license` is not required in `rankwright.config.json`, but it is never guessed either:
 `facts.json` is written into `publicDir` and published on the open web, so its `license`
 value is a real, standing grant of reuse rights over the site owner's content, not a
 suggestion. If `geo.license` is missing, generation treats it exactly like the explicit
 `"none"` opt-out below — it still runs, and grants nothing — and (Python CLI only)
-`omnirank geo` prints a one-line notice to stderr naming the key, so the "no rights"
+`rankwright geo` prints a one-line notice to stderr naming the key, so the "no rights"
 default isn't chosen silently. It never falls back to a permissive default licence on
 your behalf.
 

@@ -1,6 +1,6 @@
 # Fix Tiers and Applicability
 
-OmniRank decides whether to fix something using two independent axes. `fixTier` states
+Rankwright decides whether to fix something using two independent axes. `fixTier` states
 what kind of information the correct edit needs, as a fixed property of a finding's id.
 `applicability` states whether this one occurrence may be applied unattended, computed
 per instance as the minimum of four ceilings. Only 4 of 67 finding ids currently have a
@@ -10,8 +10,8 @@ This replaced `Finding.auto_fixable`, a single boolean only `gates/seo.py` ever 
 it as written would have auto-applied two genuinely unsafe fixes (`seo.h1.multiple`,
 `seo.description.long`) while skipping two safe ones (`seo.schema.no-context`,
 `seo.canonical.chained`) — it described which module a finding lived in, not whether
-fixing it was safe. Verified against `scripts/py/omnirank/registry.py`,
-`scripts/py/omnirank/applicability.py`, and
+fixing it was safe. Verified against `scripts/py/rankwright/registry.py`,
+`scripts/py/rankwright/applicability.py`, and
 `docs/research/2026-08-04-automation-architecture.md`.
 
 ## What is `fixTier`?
@@ -45,7 +45,7 @@ measure and a worse page by another.
 
 ## What is `applicability`?
 
-`applicability` is the safety axis: given everything OmniRank learned by actually looking
+`applicability` is the safety axis: given everything Rankwright learned by actually looking
 at your repository, may *this specific occurrence* be applied without a human reviewing
 it first? Unlike `fixTier`, it is computed per finding-instance, not per id — the same id
 can be `safe` on one URL and `display-only` on another, because the deciding facts differ
@@ -95,7 +95,7 @@ route by construction. A `next-app-router` `page.tsx` serves one route if none o
 path segments are dynamic (`[slug]`, `[...slug]`); a dynamic segment means the file could
 serve any number of concrete URLs, so blast radius is reported as unprovable.
 
-**`None` is deliberately not treated as zero.** It means "OmniRank could not prove how
+**`None` is deliberately not treated as zero.** It means "Rankwright could not prove how
 many routes this file serves" — the worst case, not a good case — because the difference
 between a self-canonical and a de-indexing event is exactly the difference between
 knowing a file serves 1 route and not knowing at all. Guessing `1` when the tool cannot
@@ -143,7 +143,7 @@ a generator for a `templated`, `drafted`, `advisory` or `infrastructure` id woul
 an outcome that could never rise above `unsafe` or `display-only` no matter how well the
 generator was written — the tier ceiling caps it before the generator's own quality even
 enters the calculation. Shipping such a generator would add code and false confidence
-with no corresponding gain in what `omnirank fix` can actually apply unattended.
+with no corresponding gain in what `rankwright fix` can actually apply unattended.
 
 This is a direct, deliberate reading of prior art surveyed in
 `docs/research/2026-08-04-automation-architecture.md`: OpenRewrite's stated first
@@ -154,7 +154,7 @@ would rather under-ship than guess.
 
 ## See also
 
-- [[Fix-Preview]] — what `omnirank fix` actually prints, and its worked example
+- [[Fix-Preview]] — what `rankwright fix` actually prints, and its worked example
 - [[The-Locator]] — how `confidence_ceiling`'s three values are actually determined
 - [[Finding-Reference]] — every finding id's `fixTier`, generated from the registry
 - [[Report-Schema]] — where `fixTier` and `applicability` appear in the JSON output

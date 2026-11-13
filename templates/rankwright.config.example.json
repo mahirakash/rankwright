@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/bemoshiur/OmniRank/main/schemas/omnirank.config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
   "site": {
     "name": "TICON System Limited",
     "legalName": "TICON System Limited",

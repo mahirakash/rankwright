@@ -2,7 +2,7 @@
 
 This is the competitive moat and the riskiest component in the product, so it
 is built to refuse rather than to guess. Every incumbent keys its output to a
-URL because a URL is the only thing it can see; OmniRank runs inside the
+URL because a URL is the only thing it can see; Rankwright runs inside the
 repository, so it can answer "which file is wrong?" -- but only where it can
 answer correctly. Two equally specific route matches produce NOT_LOCATED, not a
 coin flip. An unimplemented framework produces NOT_LOCATED, not a plausible

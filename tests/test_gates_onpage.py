@@ -1,4 +1,4 @@
-from omnirank.gates import onpage
+from rankwright.gates import onpage
 
 URL = "https://x.example/"
 
@@ -96,7 +96,7 @@ def test_generic_matching_ignores_case_and_surrounding_whitespace():
 
 
 def test_descriptive_anchor_text_passes():
-    assert ids(run("<a href='/pricing'>OmniRank pricing plans</a>")) == []
+    assert ids(run("<a href='/pricing'>Rankwright pricing plans</a>")) == []
 
 
 def test_an_aria_label_supplies_the_accessible_name():
@@ -148,4 +148,4 @@ def test_a_fully_clean_page_emits_nothing():
     assert onpage.run(
         "<!doctype html><html lang='en'><head><title>T</title></head><body>"
         "<h1>A</h1><h2>B</h2><img src='i.png' alt='A chart'>"
-        "<a href='/pricing'>OmniRank pricing</a></body></html>", URL) == []
+        "<a href='/pricing'>Rankwright pricing</a></body></html>", URL) == []

@@ -77,8 +77,8 @@ jobs:
 
       - name: Audit a real site
         run: |
-          python -m omnirank.cli audit https://example.com \
+          python -m rankwright.cli audit https://example.com \
             --out /tmp/smoke.json --fail-on || true
           test -s /tmp/smoke.json
           python -c "import json,sys; d=json.load(open('/tmp/smoke.json')); \
-            sys.exit(0 if d['tool']['name']=='omnirank' and 'score' in d else 1)"
+            sys.exit(0 if d['tool']['name']=='rankwright' and 'score' in d else 1)"

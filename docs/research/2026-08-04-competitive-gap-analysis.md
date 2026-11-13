@@ -1,9 +1,9 @@
-# OmniRank Roadmap to v1.0
+# Rankwright Roadmap to v1.0
 **The strongest open-source technical SEO/AEO/GEO auditor — and an honest account of what that means**
 
-Prepared 2026-08-04 · Target: `bemoshiur/OmniRank` @ v0.2.0 (29 gates, 47 finding ids, 326 tests)
+Prepared 2026-08-04 · Target: `mahirakash/rankwright` @ v0.2.0 (29 gates, 47 finding ids, 326 tests)
 
-> **Input note:** five of the six commissioned gap analyses arrived intact (crawl-index, onpage-content, structured-data, perf-security, and international — the last truncated mid-§3). The sixth (AEO/GEO) did not arrive. §5 of this document is therefore grounded directly in `scripts/py/omnirank/gates/aeo.py` and `gates/geo.py`, which I read, rather than in a delivered analysis. Where I make a claim about AEO/GEO I say what it rests on.
+> **Input note:** five of the six commissioned gap analyses arrived intact (crawl-index, onpage-content, structured-data, perf-security, and international — the last truncated mid-§3). The sixth (AEO/GEO) did not arrive. §5 of this document is therefore grounded directly in `scripts/py/rankwright/gates/aeo.py` and `gates/geo.py`, which I read, rather than in a delivered analysis. Where I make a claim about AEO/GEO I say what it rests on.
 
 ---
 
@@ -18,7 +18,7 @@ Specifically out of reach, permanently:
 | Capability | Why it is structurally impossible locally |
 |---|---|
 | Keyword volumes, difficulty, SERP position | Requires a clickstream + query-log corpus. No public API. Not approximable. |
-| Backlink graph, referring domains, toxic-link analysis | Requires a web-scale crawl. Ahrefs seeds *its own* orphan detection from this index; OmniRank never can. |
+| Backlink graph, referring domains, toxic-link analysis | Requires a web-scale crawl. Ahrefs seeds *its own* orphan detection from this index; Rankwright never can. |
 | "Is this URL actually indexed by Google?" | No API exists. Scraping `site:` queries violates ToS, is rate-limited into uselessness, and returns numbers Google itself calls estimates. **Do not build it. Do not approximate it.** |
 | Organic-traffic-conditioned checks (Ahrefs' whole `* receives organic traffic` family) | Requires GSC or a traffic model. |
 | Field Core Web Vitals (the values Google actually ranks on) | CrUX — 28 days of real Chrome telemetry. Most sites have none at all, and reporting "no data" as a pass would be exactly the fabrication this project exists to refuse. |
@@ -28,22 +28,22 @@ Specifically out of reach, permanently:
 
 There is exactly one honest bridge to this class of data: **opt-in ingestion of a user-supplied export** (`--gsc-export`, `--from-logs`, `--analytics-csv`). The user owns that data; reading a file they hand you is not an external dependency. Semrush's only genuinely external Site Audit check — orphaned pages from Google Analytics — works exactly this way, and their docs say so. Build that door. Never default it on, never infer it, never report its absence as a pass.
 
-### What OmniRank can credibly own
+### What Rankwright can credibly own
 
 Three claims, all defensible, none of which Semrush or Ahrefs can make:
 
-**1. "OmniRank finds where your site contradicts itself."**
-There is a whole class of defect that requires no external truth: a page declared in the sitemap and noindexed; a sitemap URL disallowed by the site's own robots.txt; an hreflang cluster whose members canonicalise away; a `speakable.cssSelector` that matches no element; a `@id` reference pointing at a node that doesn't exist; an `AggregateRating` with no reviews; JSON-LD claiming a price the page never displays. Every one of these is **provably wrong from the site's own declarations alone**, is 100% precision, and needs no data moat. OmniRank already ships four of them (`seo.noindex.in-sitemap`, `seo.schema-fabrication.*`, `aeo.speakable.unresolved`, `seo.lastmod-inflation.uniform`) and they are its best work. This is the category. Own it explicitly, name it in the README, and make it a report section.
+**1. "Rankwright finds where your site contradicts itself."**
+There is a whole class of defect that requires no external truth: a page declared in the sitemap and noindexed; a sitemap URL disallowed by the site's own robots.txt; an hreflang cluster whose members canonicalise away; a `speakable.cssSelector` that matches no element; a `@id` reference pointing at a node that doesn't exist; an `AggregateRating` with no reviews; JSON-LD claiming a price the page never displays. Every one of these is **provably wrong from the site's own declarations alone**, is 100% precision, and needs no data moat. Rankwright already ships four of them (`seo.noindex.in-sitemap`, `seo.schema-fabrication.*`, `aeo.speakable.unresolved`, `seo.lastmod-inflation.uniform`) and they are its best work. This is the category. Own it explicitly, name it in the README, and make it a report section.
 
-**2. "OmniRank tells you what it could not check."**
-Commercial tools silently pass checks they couldn't run. Semrush scores a client-rendered React page's content as fine. It reports a Flesch-equivalent verdict on Japanese prose. It says nothing when a site has no sitemap and it audited one page. OmniRank already has the right instinct in `audit.py` — `aeo`/`perf` are withheld from `layers_run` when zero pages parse — and it must generalise that into a first-class `notEvaluated` block in the JSON report. **This is a correctness claim no competitor makes and it is nearly free to build.**
+**2. "Rankwright tells you what it could not check."**
+Commercial tools silently pass checks they couldn't run. Semrush scores a client-rendered React page's content as fine. It reports a Flesch-equivalent verdict on Japanese prose. It says nothing when a site has no sitemap and it audited one page. Rankwright already has the right instinct in `audit.py` — `aeo`/`perf` are withheld from `layers_run` when zero pages parse — and it must generalise that into a first-class `notEvaluated` block in the JSON report. **This is a correctness claim no competitor makes and it is nearly free to build.**
 
-**3. "OmniRank is the only auditor that treats AI-engine access as a first-class layer, and knows the difference between what is documented and what is fashionable."**
+**3. "Rankwright is the only auditor that treats AI-engine access as a first-class layer, and knows the difference between what is documented and what is fashionable."**
 See §5. This is the growth position, and the thing most likely to be sabotaged by shipping unproven checks as errors — which the tool currently does.
 
 ### The right comparison set
 
-Not Semrush. **Screaming Frog, Sitebulb, Lighthouse CI, and `unlighthouse`.** Against those, OmniRank's winnable pitch is: `pip install`, no account, no 400 MB Chromium, runs in CI, exits non-zero, JSON report, MIT-ish licence, AI-crawler layer nobody else has. That is a real product with a real audience. Position the README against that set and stop implying parity with a data platform — the implication is what makes the gaps look damning instead of intentional.
+Not Semrush. **Screaming Frog, Sitebulb, Lighthouse CI, and `unlighthouse`.** Against those, Rankwright's winnable pitch is: `pip install`, no account, no 400 MB Chromium, runs in CI, exits non-zero, JSON report, MIT-ish licence, AI-crawler layer nobody else has. That is a real product with a real audience. Position the README against that set and stop implying parity with a data platform — the implication is what makes the gaps look damning instead of intentional.
 
 ---
 
@@ -82,7 +82,7 @@ Every release below is sized in maintainer-weeks assuming the current test disci
 ### v0.2.1 — "Stop the silent passes"
 **~3 days. No new capability. Zero new checks except where the absence of a check causes a false report.**
 
-This release exists because OmniRank currently, in five separate places, asserts something it did not verify. Every one of these violates the stated promise more severely than any missing check does.
+This release exists because Rankwright currently, in five separate places, asserts something it did not verify. Every one of these violates the stated promise more severely than any missing check does.
 
 **Silent passes to eliminate:**
 
@@ -113,10 +113,10 @@ This release exists because OmniRank currently, in five separate places, asserts
 Everything here is derivable from HTML already in `PageData`. No new fetch, no crawler, no browser. This release roughly triples the check count at the lowest cost per check available anywhere in the plan.
 
 **On-page (single page):**
-`seo.title.multiple` (scoped to `<head>` — inline SVG `<title>` would flood otherwise) · `seo.title.short` (info) · `seo.description.multiple` · `seo.description.short` (info) · `seo.heading.order-skip` · `seo.heading.empty` · `seo.h1.empty` · `seo.image.alt-missing` (**critical: `alt=""` is correct for decorative images and must not fire; skip `role=presentation|none`, `aria-hidden`; extend to `<input type=image>` and `<area>`**) · `seo.image.alt-uninformative` (filename stems, extensions, bare URLs, stop list) · `seo.link.no-anchor-text` · `seo.link.generic-anchor-text` (info, English-only default, excluded inside `nav`/pagination) · `seo.link.uncrawlable` (`href="#"`, `javascript:void(0)`, `<button onclick>` nav — directly relevant to the JS stacks OmniRank targets) · `seo.link.insecure-target`
+`seo.title.multiple` (scoped to `<head>` — inline SVG `<title>` would flood otherwise) · `seo.title.short` (info) · `seo.description.multiple` · `seo.description.short` (info) · `seo.heading.order-skip` · `seo.heading.empty` · `seo.h1.empty` · `seo.image.alt-missing` (**critical: `alt=""` is correct for decorative images and must not fire; skip `role=presentation|none`, `aria-hidden`; extend to `<input type=image>` and `<area>`**) · `seo.image.alt-uninformative` (filename stems, extensions, bare URLs, stop list) · `seo.link.no-anchor-text` · `seo.link.generic-anchor-text` (info, English-only default, excluded inside `nav`/pagination) · `seo.link.uncrawlable` (`href="#"`, `javascript:void(0)`, `<button onclick>` nav — directly relevant to the JS stacks Rankwright targets) · `seo.link.insecure-target`
 
 **Structured data (the biggest single-page cluster):**
-Microdata parser normalising into the same node shape `extract_blocks()` returns, so every downstream check applies to all syntaxes free · `seo.schema.unknown-type` (vendored schema.org vocabulary → catches `Prodcut`, `Organisation`, `Blogposting`, `LocalBussiness`, all silently accepted today) · `seo.schema.placeholder-value` (`""`, `"null"`, `"undefined"`, `"N/A"`, `{{…}}`, `${…}`, `%s` — **endemic, free to detect, and named by no commercial tool**) · `seo.schema.id-dangling` · `seo.schema.entity-no-id` · `seo.schema.rating-out-of-range` (`ratingValue: "9.8"` passes today) · `seo.schema.count-inconsistent` · `seo.schema.bad-price-format` · `seo.schema.bad-currency` · `seo.schema.bad-date` · `seo.schema.relative-url` · `seo.schema.headline-too-long` · `seo.schema.breadcrumb-noncontiguous` · `seo.schema.js-injected-suspected` (info — `__NEXT_DATA__`/GTM/SPA root present + no JSON-LD → *"OmniRank does not execute JavaScript and cannot confirm either way"*)
+Microdata parser normalising into the same node shape `extract_blocks()` returns, so every downstream check applies to all syntaxes free · `seo.schema.unknown-type` (vendored schema.org vocabulary → catches `Prodcut`, `Organisation`, `Blogposting`, `LocalBussiness`, all silently accepted today) · `seo.schema.placeholder-value` (`""`, `"null"`, `"undefined"`, `"N/A"`, `{{…}}`, `${…}`, `%s` — **endemic, free to detect, and named by no commercial tool**) · `seo.schema.id-dangling` · `seo.schema.entity-no-id` · `seo.schema.rating-out-of-range` (`ratingValue: "9.8"` passes today) · `seo.schema.count-inconsistent` · `seo.schema.bad-price-format` · `seo.schema.bad-currency` · `seo.schema.bad-date` · `seo.schema.relative-url` · `seo.schema.headline-too-long` · `seo.schema.breadcrumb-noncontiguous` · `seo.schema.js-injected-suspected` (info — `__NEXT_DATA__`/GTM/SPA root present + no JSON-LD → *"Rankwright does not execute JavaScript and cannot confirm either way"*)
 
 **Social:**
 `seo.og.incomplete` (all four OGP-required: title, type, url, image — currently two) · `seo.og.empty-content` · `seo.og.wrong-attribute` (`name=` instead of `property=`, and the `twitter:*` inverse) · `seo.og.relative-image` · `seo.og.conflicting` · `seo.og.canonical-mismatch` · `seo.twitter.card-missing` (only when no OG fallback exists — X falls back, so the honest check is the conjunction) · `seo.twitter.invalid-card-type` · `seo.twitter.player-incomplete`
@@ -126,7 +126,7 @@ Microdata parser normalising into the same node shape `extract_blocks()` returns
 
 **Also here:** build `lang → list[href]` alongside the existing href set in `site.py:_alternates` (keep both — the set is right for reciprocity, the map unlocks four checks), and parse hreflang from the **HTTP `Link:` header**. `PageData.headers` already carries it. Semrush's own docs say *"Semrush only checks the HTML"* — this is a documented, verifiable way to beat them for about 40 lines.
 
-**Why this grouping ships together:** one parser pass, one code path, one review. Every item is <50 LOC. It is a single coherent claim — *"if it's in the head or the markup, OmniRank reads it correctly"* — and it closes roughly 30 named commercial checks without touching `fetch.py`.
+**Why this grouping ships together:** one parser pass, one code path, one review. Every item is <50 LOC. It is a single coherent claim — *"if it's in the head or the markup, Rankwright reads it correctly"* — and it closes roughly 30 named commercial checks without touching `fetch.py`.
 
 `seo.lang.missing` is not cosmetic here: `page.lang` feeds `resolve_band()`, so a Japanese page with no `lang` is currently measured against the 40–60 **word** English band and emits a bogus `aeo.answer-block.length` error. A missing check is producing a wrong finding.
 
@@ -140,7 +140,7 @@ Microdata parser normalising into the same node shape `extract_blocks()` returns
 **Status & redirects:**
 `seo.page.not-found` · `seo.page.forbidden` (**separate 403 explicitly** — per Ahrefs' own docs it signals WAF bot-blocking, not a dead page, and the fix is completely different) · `seo.page.server-error` · `seo.page.transport-error` · `seo.redirect.chained` · `seo.redirect.loop` · `seo.redirect.broken` (free from the chain) · `seo.redirect.meta-refresh` · `seo.canonicalisation.www-unresolved` (one probe of four homepage variants → three Semrush checks from one function) · `seo.canonicalisation.trailing-slash`
 
-**`seo.page.soft-404` — the highest-value single item in this release.** Fetch `/<random-uuid>` once as a control; flag any 200 page with high shingle similarity to it, or whose `<title>`/`<h1>` matches `404|not found`. This catches SPA routers that return 200 for every path, which is the most common real crawlability defect on the modern JS stacks OmniRank targets, and no commercial tool in the research does it well.
+**`seo.page.soft-404` — the highest-value single item in this release.** Fetch `/<random-uuid>` once as a control; flag any 200 page with high shingle similarity to it, or whose `<title>`/`<h1>` matches `404|not found`. This catches SPA routers that return 200 for every path, which is the most common real crawlability defect on the modern JS stacks Rankwright targets, and no commercial tool in the research does it well.
 
 **Indexability — `PageData.headers` is populated and read by exactly one gate today:**
 `seo.robots.header-noindex` (**the check HTML-only auditors are documented as missing**; feed it back into `seo.noindex.in-sitemap`, which currently under-reports) · `seo.robots.directive-conflict` · `seo.canonical.header-conflict` (`Link: rel=canonical` — spec'd, used for PDFs, invisible to every HTML-only auditor) · `seo.canonical.multiple` (`_canonical` uses `find()` and silently takes the first) · `seo.canonical.normalisation-only` (differs by trailing slash/case/www/scheme only — near-always a bug, isolated by no commercial tool) · `seo.canonical.target-broken` / `.target-redirects` / `.target-noindexed` (one dedup'd fetch pass over distinct canonical targets, with a budget guard) · **`indexable: bool` + reason enum as a per-URL field in the JSON report** — this is Screaming Frog's `Indexability` column, arguably the most useful artifact that tool produces, and it is pure derivation from data you'll already hold.
@@ -163,7 +163,7 @@ Nothing in the codebase extracts body text. Six checks depend on one function.
 
 **Infrastructure (build first):** `visible_text(soup) -> str` — drop `script/style/template/noscript/svg/iframe`; prefer `main`/`article`, else body minus `nav/header/footer/aside/[role=navigation|banner|contentinfo]`; `get_text(" ", strip=True)`. Route counting through the existing `bands.measure()` so it stays script-aware. ~70 LOC.
 
-**Ship in the same PR, never separately:** `seo.content.client-rendered` (info). Signal: `visible_text` under ~50 words **and** a framework root (`#__next`, `#root`, `#app`, `[data-reactroot]`, `astro-island`) **and** a large `<script src>` payload. Emit the finding, register the URL in `notEvaluated`, and **suppress every content check below for that page.** Without this, a CSR site gets confident, wrong, build-failing errors on word count, headings, and duplicate content — OmniRank's worst possible failure mode.
+**Ship in the same PR, never separately:** `seo.content.client-rendered` (info). Signal: `visible_text` under ~50 words **and** a framework root (`#__next`, `#root`, `#app`, `[data-reactroot]`, `astro-island`) **and** a large `<script src>` payload. Emit the finding, register the URL in `notEvaluated`, and **suppress every content check below for that page.** Without this, a CSR site gets confident, wrong, build-failing errors on word count, headings, and duplicate content — Rankwright's worst possible failure mode.
 
 **Content:**
 `seo.content.thin` (info; **per-script floor via `bands.py`** — applying a 200-*word* minimum to a Japanese page is precisely the nonsense this project exists to avoid) · `seo.content.duplicate-body` (SHA-256 of normalised text; reuse `site.py:_is_hreflang_cluster` to suppress declared translations — identical false-positive class to the one already solved for titles) · `seo.content.long-paragraph` · `seo.content.readability-low` (Flesch, **emitted only when `<html lang>` resolves to English**; syllable counting is undefined for Bengali, Arabic, Japanese and a Flesch number there is invented precision) · `seo.content.no-landmark` (binary `<main>`/`<article>` presence — build this, **not** Semrush's semantic-tag *ratio*, which has no published threshold and no evidence behind any number) · `seo.content.oversized` (info, threshold stated in the finding) · `seo.content.stale` (JSON-LD `dateModified` → `<time datetime>` → `article:modified_time` → `Last-Modified` only when clearly not request-time; **emit nothing when no date signal exists** — Semrush's header-only implementation is weak and worth beating) · `seo.lang.script-mismatch` (dependency-free codepoint heuristic; skip full n-gram detection)
@@ -173,9 +173,9 @@ Nothing in the codebase extracts body text. Six checks depend on one function.
 ---
 
 ### v0.6.0 — "The entity graph"
-**~2 weeks. This is where OmniRank stops chasing Semrush and does something Semrush does not do at all.**
+**~2 weeks. This is where Rankwright stops chasing Semrush and does something Semrush does not do at all.**
 
-The design spec at `docs/superpowers/specs/2026-08-03-omnirank-design.md:339` promises *"Page-level schemas reference the organisation by stable `@id` rather than redeclaring it."* `jsonld.py` never reads `@id`. That is the largest promise-versus-code gap in the codebase. Semrush and Ahrefs both validate strictly per-page; **neither reconciles an entity graph across a crawl.** The machinery already exists — `site.run(pages, sitemap_urls)` receives the whole `PageData` collection and `page.soup()` is memoised, so an `@id` index slots in beside `_canonical_chains`.
+The design spec at `docs/superpowers/specs/2026-08-03-rankwright-design.md:339` promises *"Page-level schemas reference the organisation by stable `@id` rather than redeclaring it."* `jsonld.py` never reads `@id`. That is the largest promise-versus-code gap in the codebase. Semrush and Ahrefs both validate strictly per-page; **neither reconciles an entity graph across a crawl.** The machinery already exists — `site.run(pages, sitemap_urls)` receives the whole `PageData` collection and `page.soup()` is memoised, so an `@id` index slots in beside `_canonical_chains`.
 
 `seo.entity.unstable-id` (org is `#org` on one page, `#organization` on another, a page-relative fragment on a third) · `seo.entity.conflicting-properties` (same `@id`, different `name`/`logo`/`url` across pages) · `seo.entity.redeclared` (info — an inventory fact, not a defect) · `seo.entity.sameas-invalid` · `seo.entity.sameas-unresolvable` (HEAD only; **state plainly that reciprocity was not checked** — LinkedIn/Instagram/X are bot-blocked by design) · `seo.entity.breadcrumb-outside-crawl` · `seo.entity.breadcrumb-tail-mismatch`
 
@@ -224,7 +224,7 @@ Two honesty constraints in the code *and* the docs: it sees **only statically de
 ### v0.9.0 — "Optional adapters"
 **~3 weeks. Everything here is opt-in and must fail loudly-absent, never silently-passing.**
 
-- **`--render` (Playwright, `omnirank[browser]` extra).** Adds a `cwv` layer and `PageData.rendered: bool`. Rendered-only gates **refuse to run** and appear in `notEvaluated` when the adapter is absent — reuse the `audit.py:50-66` pattern verbatim. Sample **10 pages** (Semrush's own bound — copy it for runtime *and* for the "this is a sample, not a site score" framing). Label lab metrics as lab metrics; Semrush's CWV numbers are Lighthouse lab runs and they don't say so. **The killer feature is not CWV — it is the raw-vs-rendered divergence report:** canonical/robots/JSON-LD/link-graph that differ between initial HTML and hydrated DOM. That is a finding class nobody ships.
+- **`--render` (Playwright, `rankwright[browser]` extra).** Adds a `cwv` layer and `PageData.rendered: bool`. Rendered-only gates **refuse to run** and appear in `notEvaluated` when the adapter is absent — reuse the `audit.py:50-66` pattern verbatim. Sample **10 pages** (Semrush's own bound — copy it for runtime *and* for the "this is a sample, not a site score" framing). Label lab metrics as lab metrics; Semrush's CWV numbers are Lighthouse lab runs and they don't say so. **The killer feature is not CWV — it is the raw-vs-rendered divergence report:** canonical/robots/JSON-LD/link-graph that differ between initial HTML and hydrated DOM. That is a finding class nobody ships.
 - **`--gsc-export`, `--from-logs`, `--analytics-csv`.** Traffic-weighted prioritisation and true orphan detection from user-owned files. Never inferred, never defaulted.
 - **`--baseline report.json` cross-run diff.** New findings vs fixed findings vs unchanged; exit non-zero only on *regressions*. For a CI tool this is arguably worth more than twenty checks — it converts a noisy 400-finding report into "you broke 3 things in this PR."
 
@@ -272,7 +272,7 @@ This section is as load-bearing as §3. A tool with 60 checks that matter beats 
 - **"Unknown property for this type"** via schema.org `domainIncludes`. Sounds rigorous; real markup legitimately mixes vocabularies and Google ignores what it doesn't recognise. Keep unknown-*type*; skip unknown-*property*.
 
 **Out of scope by identity:**
-- **Security-header grading** (CSP scoring, X-Frame-Options, Referrer-Policy, Permissions-Policy, X-Content-Type-Options). Not one is an SEO or AEO signal. Mozilla Observatory and `testssl.sh` do this properly and free. **The line: OmniRank checks security only where insecurity demonstrably breaks crawling, indexing, or rendering.** Parse CSP for exactly one purpose — `upgrade-insecure-requests`, to suppress mixed-content false positives — and never grade it.
+- **Security-header grading** (CSP scoring, X-Frame-Options, Referrer-Policy, Permissions-Policy, X-Content-Type-Options). Not one is an SEO or AEO signal. Mozilla Observatory and `testssl.sh` do this properly and free. **The line: Rankwright checks security only where insecurity demonstrably breaks crawling, indexing, or rendering.** Parse CSP for exactly one purpose — `upgrade-insecure-requests`, to suppress mixed-content false positives — and never grade it.
 - **TLS protocol/cipher probing.** That is writing a TLS scanner inside an SEO tool, chained to a moving cryptographic target. Cert expiry and hostname mismatch only.
 - **Replicating Lighthouse's *scoring*** for cache policy, image sizing, or payload. Their byte-weighted savings estimates depend on a rendered network log. Reproducing the formula over a partial static list produces a number that looks like a Lighthouse score and isn't one. Report facts; never emit a score-shaped number you can't derive.
 - **RDFa.** Rare outside legacy Drupal. Build Microdata; defer until an issue asks.
@@ -283,7 +283,7 @@ This section is as load-bearing as §3. A tool with 60 checks that matter beats 
 
 ## 5. The AEO/GEO differentiator
 
-### 5.1 Where OmniRank is genuinely ahead today
+### 5.1 Where Rankwright is genuinely ahead today
 
 Grounded in `gates/geo.py` and `gates/aeo.py`, which I read:
 
@@ -291,7 +291,7 @@ Grounded in `gates/geo.py` and `gates/aeo.py`, which I read:
 2. **`seo.schema-fabrication.unbacked-rating` / `.anonymous-review`.** Neither Semrush nor Ahrefs asks whether an `AggregateRating` is backed by anything. This is the failure that earns spammy-structured-data manual actions.
 3. **`seo.lastmod-inflation.uniform`.** Neither tool detects build-stamped `<lastmod>`.
 4. **`aeo.speakable.unresolved`.** Resolving declared CSS selectors against the actual DOM is exactly right, cheap, and unique.
-5. **`_is_hreflang_cluster` duplicate suppression.** Semrush's exact-match duplicate-title check will happily flag a correctly-configured 12-locale brand page 12 times. OmniRank won't. Nobody else does this.
+5. **`_is_hreflang_cluster` duplicate suppression.** Semrush's exact-match duplicate-title check will happily flag a correctly-configured 12-locale brand page 12 times. Rankwright won't. Nobody else does this.
 
 ### 5.2 The honesty problem sitting inside the GEO layer
 
@@ -299,7 +299,7 @@ Say this plainly, because it is the biggest credibility risk in the tool:
 
 **`geo.llms.missing`, `geo.llms-full.missing`, and `geo.facts-json.missing` are `error` severity, worth 10 points each, and rest on no published evidence that any major answer engine consumes those files.** llms.txt is a proposal with real community traction and zero vendor commitment. facts.json is a house convention. A tool whose central promise is "never fabricates" currently fails your build over three files that no documented consumer reads.
 
-Compare: `seo.noindex.in-sitemap` is an error because Google documents the behaviour and the site contradicts itself. `geo.llms.missing` is an error because OmniRank's author thinks it's a good idea. **Those are not the same kind of claim and they must not carry the same severity.**
+Compare: `seo.noindex.in-sitemap` is an error because Google documents the behaviour and the site contradicts itself. `geo.llms.missing` is an error because Rankwright's author thinks it's a good idea. **Those are not the same kind of claim and they must not carry the same severity.**
 
 Same issue, smaller: `aeo.answer-block.length`'s 40–60 word band is a house style, not a measured fact about extraction behaviour. It's a defensible convention and the script-aware `bands.py` implementation is genuinely good work — but it's a *conformance* check against a declared standard, not a claim about engine behaviour, and the report should say so.
 
@@ -331,11 +331,11 @@ Three extra requests. Mechanically verifiable. **No tool in the researched set s
 **B. Per-URL AI access rollup (v0.7.0, free after the REP matcher).** A `aiAccess: {agent: allowed|disallowed|edge-blocked}` matrix per URL in the JSON report, and a `geo.ai-access.partial` finding when a site's highest-value pages are disallowed to specific agents. Screaming Frog's `Indexability` column, but for answer engines.
 
 **C. Retrieval-shape analysis (v0.5.0, `convention` tier, honestly labelled).**
-LLM retrieval chunks on heading boundaries, so a broken outline degrades extractability directly — this is a stronger argument for `seo.heading.order-skip` in OmniRank than in any classic SEO tool. Bundle: heading-outline integrity, paragraph length, list/table extractability, definition proximity (`aeo.chunk.*`). Ship as `info`/`warning`, state the reasoning in the finding, and **do not claim a citation-rate effect you cannot measure.**
+LLM retrieval chunks on heading boundaries, so a broken outline degrades extractability directly — this is a stronger argument for `seo.heading.order-skip` in Rankwright than in any classic SEO tool. Bundle: heading-outline integrity, paragraph length, list/table extractability, definition proximity (`aeo.chunk.*`). Ship as `info`/`warning`, state the reasoning in the finding, and **do not claim a citation-rate effect you cannot measure.**
 
 **D. Raw-vs-rendered divergence (v0.9.0).** The clearest justification for a headless adapter in the whole tool — better than CWV. If your JSON-LD, canonical, or answer block only exists post-hydration, some crawlers see it and some don't. Report the *divergence*, which is more valuable than either reading alone.
 
-**E. Content-agreement checks (v0.6.0, `mechanical`).** Does the `Offer.price` in JSON-LD appear in visible text? Do `FAQPage` question names exist on the page? Does `headline` match `<h1>`? This is the fabrication gate generalised, it is exactly Google's stated structured-data policy, and it is the natural extension of the thing OmniRank already does better than anyone. Caveat the CSR false-positive exposure and suppress on pages flagged `seo.content.client-rendered`.
+**E. Content-agreement checks (v0.6.0, `mechanical`).** Does the `Offer.price` in JSON-LD appear in visible text? Do `FAQPage` question names exist on the page? Does `headline` match `<h1>`? This is the fabrication gate generalised, it is exactly Google's stated structured-data policy, and it is the natural extension of the thing Rankwright already does better than anyone. Caveat the CSR false-positive exposure and suppress on pages flagged `seo.content.client-rendered`.
 
 **Do not build in this layer:** citation-rate estimates, "AI visibility scores", LLM-mention tracking, or anything that requires querying an answer engine and inferring causation. Every one requires external data, none is reproducible, and shipping one would destroy the credibility that §5.3 exists to establish.
 
@@ -347,10 +347,10 @@ LLM retrieval chunks on heading boundaries, so a broken outline degrades extract
 `httpx.AsyncClient` + `asyncio`. The real cost is not the BFS, it's politeness, robots compliance, budget enforcement, and determinism in tests. Budget: 1 week engine, 1 week robots matcher + tests (do not use `urllib.robotparser`), 1 week the dependent checks, 1 week fixtures and a local test-server harness. **Design it as a generic bounded fetch engine, not a page crawler** — v0.8.0's subresource pass, v0.4.0's canonical-target pass, and v0.6.0's hreflang-target pass are all the same machine with a different frontier. If you build three bespoke fetch passes instead, you will pay for the crawler four times.
 
 **Headless adapter (v0.9.0) — ~2 weeks to build, permanent to maintain.**
-`omnirank[browser]` extra, Playwright. The build is the cheap part; the ongoing cost is CI runtime, Chromium version churn, and flaky-test triage. Hard constraints: a missing browser produces **no** `cwv` layer and **no** score, never a 100; sample ≤10 pages; label lab metrics as lab metrics; core install never downloads Chromium. **Do not start this before v0.8.0 ships.** Roughly 11% of the identified opportunity is browser-gated, and half of that is CWV, where Lighthouse CI already wins. The detect-and-suppress path (`seo.content.client-rendered`, `seo.crawl.link-graph-unreliable`, `seo.schema.js-injected-suspected`) removes ~80% of the harm at ~2% of the cost and is scheduled into v0.3.0/v0.5.0/v0.7.0 accordingly.
+`rankwright[browser]` extra, Playwright. The build is the cheap part; the ongoing cost is CI runtime, Chromium version churn, and flaky-test triage. Hard constraints: a missing browser produces **no** `cwv` layer and **no** score, never a 100; sample ≤10 pages; label lab metrics as lab metrics; core install never downloads Chromium. **Do not start this before v0.8.0 ships.** Roughly 11% of the identified opportunity is browser-gated, and half of that is CWV, where Lighthouse CI already wins. The detect-and-suppress path (`seo.content.client-rendered`, `seo.crawl.link-graph-unreliable`, `seo.schema.js-injected-suspected`) removes ~80% of the harm at ~2% of the cost and is scheduled into v0.3.0/v0.5.0/v0.7.0 accordingly.
 
 **Persistent storage for cross-run diffing (v0.9.0) — ~1 week.**
-Do not build a database. Diff two JSON reports keyed by `(id, url)`. Optionally cache ETags/Last-Modified in `.omnirank/cache.json` for conditional requests on re-crawl. For a CI-native tool, regression gating is plausibly worth more to users than any twenty checks in §3 — it converts a 400-finding wall into "this PR broke 3 things." Consider pulling it forward to v0.6.0 if early user feedback shows report volume is the adoption blocker.
+Do not build a database. Diff two JSON reports keyed by `(id, url)`. Optionally cache ETags/Last-Modified in `.rankwright/cache.json` for conditional requests on re-crawl. For a CI-native tool, regression gating is plausibly worth more to users than any twenty checks in §3 — it converts a 400-finding wall into "this PR broke 3 things." Consider pulling it forward to v0.6.0 if early user feedback shows report volume is the adoption blocker.
 
 **Vendored data files — ~3 days plus ongoing.**
 schema.org vocabulary (distil `schemaorg-current-https.jsonld` to a `{type: {parents, properties}}` table at build time, ~200 KB), ISO 639-1 (184), ISO 15924, ISO 3166-1 alpha-2 (249), ISO 4217 (180). Ship a `make refresh-vocab` target **and a test that fails when the vendored copy is older than N months.** A stale required-property table produces *fabricated* errors — the exact failure mode this project defines itself against.
@@ -367,4 +367,4 @@ Per-gate capped cost, bump the report schema version, document the migration in 
 
 ## 7. The one-paragraph version
 
-Fix the five places where OmniRank asserts something it didn't verify, cap the score model, and ship a `notEvaluated` block — three days, and it makes the project's central promise real instead of aspirational. Then spend three weeks on the ~40 single-page head-and-markup checks that need no new network I/O, which roughly triples the check count at the lowest cost available. Then add the response layer (redirects, headers, indexability, and the first security coverage the tool has ever had), then the body layer with client-rendering suppression built in from the first commit, then the cross-URL entity graph — which is where you stop chasing Semrush and start doing something they don't do. Only then build the crawler, and only after that consider a browser. Along the way, add an `evidence` tier to every finding and demote the llms.txt and facts.json gates to `info`, because a tool that fails builds over unproven conventions has no standing to advertise that it never fabricates. The end state is not a Semrush alternative — it is the only auditor that tells you where your site contradicts itself, what it could not check and why, and which findings a search engine has actually told you it cares about. That is a defensible position. "140 checks" is not.
+Fix the five places where Rankwright asserts something it didn't verify, cap the score model, and ship a `notEvaluated` block — three days, and it makes the project's central promise real instead of aspirational. Then spend three weeks on the ~40 single-page head-and-markup checks that need no new network I/O, which roughly triples the check count at the lowest cost available. Then add the response layer (redirects, headers, indexability, and the first security coverage the tool has ever had), then the body layer with client-rendering suppression built in from the first commit, then the cross-URL entity graph — which is where you stop chasing Semrush and start doing something they don't do. Only then build the crawler, and only after that consider a browser. Along the way, add an `evidence` tier to every finding and demote the llms.txt and facts.json gates to `info`, because a tool that fails builds over unproven conventions has no standing to advertise that it never fabricates. The end state is not a Semrush alternative — it is the only auditor that tells you where your site contradicts itself, what it could not check and why, and which findings a search engine has actually told you it cares about. That is a defensible position. "140 checks" is not.

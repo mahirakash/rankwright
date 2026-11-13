@@ -35,7 +35,7 @@ crawling the sitemap and the rendered HTML.
 
 ```bash
 # Python / crawl path
-python3 -m omnirank.cli geo --config omnirank.config.json --out public
+python3 -m rankwright.cli geo --config rankwright.config.json --out public
 # flags: url (optional, omit when using --config), --config PATH, --out DIR (default: public)
 
 # Node / in-repo path — call generate(config, pages, outDir) from the site's own
@@ -61,9 +61,9 @@ microseconds, Node emits milliseconds — both valid RFC 3339 UTC).
 5. **Never infer a content licence — but never refuse to generate either.** `geo.license`
    has no default. These files are written into `publicDir` and published on the open
    web, so the licence text inside them is a real, standing grant of reuse rights over
-   the site owner's content — not a suggestion OmniRank can guess. If `geo.license` is
+   the site owner's content — not a suggestion Rankwright can guess. If `geo.license` is
    unset, generation treats it exactly like the explicit `"none"` opt-out: it proceeds
-   and grants nothing, and (Python CLI only) `omnirank geo` prints a one-line notice to
+   and grants nothing, and (Python CLI only) `rankwright geo` prints a one-line notice to
    stderr naming the config key, so the "no rights" default isn't chosen silently. Set
    `geo.license` to a licence you have actually chosen (e.g. `"CC-BY-4.0"`) to grant
    reuse rights, or to the explicit opt-out `"none"` (or JSON `null`) for sites that

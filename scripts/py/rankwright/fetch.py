@@ -9,7 +9,7 @@ import httpx
 
 from . import __version__
 
-USER_AGENT = f"OmniRank/{__version__} (+https://github.com/bemoshiur/OmniRank)"
+USER_AGENT = f"Rankwright/{__version__} (+https://github.com/mahirakash/rankwright)"
 _LOC = re.compile(r"<loc>\s*([^<\s]+)\s*</loc>", re.IGNORECASE)
 _SITEMAPINDEX = re.compile(r"<sitemapindex[\s>]", re.IGNORECASE)
 

@@ -28,7 +28,7 @@ Framework = Literal[
 
 DetectionConfidence = Literal["high", "medium", "low", "none"]
 
-# `stack.framework` in omnirank.config.schema.json uses a slightly different
+# `stack.framework` in rankwright.config.schema.json uses a slightly different
 # vocabulary: it predates this module, spells the Next pages router
 # `next-pages`, and carries `shopify` and `other`, neither of which this module
 # can locate against. Anything with no routing convention we implement maps to
@@ -56,7 +56,7 @@ class Detection:
 
     `evidence` holds repo-relative POSIX paths (plus, occasionally, a short
     explanatory string when the deciding fact is an ABSENCE). It exists so
-    `omnirank fix` can print why it believes what it believes -- a detector that
+    `rankwright fix` can print why it believes what it believes -- a detector that
     cannot show its work is indistinguishable from a guess.
 
     INVARIANT: framework == "unknown" implies confidence == "none".
@@ -187,7 +187,7 @@ def _static(root: Path) -> Detection | None:
     locator.py -- capped every static-site locate() at `inferred`, and
     CONFIDENCE_CEILING caps `inferred` at `unsafe`. A bare static site,
     the plain-HTML case users try first, could therefore NEVER reach
-    `applicability == "safe"` and `omnirank fix` could never emit a diff for
+    `applicability == "safe"` and `rankwright fix` could never emit a diff for
     it, despite `_locate_static` and `canonical.missing` being fully
     implemented and tested. Raising this to `high` does not weaken the
     genuine ambiguity guard: `_locate_by_convention` in locator.py already

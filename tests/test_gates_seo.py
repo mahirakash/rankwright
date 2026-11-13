@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from omnirank.gates import seo
+from rankwright.gates import seo
 
 FIXTURES = Path(__file__).parent / "fixtures"
 URL = "https://x.example/services/political-ads"

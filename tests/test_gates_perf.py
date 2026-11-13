@@ -1,5 +1,5 @@
-from omnirank.gates import perf
-from omnirank.page import PageData
+from rankwright.gates import perf
+from rankwright.page import PageData
 
 URL = "https://x.example/"
 

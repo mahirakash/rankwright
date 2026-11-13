@@ -1,17 +1,17 @@
 # The Locator
 
 The locator resolves one URL to the source file that owns it — a question URL-keyed SEO
-tools cannot answer, since a URL is the only thing those tools see. OmniRank runs inside
+tools cannot answer, since a URL is the only thing those tools see. Rankwright runs inside
 the repository, so it can say `https://site.com/pricing` maps to `app/pricing/page.tsx`,
 and it does so honestly: an unresolvable route returns `none` confidence, never a
 plausible-looking guess.
 
-Verified against `scripts/py/omnirank/locator.py` and `scripts/py/omnirank/framework.py`.
+Verified against `scripts/py/rankwright/locator.py` and `scripts/py/rankwright/framework.py`.
 
-## How does OmniRank know which framework a project uses?
+## How does Rankwright know which framework a project uses?
 
 `framework.detect(root)` reads files on disk and reports what decided it, never guessing
-silently. It never reads `stack.framework` from `omnirank.config.json` — that config
+silently. It never reads `stack.framework` from `rankwright.config.json` — that config
 field predates this module and is not consulted; detection always re-derives the
 framework from what is actually on disk.
 
@@ -38,14 +38,14 @@ is worse than an admitted absence.
 ## What do the confidence levels mean?
 
 Every detection carries one of four confidence levels plus the `evidence` — the actual
-file paths — that decided it, so `omnirank fix` can print *why* it believes what it
+file paths — that decided it, so `rankwright fix` can print *why* it believes what it
 believes:
 
 | Confidence | Meaning | Example |
 |---|---|---|
 | `high` | An unambiguous, framework-specific marker was found | `wp-config.php`; a single-router Next.js project with a config file present |
 | `medium` | A plausible marker was found, with less certainty | A Next.js project with a router directory but no `next.config.*` |
-| `low` | The project matches, but ambiguously | **Both** `app/` and `pages/` routers present in one Next.js project — Next resolves this per route; OmniRank's locator cannot (unchanged since v0.3.0) |
+| `low` | The project matches, but ambiguously | **Both** `app/` and `pages/` routers present in one Next.js project — Next resolves this per route; Rankwright's locator cannot (unchanged since v0.3.0) |
 | `none` | Nothing matched, or the match was too ambiguous to act on | No framework marker found at all |
 
 Confidence propagates forward, and only ever downward: `locator.DETECTION_CEILING` maps
@@ -138,7 +138,7 @@ is deliberate, stated directly in `locator.py`: "an honest `none` demotes their 
 to display-only, which is correct, whereas a half-implemented resolver produces a
 confident diff against the wrong file." Every finding on those stacks is still located as
 far as `NOT_LOCATED`'s `path: None`, which caps `applicability` at `display-only` for all
-of them — `omnirank fix` still runs, it simply produces no diffs there yet.
+of them — `rankwright fix` still runs, it simply produces no diffs there yet.
 
 ## Why does the locator never guess?
 
@@ -155,6 +155,6 @@ that position only by refusing to answer when it cannot answer correctly.
 ## See also
 
 - [[Fix-Tiers-and-Applicability]] — how locator confidence feeds into `applicability`
-- [[Fix-Preview]] — the `omnirank fix` command that calls the locator on every finding
+- [[Fix-Preview]] — the `rankwright fix` command that calls the locator on every finding
 - [[Configuration-Reference#stack]] — why `stack.framework` is schema-only and unread by the locator
-- [[Troubleshooting#omnirank-fix-says-a-finding-is-not-fixable-here]] — reading a locator decline in practice
+- [[Troubleshooting#rankwright-fix-says-a-finding-is-not-fixable-here]] — reading a locator decline in practice

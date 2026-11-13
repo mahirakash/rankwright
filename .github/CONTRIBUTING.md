@@ -1,4 +1,4 @@
-# Contributing to OmniRank
+# Contributing to Rankwright
 
 Thanks for helping. This document covers what a good contribution looks like here.
 

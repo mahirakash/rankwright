@@ -16,7 +16,7 @@ NO_LICENSE_SENTINEL = "none"
 # v0.2.1 history: geo.license used to default to "CC-BY-4.0" when unset, so a site
 # with no licence configured got an irrevocable grant of commercial reuse it never
 # actually gave. The fix for that went one step too far and made an absent
-# geo.license a hard ConfigError -- which meant `omnirank geo <url>` with no config
+# geo.license a hard ConfigError -- which meant `rankwright geo <url>` with no config
 # file (the project's other zero-config headline command, alongside `audit`) always
 # exited 2, since there is no config file to carry a licence choice.
 #

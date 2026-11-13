@@ -5,7 +5,7 @@ three files that let ChatGPT, Claude, Perplexity and Gemini ingest a site as str
 ground truth with an explicit citation licence. A Python path crawls any live site; a
 Node path consumes pages already gathered inside a repo's own build.
 
-Everything here is verified against `scripts/py/omnirank/geo_artifacts.py`,
+Everything here is verified against `scripts/py/rankwright/geo_artifacts.py`,
 `scripts/node/src/generate.ts`, and `skills/geo-artifacts/`. Generation only writes the
 three files locally — it never verifies they are served correctly in production. That
 verification is `audit`'s `geo` layer (see [[Audit-Skill#geo-gates]]) plus the manual
@@ -41,24 +41,24 @@ input aside from `generatedAt` timestamp precision.
 
 ### Python — crawl path
 
-Use this for any site OmniRank does not have direct code access to, or any stack.
+Use this for any site Rankwright does not have direct code access to, or any stack.
 
 ```bash
-python3 -m omnirank.cli geo --config omnirank.config.json --out public
+python3 -m rankwright.cli geo --config rankwright.config.json --out public
 ```
 
 | Flag | Description |
 |---|---|
 | `url` (positional) | Site root; omit when using `--config` |
-| `--config PATH` | Path to `omnirank.config.json` |
+| `--config PATH` | Path to `rankwright.config.json` |
 | `--out DIR` | Output directory. Default: `public` |
 
 Real run against `example.com`, with no `geo.license` configured — showing the v0.2.1
 "grant nothing" default and its stderr notice:
 
 ```
-$ python3 -m omnirank.cli geo https://example.com --out ./public
-omnirank: geo.license was not set; generating with no reuse licence granted (equivalent to "none"). Set geo.license to grant one, or "none" explicitly to silence this notice.
+$ python3 -m rankwright.cli geo https://example.com --out ./public
+rankwright: geo.license was not set; generating with no reuse licence granted (equivalent to "none"). Set geo.license to grant one, or "none" explicitly to silence this notice.
   wrote public/llms.txt
   wrote public/llms-full.txt
   wrote public/facts.json
@@ -81,7 +81,7 @@ const pages = await getPages(); // your own function: DB rows, CMS entries, etc.
 await generate(config, pages, "public");
 ```
 
-`@omnirank/generators` is **not currently published to npm**; import the TypeScript
+`@rankwright/generators` is **not currently published to npm**; import the TypeScript
 source directly, as shown above, or copy `scripts/node/src/generate.ts` into your
 project. Requires Node 22+. `buildFacts()` mirrors the Python generator's "no licence by
 default" behaviour exactly, including the notice.
@@ -100,7 +100,7 @@ exist, and S3 returns 403 rather than 404 for a missing key under this setup.
 **The fix: write physical files, always.** Generate `llms.txt`, `llms-full.txt`, and
 `facts.json` as real files inside your `publicDir` (`public/` in most frameworks) at
 build time, so S3 has an actual object to serve. **Never route them through a Next.js App
-Router `page.tsx`/route handler** — `omnirank fix`'s locator will name that file if it
+Router `page.tsx`/route handler** — `rankwright fix`'s locator will name that file if it
 finds one, but declines to edit it: see [[The-Locator#what-does-the-locator-refuse-to-do]].
 
 **Detection.** `audit`'s `geo` layer distinguishes this specific failure: a 403 on
@@ -160,7 +160,7 @@ curl -sI https://<your-site>/facts.json    | head -1
 
 All three must print `HTTP/2 200`. A `404` means the file genuinely is not there. A `403`
 on `.txt`/`.json` specifically, on a CDN-fronted Next.js deploy, is the OpenNext/CloudFront
-trap above. `omnirank audit`'s `geo` layer runs exactly this class of check as part of a
+trap above. `rankwright audit`'s `geo` layer runs exactly this class of check as part of a
 normal audit, so a CI job with `--fail-on llms-txt llms-full facts-json` catches a
 regression here automatically — see [[CI-Recipes]].
 
@@ -170,6 +170,6 @@ regression here automatically — see [[CI-Recipes]].
   `geo.answerBlockSelector`, and the `nap` / `identifiers` / `sameAs` / `statistics`
   fields that feed `facts.json`
 - [[Audit-Skill]] — the gates that verify these files are served correctly
-- [[Fix-Preview]] — why `omnirank fix` names but never edits a dynamic route serving these paths
+- [[Fix-Preview]] — why `rankwright fix` names but never edits a dynamic route serving these paths
 - [[Troubleshooting]] — the 403 trap and other failure modes with their exact error text
 - [[Glossary]] — definitions of `llms.txt`, `llms-full.txt`, `facts.json`, and `@graph`

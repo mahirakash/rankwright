@@ -2,7 +2,7 @@
 
 `urllib.robotparser` is the matcher here -- no robots grammar is reimplemented --
 but it cannot be trusted unconditionally, because CPython rewrote it for RFC 9309
-in **3.14** and OmniRank's floor is 3.11. On 3.11-3.13 the stdlib parser has no
+in **3.14** and Rankwright's floor is 3.11. On 3.11-3.13 the stdlib parser has no
 wildcard support and matches rules in FILE ORDER rather than longest-first:
 
     robots.txt                                URL              3.13    3.14
@@ -37,7 +37,7 @@ from dataclasses import dataclass
 from functools import cache
 from urllib.robotparser import RobotFileParser
 
-# The user-agent OmniRank evaluates rules for. Googlebot rather than "*": a group
+# The user-agent Rankwright evaluates rules for. Googlebot rather than "*": a group
 # addressed to Googlebot is the one that governs whether the page can be indexed,
 # and RobotFileParser already falls back to the wildcard group when no
 # Googlebot-specific group exists.

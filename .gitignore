@@ -5,8 +5,8 @@
 *.pem
 *service-account*.json
 
-# OmniRank working directory (reports, queues, logs are per-machine)
-.omnirank/
+# Rankwright working directory (reports, queues, logs are per-machine)
+.rankwright/
 
 # Session/tooling state
 .remember/

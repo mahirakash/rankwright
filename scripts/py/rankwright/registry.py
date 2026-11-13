@@ -1,4 +1,4 @@
-"""The static properties of every finding id OmniRank can emit.
+"""The static properties of every finding id Rankwright can emit.
 
 `Finding.auto_fixable` was never a safety assessment -- only `gates/seo.py`'s
 local `_f()` helper had an `auto` parameter, so 44 of 48 ids were `False` by
@@ -21,7 +21,7 @@ Tiers, from `docs/research/2026-08-04-fixability-classification.md`:
   advisory        two opposite correct answers exist; only the owner can choose
   infrastructure  no source edit exists; the fix lives in CDN/origin/build config
 
-This module imports nothing from `omnirank`: `report.py` imports FROM it, and a
+This module imports nothing from `rankwright`: `report.py` imports FROM it, and a
 back-edge would be an import cycle.
 """
 from __future__ import annotations
@@ -154,7 +154,7 @@ _ENTRIES: tuple[RegisteredFinding, ...] = (
        "mixed-content"),
     # `warning`, not `error`: browsers auto-upgrade a passive subresource (img,
     # icon-family link) to https before fetching it rather than blocking it, so
-    # OmniRank cannot claim the resource failed to load -- only that it asked for
+    # Rankwright cannot claim the resource failed to load -- only that it asked for
     # http:// (S4, final v0.4.0 review).
     _r("security.mixed-content.passive-subresource", "templated", "warning",
        "security", "mixed-content"),

@@ -1,7 +1,7 @@
 """Defects provable from the site's OWN declarations, with no external truth.
 
 The category `docs/research/2026-08-04-competitive-gap-analysis.md` SS1 identifies
-as the one OmniRank can credibly own: a URL submitted for crawling in the sitemap
+as the one Rankwright can credibly own: a URL submitted for crawling in the sitemap
 and forbidden in robots.txt; a canonical pointing at a page that is noindexed, that
 redirects, or that 404s; a page declared as an hreflang alternate while forbidding
 its own indexing. Every one is 100% precision because both halves of the
@@ -9,7 +9,7 @@ contradiction come from the site itself.
 
 Two rules govern every function here, and both are load-bearing:
 
-  1. Never judge a URL OmniRank did not see. A target outside the crawled set is
+  1. Never judge a URL Rankwright did not see. A target outside the crawled set is
      either probed (bounded, deduplicated) or left unjudged -- never guessed at.
   2. A gate that could not run returns a NotEvaluated entry, never silence. Silence
      is indistinguishable from a pass in the report, which is the failure this
@@ -35,7 +35,7 @@ GATE_ROBOTS_SITEMAP = "robots-sitemap"
 GATE_CANONICAL_TARGET = "canonical-target"
 GATE_HREFLANG_NOINDEX = "hreflang-noindex"
 
-# How many canonical targets outside the crawled set OmniRank will fetch in one
+# How many canonical targets outside the crawled set Rankwright will fetch in one
 # audit. A cap rather than an unbounded pass: a 200-page site whose every canonical
 # points at an uncrawled URL would otherwise double the audit's request count
 # without warning. Targets past the cap are reported as budget-exceeded, never
@@ -68,7 +68,7 @@ def check_sitemap_vs_robots(
 
     Returns no verdict at all when robots.txt is unreachable, when there is no
     sitemap, or when this interpreter's matcher cannot evaluate the rules the site
-    actually published -- see omnirank/robots.py for why the last one is real.
+    actually published -- see rankwright/robots.py for why the last one is real.
 
     Only sitemap URLs on robots.txt's OWN host are judged against it.
     `RobotFileParser.can_fetch()` discards the host and matches on path alone, so
@@ -127,7 +127,7 @@ def matcher_limitation(reason: str) -> str:
     detail = _MATCHER_LIMITATION.get(reason, "the published rules")
     return (f"robots.txt was fetched, but {detail}, and urllib.robotparser on this "
             "interpreter does not evaluate those the way RFC 9309 specifies "
-            "(fixed in Python 3.14). OmniRank refuses to answer rather than report "
+            "(fixed in Python 3.14). Rankwright refuses to answer rather than report "
             "a result it knows may be wrong. Re-run on Python 3.14 or later for "
             "full coverage.")
 
@@ -170,7 +170,7 @@ def check_canonical_targets(
     Targets already in the crawled set are judged from the PageData already held --
     no second fetch. Targets outside it are probed once each, deduplicated, up to
     MAX_CANONICAL_PROBES; past that they are reported as budget-exceeded. Nothing
-    is ever judged from a URL OmniRank did not actually see.
+    is ever judged from a URL Rankwright did not actually see.
 
     A 5xx or transport failure on a probe is `page-unreachable`, not `.not-found`:
     a transient origin error is not a missing page, and calling it one would be a
@@ -233,7 +233,7 @@ def check_canonical_targets(
                 findings.append(_noindexed(page, target))
         else:
             # 5xx, 401, 403, or a transport failure (status 0). None of these means
-            # "gone", and OmniRank does not guess which one it is.
+            # "gone", and Rankwright does not guess which one it is.
             not_evaluated.append(NotEvaluated(
                 gate=GATE_CANONICAL_TARGET, url=target, reason="page-unreachable"))
 

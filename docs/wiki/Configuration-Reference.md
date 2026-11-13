@@ -1,8 +1,8 @@
 # Configuration Reference
 
-`omnirank.config.json` is optional: `omnirank audit <url>`, `omnirank geo <url>` and
-`omnirank fix <url>` all work with zero configuration. This page lists every field the
-schema accepts, generated directly from `schemas/omnirank.config.schema.json`, split by
+`rankwright.config.json` is optional: `rankwright audit <url>`, `rankwright geo <url>` and
+`rankwright fix <url>` all work with zero configuration. This page lists every field the
+schema accepts, generated directly from `schemas/rankwright.config.schema.json`, split by
 top-level section, each marked **Consumed** (a shipped code path reads it) or
 **Schema-only** (validated and stored, not yet read).
 
@@ -78,9 +78,9 @@ skill will eventually read. See [[Glossary#sameas]].
 | `publicDir` | string | Static-asset output directory |
 | `builtHtml` | string | Path to server-rendered HTML output |
 
-**Schema-only for `audit` and `geo-artifacts`** — neither reads it. **`omnirank fix` does
+**Schema-only for `audit` and `geo-artifacts`** — neither reads it. **`rankwright fix` does
 NOT read `stack.framework` either**: as of v0.3.0, framework detection
-(`omnirank.framework.detect()`) always re-derives the framework from files on disk and
+(`rankwright.framework.detect()`) always re-derives the framework from files on disk and
 ignores this config field entirely — see [[The-Locator]]. `next-pages` remains the
 historical spelling of `next-pages-router` in the locator's own `Framework` enum; both
 resolve to the same detector output.
@@ -106,7 +106,7 @@ over HTTP — it does not read this section at all.
 **Consumed.** All three fields feed both `audit`'s AEO gate and `geo-artifacts`'s
 generation. See [[Audit-Skill]] and [[GEO-Artifacts-Skill]].
 
-**`license` no longer defaults to `CC-BY-4.0`, as of v0.2.1.** It used to: `omnirank geo`
+**`license` no longer defaults to `CC-BY-4.0`, as of v0.2.1.** It used to: `rankwright geo`
 against a site with no `geo.license` configured silently published an irrevocable grant
 of commercial reuse rights the owner never made. Omitting `geo.license` now resolves to
 the same "grant nothing" behaviour as the explicit `"none"` opt-out — generation still
@@ -158,7 +158,7 @@ counting.
 1. `aeo.answerBlock.byScript[script]` — an explicit config override for this script family.
 2. The **built-in band for that script** — today only `cjk` → 80–200 characters.
 3. `aeo.answerBlock.default` — the site's own general-purpose band.
-4. `DEFAULT_BAND` — OmniRank's hard-coded fallback, 40–60 words.
+4. `DEFAULT_BAND` — Rankwright's hard-coded fallback, 40–60 words.
 
 Step 2 outranks step 3 deliberately: `default` says nothing about which script it was
 written for, and a *words* band cannot validly apply to a script with no word separators.
@@ -184,7 +184,7 @@ Free-form string map. **Schema-only** — validated, not read.
 | Field | Type | Required | Default (in code) | Description |
 |---|---|---|---|---|
 | `sampleSize` | integer, minimum `0` | no | `200` | Maximum URLs pulled from the sitemap for a crawl. `0` means no limit. |
-| `failOn` | array of gate-name enum values | no | `[]` | Gate names that make `omnirank audit` exit `1` when they carry an error-severity finding. Overridden by `--fail-on` whenever that flag is present at all, even with zero names. |
+| `failOn` | array of gate-name enum values | no | `[]` | Gate names that make `rankwright audit` exit `1` when they carry an error-severity finding. Overridden by `--fail-on` whenever that flag is present at all, even with zero names. |
 
 `failOn`'s allowed values grew to **42 gate names** as of v0.4.0 (up from 28 at
 v0.2.0/v0.2.1): `h1`, `canonical`, `title-length`, `description-length`, `hreflang`, `og`,
@@ -205,7 +205,7 @@ can never fail a build under any circumstance, and one (`link-text`) mixes warni
 info. Full breakdown: [[CI-Recipes#which-gates-can-actually-fail-a-build-with---fail-on]].
 
 **`crawl-hygiene` was removed from this enum in v0.2.1** — it validated successfully but
-matched no finding a plain `omnirank audit` run could ever produce, since the check that
+matched no finding a plain `rankwright audit` run could ever produce, since the check that
 would emit it needs an explicit removed-URL list no config field supplies. `sitemap-health`
 is not inert: `hygiene.check_sitemap()` is wired in as of v0.2.1, distinguishing a
 redirecting sitemap entry (warning) from a dead one (error).
@@ -255,8 +255,8 @@ schema itself at validation time:
 A literal secret is rejected outright, exit code `2`:
 
 ```
-$ python3 -m omnirank.cli audit --config bad-secret.json
-omnirank: Config failed validation: secrets/serpapi: 'sk-abc123literal' does not match '^env:[A-Z_][A-Z0-9_]*$'
+$ python3 -m rankwright.cli audit --config bad-secret.json
+rankwright: Config failed validation: secrets/serpapi: 'sk-abc123literal' does not match '^env:[A-Z_][A-Z0-9_]*$'
 ```
 
 A missing environment variable fails loudly, not silently — `Config.secret(name)` raises
@@ -265,12 +265,12 @@ today; the mechanism is real and tested, and will back roadmap skills that need 
 
 ## A complete, valid example
 
-This is `templates/omnirank.config.example.json`, verified to pass schema validation by
+This is `templates/rankwright.config.example.json`, verified to pass schema validation by
 `tests/test_config_schema.py::test_example_config_validates`:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/bemoshiur/OmniRank/main/schemas/omnirank.config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
   "site": {
     "name": "TICON System Limited",
     "legalName": "TICON System Limited",
@@ -294,12 +294,12 @@ This is `templates/omnirank.config.example.json`, verified to pass schema valida
 Copy it as a starting point:
 
 ```bash
-cp templates/omnirank.config.example.json omnirank.config.json
+cp templates/rankwright.config.example.json rankwright.config.json
 ```
 
 ## How do I validate my config before running?
 
-`omnirank audit --config ...`, `omnirank geo --config ...`, and `omnirank fix --config
+`rankwright audit --config ...`, `rankwright geo --config ...`, and `rankwright fix --config
 ...` all validate on load and refuse to proceed on failure (exit code `2`), so the
 fastest check is simply running one of them. To validate without auditing anything:
 
@@ -308,8 +308,8 @@ python3 - <<'EOF'
 import json
 from jsonschema import Draft202012Validator
 
-schema = json.load(open("schemas/omnirank.config.schema.json"))
-config = json.load(open("omnirank.config.json"))
+schema = json.load(open("schemas/rankwright.config.schema.json"))
+config = json.load(open("rankwright.config.json"))
 errors = list(Draft202012Validator(schema).iter_errors(config))
 if errors:
     for e in errors:

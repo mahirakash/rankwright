@@ -25,11 +25,11 @@ def test_build_produces_a_usable_zip():
                    capture_output=True)
     version = json.loads(
         (ROOT / ".claude-plugin" / "plugin.json").read_text())["version"]
-    out = ROOT / "dist" / f"omnirank-skill-{version}.zip"
+    out = ROOT / "dist" / f"rankwright-skill-{version}.zip"
     assert out.exists(), "build script did not produce the expected artifact"
     with zipfile.ZipFile(out) as z:
         names = z.namelist()
-        assert "omnirank/.claude-plugin/plugin.json" in names
-        assert any(n.startswith("omnirank/skills/audit/") for n in names)
+        assert "rankwright/.claude-plugin/plugin.json" in names
+        assert any(n.startswith("rankwright/skills/audit/") for n in names)
         assert not any("__pycache__" in n for n in names)
         assert not any(n.endswith(".pyc") for n in names)

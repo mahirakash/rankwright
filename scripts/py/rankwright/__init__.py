@@ -4,7 +4,7 @@ import warnings
 
 from bs4 import XMLParsedAsHTMLWarning
 
-# OmniRank fetches sitemap and sitemap-index XML directly, and any audited target
+# Rankwright fetches sitemap and sitemap-index XML directly, and any audited target
 # can itself be an XML document. BeautifulSoup always parses with the HTML parser
 # (page.py hard-codes "lxml"), which is correct for HTML but prints this warning
 # on every XML document — roughly 50 lines of noise per URL. Silenced once, here,

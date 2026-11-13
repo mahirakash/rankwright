@@ -3,9 +3,9 @@ import gzip
 import httpx
 import respx
 
-from omnirank.audit import audit_site, default_config
-from omnirank.fetch import make_client
-from omnirank.report import Report
+from rankwright.audit import audit_site, default_config
+from rankwright.fetch import make_client
+from rankwright.report import Report
 
 SITE = "https://x.example"
 
@@ -210,7 +210,7 @@ def test_a_healthy_sitemap_url_is_not_refetched_by_check_sitemap():
 
 @respx.mock
 def test_audit_collects_pages_for_the_site_pass():
-    from omnirank.audit import _collect
+    from rankwright.audit import _collect
 
     mock_site()
     pages = _collect(make_client(), [f"{SITE}/"], Report(site=SITE, kind="audit"))
@@ -221,7 +221,7 @@ def test_audit_collects_pages_for_the_site_pass():
 
 @respx.mock
 def test_unreachable_pages_are_not_collected_but_are_reported():
-    from omnirank.audit import _collect
+    from rankwright.audit import _collect
 
     mock_site(page_status=500)
     report = Report(site=SITE, kind="audit")
@@ -359,7 +359,7 @@ def test_report_validates_with_every_new_v0_2_0_finding_shape():
 
     from jsonschema import Draft202012Validator, FormatChecker
 
-    from omnirank.report import Finding, Report
+    from rankwright.report import Finding, Report
 
     def new_finding(id_: str, gate: str, layer: str, severity: str = "warning") -> Finding:
         return Finding(id=id_, severity=severity, layer=layer, url=f"{SITE}/",

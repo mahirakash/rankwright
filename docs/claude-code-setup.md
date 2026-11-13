@@ -1,6 +1,6 @@
 # Installing as a Claude Code plugin
 
-OmniRank ships as a Claude Code plugin: a `.claude-plugin/plugin.json` manifest plus two
+Rankwright ships as a Claude Code plugin: a `.claude-plugin/plugin.json` manifest plus two
 skills under `skills/`. This page covers the two ways to install it and how to confirm
 the skills actually registered, verified against `.claude-plugin/plugin.json`,
 `scripts/build-skill-zip.sh`, and the two `SKILL.md` files.
@@ -8,34 +8,34 @@ the skills actually registered, verified against `.claude-plugin/plugin.json`,
 ## Path 1: download the packaged skill ZIP
 
 ```bash
-curl -LO https://github.com/bemoshiur/OmniRank/releases/latest/download/omnirank-skill.zip
-unzip omnirank-skill.zip -d ~/.claude/plugins/
+curl -LO https://github.com/mahirakash/rankwright/releases/latest/download/rankwright-skill.zip
+unzip rankwright-skill.zip -d ~/.claude/plugins/
 ```
 
 This is the README's documented install path. The release ZIP is built by
 `scripts/build-skill-zip.sh` and published by `.github/workflows/release.yml` on every
-`v*` tag push. Unzipping it stages a top-level `omnirank/` directory, so the command above
-leaves you with `~/.claude/plugins/omnirank/`. Confirmed by listing the actual archive
+`v*` tag push. Unzipping it stages a top-level `rankwright/` directory, so the command above
+leaves you with `~/.claude/plugins/rankwright/`. Confirmed by listing the actual archive
 contents:
 
 ```
-$ unzip -l dist/omnirank-skill-0.1.1.zip
+$ unzip -l dist/rankwright-skill-0.1.1.zip
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-        0  ...         omnirank/
-     1096  ...         omnirank/LICENSE
-      247  ...         omnirank/Makefile
-      569  ...         omnirank/LICENSE-CONTENT
-        0  ...         omnirank/schemas/
-     5674  ...         omnirank/schemas/omnirank.config.schema.json
-     6832  ...         omnirank/README.md
-        0  ...         omnirank/scripts/py/omnirank/
+        0  ...         rankwright/
+     1096  ...         rankwright/LICENSE
+      247  ...         rankwright/Makefile
+      569  ...         rankwright/LICENSE-CONTENT
+        0  ...         rankwright/schemas/
+     5674  ...         rankwright/schemas/rankwright.config.schema.json
+     6832  ...         rankwright/README.md
+        0  ...         rankwright/scripts/py/rankwright/
      ...
-        0  ...         omnirank/.claude-plugin/
-      975  ...         omnirank/.claude-plugin/plugin.json
-        0  ...         omnirank/templates/
-     1361  ...         omnirank/templates/omnirank.config.example.json
-        0  ...         omnirank/skills/
+        0  ...         rankwright/.claude-plugin/
+      975  ...         rankwright/.claude-plugin/plugin.json
+        0  ...         rankwright/templates/
+     1361  ...         rankwright/templates/rankwright.config.example.json
+        0  ...         rankwright/skills/
 ```
 
 The archive contains `.claude-plugin/plugin.json`, both skill directories under
@@ -47,13 +47,13 @@ archive).
 Build the archive yourself instead of downloading it:
 
 ```bash
-./scripts/build-skill-zip.sh          # -> dist/omnirank-skill-<version>.zip
+./scripts/build-skill-zip.sh          # -> dist/rankwright-skill-<version>.zip
 ```
 
 ## Path 2: clone the repository
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git ~/.claude/plugins/omnirank
+git clone https://github.com/mahirakash/rankwright.git ~/.claude/plugins/rankwright
 ```
 
 This gets you the full repository, including tests, CI configuration, and the Node
@@ -69,9 +69,9 @@ skills from that relative path.
 **Check the files are actually present at the path the manifest declares:**
 
 ```bash
-ls ~/.claude/plugins/omnirank/.claude-plugin/plugin.json
-ls ~/.claude/plugins/omnirank/skills/audit/SKILL.md
-ls ~/.claude/plugins/omnirank/skills/geo-artifacts/SKILL.md
+ls ~/.claude/plugins/rankwright/.claude-plugin/plugin.json
+ls ~/.claude/plugins/rankwright/skills/audit/SKILL.md
+ls ~/.claude/plugins/rankwright/skills/geo-artifacts/SKILL.md
 ```
 
 All three must exist. If `.claude-plugin/plugin.json` is missing, the ZIP was unzipped to
@@ -82,8 +82,8 @@ or re-clone — a half-extracted archive is the most common cause.
 parses to register the skill and decide when to trigger it):
 
 ```bash
-head -4 ~/.claude/plugins/omnirank/skills/audit/SKILL.md
-head -4 ~/.claude/plugins/omnirank/skills/geo-artifacts/SKILL.md
+head -4 ~/.claude/plugins/rankwright/skills/audit/SKILL.md
+head -4 ~/.claude/plugins/rankwright/skills/geo-artifacts/SKILL.md
 ```
 
 Expected output — the real frontmatter from both files:

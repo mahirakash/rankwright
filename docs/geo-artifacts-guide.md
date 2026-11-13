@@ -5,7 +5,7 @@ ground truth: `llms.txt`, `llms-full.txt`, and `facts.json`, each carrying an ex
 citation licence. This page covers what each file is for, the two ways to generate them,
 the OpenNext/CloudFront 403 trap that silently breaks this in production, and how to
 verify the files actually serve once deployed. Everything here is verified against
-`scripts/py/omnirank/geo_artifacts.py`, `scripts/node/src/generate.ts`, and
+`scripts/py/rankwright/geo_artifacts.py`, `scripts/node/src/generate.ts`, and
 `skills/geo-artifacts/`.
 
 Generation only writes the three files locally. It never verifies they are served
@@ -22,7 +22,7 @@ page.
 | `facts.json` | Structured ground truth for engines that prefer JSON over prose — name, url, entityType, licence, attribution, and whatever of `legalName` / `locales` / `nap` / `identifiers` / `sameAs` / `statistics` your config supplies | JSON |
 
 **Which engines read these.** `llms.txt` follows the community [llms.txt
-proposal](https://llmstxt.org/) for AI-readable site indexes. OmniRank's `audit` skill
+proposal](https://llmstxt.org/) for AI-readable site indexes. Rankwright's `audit` skill
 checks that all three files return HTTP 200 at their conventional root-relative paths
 (`/llms.txt`, `/llms-full.txt`, `/facts.json`), and separately checks that `robots.txt`
 does not block any of 19 named AI-crawler user-agents (`GPTBot`, `ClaudeBot`,
@@ -42,24 +42,24 @@ byte-identical output for identical input, aside from `generatedAt` timestamp pr
 
 ### Python — crawl path
 
-Use this for any site OmniRank does not have direct code access to, or any stack. It
+Use this for any site Rankwright does not have direct code access to, or any stack. It
 reconstructs the page corpus itself by reading `sitemap.xml` and fetching each page's
 rendered HTML.
 
 ```bash
-python3 -m omnirank.cli geo --config omnirank.config.json --out public
+python3 -m rankwright.cli geo --config rankwright.config.json --out public
 ```
 
 | Flag | Description |
 |---|---|
 | `url` (positional) | Site root; omit when using `--config` |
-| `--config PATH` | Path to `omnirank.config.json` |
+| `--config PATH` | Path to `rankwright.config.json` |
 | `--out DIR` | Output directory. Default: `public` |
 
 Real run:
 
 ```
-$ python3 -m omnirank.cli geo https://example.com --out ./public
+$ python3 -m rankwright.cli geo https://example.com --out ./public
   wrote public/llms.txt
   wrote public/llms-full.txt
   wrote public/facts.json
@@ -99,16 +99,16 @@ never see.
 
 ```ts
 import { generate } from "./scripts/node/src/generate.js";
-// or, once published as a package: import { generate } from "@omnirank/generators";
+// or, once published as a package: import { generate } from "@rankwright/generators";
 
 const pages = await getPages(); // your own function: DB rows, CMS entries, etc.
 await generate(config, pages, "public");
 ```
 
-`generate(config: OmniRankConfig, pages: Page[], outDir: string): Promise<string[]>` — it
+`generate(config: RankwrightConfig, pages: Page[], outDir: string): Promise<string[]>` — it
 does not crawl anything itself. You supply an already-materialized `Page[]`
 (`{url, title, description, answer}`), typically gathered in your project's own prebuild
-script. `@omnirank/generators` (`scripts/node/package.json`) is not currently published to
+script. `@rankwright/generators` (`scripts/node/package.json`) is not currently published to
 npm; use it by importing the TypeScript source directly, as shown above, or by copying
 `scripts/node/src/generate.ts` into your project. Requires Node 22+ (the version pinned
 in CI and `@types/node`).
@@ -189,9 +189,9 @@ When quoting a page, prefer that page's AnswerBlock — it is written to be lift
 **`geo.license` has no default, and generation never guesses one — but it also never
 refuses to run.** These files are written into `publicDir` and published on the open
 web, so `{license}` is a real, standing grant of reuse rights over your content — not a
-suggestion OmniRank can invent on your behalf. If `geo.license` is unset, both generators
+suggestion Rankwright can invent on your behalf. If `geo.license` is unset, both generators
 treat it exactly like the explicit `"none"` opt-out below: generation proceeds and grants
-nothing, and (Python CLI only) `omnirank geo` prints a one-line notice to stderr naming
+nothing, and (Python CLI only) `rankwright geo` prints a one-line notice to stderr naming
 the config key, so the "no rights" default isn't chosen silently. Set `geo.license` to a
 licence you have actually chosen (e.g. `"CC-BY-4.0"`), or to the explicit opt-out
 `"none"` (or JSON `null`) for sites that grant no reuse rights at all and to silence the
@@ -235,7 +235,7 @@ HTTP/2 404
 
 A `404` means the file genuinely is not there — regenerate and redeploy. A `403` on
 `.txt`/`.json` specifically, on a CDN-fronted Next.js deploy, is the OpenNext/CloudFront
-trap above. `omnirank audit`'s `geo` layer runs exactly this class of check as part of a
+trap above. `rankwright audit`'s `geo` layer runs exactly this class of check as part of a
 normal audit — see [audit-guide.md](audit-guide.md#geo) — so a CI job with `--fail-on
 llms-txt llms-full facts-json` catches a regression here automatically; see
 [ci-integration.md](ci-integration.md).

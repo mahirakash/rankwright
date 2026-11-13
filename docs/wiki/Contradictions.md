@@ -3,18 +3,18 @@
 Five gates, new in v0.4.0, catch a site disagreeing with itself: a sitemap URL its own
 `robots.txt` forbids crawling, a canonical pointing at a noindexed, missing or redirecting
 page, and an `hreflang` alternate that is itself noindexed. Every finding is 100%
-precision — both halves come from the site's own declarations, never a source OmniRank
+precision — both halves come from the site's own declarations, never a source Rankwright
 has to trust.
 
-Verified against `scripts/py/omnirank/gates/contradictions.py`,
-`scripts/py/omnirank/robots.py`, and `tests/test_gates_contradictions.py`. This is the
-theme release is named for: **"OmniRank finds where your site contradicts itself."**
+Verified against `scripts/py/rankwright/gates/contradictions.py`,
+`scripts/py/rankwright/robots.py`, and `tests/test_gates_contradictions.py`. This is the
+theme release is named for: **"Rankwright finds where your site contradicts itself."**
 
 ## Why is this a distinct category from ordinary SEO gates?
 
 Because a contradiction gate never has to trust an outside source to know it found a real
 problem. `docs/research/2026-08-04-competitive-gap-analysis.md` §1 identifies this as the
-one class of defect OmniRank can credibly claim 100% precision on: a page cannot be both
+one class of defect Rankwright can credibly claim 100% precision on: a page cannot be both
 submitted for crawling and forbidden to crawl, cannot be both the canonical target and
 noindexed, cannot be both an `hreflang` alternate and unindexable — these aren't
 judgement calls about what Google *should* do, they're the site's own two statements
@@ -35,7 +35,7 @@ trusting nothing beyond what the site itself published in two files.
 Every one of these is `advisory`-tier for fixing — see [[Fix-Tiers-and-Applicability]] —
 because each has **two opposite correct fixes** and only the site owner knows which is
 intended. A sitemap URL blocked by `robots.txt` could mean "unblock it, we want it
-crawled" or "drop it from the sitemap, it shouldn't be discoverable" — OmniRank cannot
+crawled" or "drop it from the sitemap, it shouldn't be discoverable" — Rankwright cannot
 tell which, and does not guess. `seo.hreflang-noindex.alternate` attaches to the
 *declaring* page, not the noindexed target: naming a page engines may not index as a
 locale alternate is discarded by engines wholesale, which is why the page that made the
@@ -69,8 +69,8 @@ against the page it points at.
 Both are load-bearing, and both exist because a false contradiction finding would be
 worse than a missed one — the entire value proposition of this gate group is precision.
 
-**1. Never judge a URL OmniRank did not actually see.** A canonical target already in the
-crawled set is judged from the `PageData` OmniRank already fetched — no second request. A
+**1. Never judge a URL Rankwright did not actually see.** A canonical target already in the
+crawled set is judged from the `PageData` Rankwright already fetched — no second request. A
 target outside the crawled set is probed once, deduplicated across every page pointing at
 it, up to `MAX_CANONICAL_PROBES` (25 per audit); anything past that budget is reported as
 `budget-exceeded` in `notEvaluated`, never silently skipped. A 5xx or transport failure on
@@ -96,7 +96,7 @@ project exists to refuse. `robots-sitemap` returns `no-sitemap`, `page-unreachab
 
 ## Why does this gate sometimes refuse to answer?
 
-`seo.robots-sitemap.disallowed` needs a robots.txt *matcher*, and the one OmniRank uses —
+`seo.robots-sitemap.disallowed` needs a robots.txt *matcher*, and the one Rankwright uses —
 Python's own `urllib.robotparser` — does not behave identically across the Python
 versions this project supports. CPython rewrote the matcher for RFC 9309 compliance in
 **Python 3.14**, and backported part of that rewrite to **3.13** — but not all of it: a
@@ -106,7 +106,7 @@ an overlapping `Allow`/`Disallow` pair by file order instead of RFC 9309's longe
 rule — and the second failure mode is worse than the first, because it can fabricate a
 disallow that RFC 9309 says should be allowed.
 
-**This is deliberately not a Python-version check.** `omnirank/robots.py` runs two small
+**This is deliberately not a Python-version check.** `rankwright/robots.py` runs two small
 *behavioural probes* against the live interpreter — does it honour a wildcard, does it
 pick the longest match — and only evaluates a site's robots.txt when its actual rules need
 a capability the probe confirms this interpreter has. When the rules need a capability the
@@ -121,7 +121,7 @@ wrong — it is a refusal, not a guess.
 ## Honest limits
 
 - **A gate firing means a self-contradiction exists, not that fixing it is obvious.**
-  Every finding here is `advisory`-tier for a reason: OmniRank can prove the two
+  Every finding here is `advisory`-tier for a reason: Rankwright can prove the two
   declarations disagree, but not which one the owner meant.
 - **Coverage of `robots-sitemap` genuinely varies by Python version**, for the reason
   above — see [[FAQ]] before assuming a clean `robots-sitemap` result means no

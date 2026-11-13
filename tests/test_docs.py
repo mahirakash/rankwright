@@ -110,7 +110,7 @@ def test_docs_no_longer_present_auto_fixable_as_a_current_field():
 def test_fix_preview_doc_states_that_nothing_is_written():
     body = (ROOT / "docs" / "fix-preview.md").read_text()
     assert "--write" in body
-    assert "omnirank fix" in body
+    assert "rankwright fix" in body
     assert "writes nothing" in body
     assert "v0.4.0" not in body, (
         "0.4.0 broadens the audit and deliberately ships no writing; the doc must "
@@ -120,7 +120,7 @@ def test_fix_preview_doc_states_that_nothing_is_written():
 
 
 def test_gate_reference_documents_every_mechanical_fix():
-    from omnirank.registry import MECHANICAL_IDS
+    from rankwright.registry import MECHANICAL_IDS
 
     body = (ROOT / "skills" / "audit" / "references" / "gates.md").read_text()
     missing = sorted(i for i in MECHANICAL_IDS if i not in body)
@@ -129,7 +129,7 @@ def test_gate_reference_documents_every_mechanical_fix():
 
 def test_readme_documents_the_fix_subcommand():
     body = (ROOT / "README.md").read_text()
-    assert "omnirank fix" in body
+    assert "rankwright fix" in body
     assert "v0.4.0" in body
 
 
@@ -152,10 +152,10 @@ GATE_COUNT_DOCS = [
 def test_documented_gate_counts_match_the_registry(path):
     import json
 
-    from omnirank.registry import REGISTRY
+    from rankwright.registry import REGISTRY
 
     schema = json.loads(
-        (ROOT / "schemas" / "omnirank.config.schema.json").read_text())
+        (ROOT / "schemas" / "rankwright.config.schema.json").read_text())
     enum_gates = schema["properties"]["audit"]["properties"]["failOn"]["items"]["enum"]
     total_gates = len(enum_gates)
     error_capable = len({

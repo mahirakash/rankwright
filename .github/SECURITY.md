@@ -10,7 +10,7 @@
 
 Please do **not** open a public issue for a security problem.
 
-Email **moshiur@ticonsys.com** with a description, reproduction steps, and the impact
+Open a [private vulnerability report](https://github.com/mahirakash/rankwright/security/advisories/new) with a description, reproduction steps, and the impact
 you have assessed. You can expect an acknowledgement within 72 hours and an assessment
 within seven days.
 
@@ -31,4 +31,4 @@ changes. The areas most worth your attention, now and as later skills land:
 ## Out of scope
 
 Rate limits imposed by third-party APIs, and findings that require an attacker to already
-control the machine running OmniRank.
+control the machine running Rankwright.

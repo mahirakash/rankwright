@@ -160,7 +160,7 @@ def _lang(soup: BeautifulSoup, url: str) -> list[Finding]:
                "<html> has no lang attribute",
                "<html lang> naming the page's language",
                'Add lang to the <html> element (for example <html lang="en">). This '
-               "is an error rather than a nicety because OmniRank's own AnswerBlock "
+               "is an error rather than a nicety because Rankwright's own AnswerBlock "
                "sizing reads it: with no lang, bands.resolve_band() falls back to "
                "the space-delimited Latin default, so a page written in a script "
                "without word separators is measured against a word band it cannot "

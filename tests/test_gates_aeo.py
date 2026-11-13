@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from omnirank.bands import Band
-from omnirank.gates import aeo
+from rankwright.bands import Band
+from rankwright.gates import aeo
 
 FIXTURES = Path(__file__).parent / "fixtures"
 URL = "https://x.example/services/political-ads"

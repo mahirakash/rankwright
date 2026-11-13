@@ -21,7 +21,7 @@ def test_svg_is_1280x640():
 
 def test_svg_carries_brand_and_tagline():
     body = SVG.read_text()
-    assert "OmniRank" in body
+    assert "Rankwright" in body
     assert "One page. Every engine." in body
     for layer in ("SEO", "AEO", "GEO", "SMM"):
         assert f">{layer}<" in body

@@ -1,6 +1,6 @@
 # Research and Evidence
 
-OmniRank's design rests on published research into how search and generative engines select
+Rankwright's design rests on published research into how search and generative engines select
 sources. This page cites that work precisely, states what each study actually measured, and
 marks the limits of each finding. Every number here is observational rather than causal, so
 treat the direction as useful and the magnitude as unproven.
@@ -8,10 +8,10 @@ treat the direction as useful and the magnitude as unproven.
 That caveat is not modesty. It is the single most important thing on this page. The
 literature below is drawn overwhelmingly from English-language, business-to-business
 datasets, and several results come from models that have since been replaced. A tool that
-cited these figures as guarantees would be doing exactly what OmniRank refuses to do
+cited these figures as guarantees would be doing exactly what Rankwright refuses to do
 elsewhere.
 
-**A note on what "uses it" means.** OmniRank *acts* on some findings — `omnirank fix`
+**A note on what "uses it" means.** Rankwright *acts* on some findings — `rankwright fix`
 prints a real diff for 4 mechanical finding ids out of 67 total (see [[Fix-Preview]]) —
 but every citation on this page still describes research the *content* of a page needs to
 satisfy (statistics, quotations, primary-source citations, entity mentions), not the
@@ -31,9 +31,9 @@ The study tested content modifications against generative engines and found that
 largest gains in how often a page was surfaced and quoted. Reported lift reached roughly
 40% on their benchmark.
 
-**How OmniRank uses it:** the `aeo-onpage` skill (planned) will treat those three
+**How Rankwright uses it:** the `aeo-onpage` skill (planned) will treat those three
 elements as required when drafting, not optional polish. The shipped `audit` skill does not
-yet check for them, and `omnirank fix` does not draft content of any kind.
+yet check for them, and `rankwright fix` does not draft content of any kind.
 
 **Limits:** a single benchmark, on 2023-era models, in English. Whether the effect
 transfers to Bengali news content or Bangladeshi commercial queries is untested by anyone.
@@ -45,7 +45,7 @@ transfers to Bengali news content or Bangladeshi commercial queries is untested 
 Proposes a sixteen-criterion framework for evaluating a page's readiness for generative
 engines, covering extractability, factual density, structure and provenance.
 
-**How OmniRank uses it:** it informs which gates exist in the AEO and GEO layers. OmniRank
+**How Rankwright uses it:** it informs which gates exist in the AEO and GEO layers. Rankwright
 does not implement GEO-16 wholesale and does not claim conformance to it.
 
 ### Brand mentions correlate with AI citation more than backlinks
@@ -55,7 +55,7 @@ does not implement GEO-16 wholesale and does not claim conformance to it.
 Reported correlation of roughly **0.66 for brand web-mentions** versus roughly **0.22 for
 backlinks**, with brand search volume the single strongest individual predictor.
 
-**How OmniRank uses it:** it is why `offsite-entity` (planned, v0.4) prioritises unlinked
+**How Rankwright uses it:** it is why `offsite-entity` (planned, v0.4) prioritises unlinked
 mention breadth and entity resolution over link acquisition, and why the avoid-list forbids
 link buying.
 
@@ -70,7 +70,7 @@ manufacturing mentions produces citations.
 Roughly **87% of ChatGPT citations matched pages ranking in Bing's top organic results**,
 consistent with a retrieval layer built on a conventional index.
 
-**How OmniRank uses it:** it is the reason `indexing` (planned, v0.3) treats Bing Webmaster
+**How Rankwright uses it:** it is the reason `indexing` (planned, v0.3) treats Bing Webmaster
 Tools submission as the highest-value early action for a new domain. A page absent from the
 index has approximately no chance of being cited.
 
@@ -82,7 +82,7 @@ Only about **12% of AI-cited URLs also ranked in Google's top 10**. Per-engine a
 varied widely: Perplexity approximately 28.6%, Copilot 8.6%, Gemini 8.2%, ChatGPT roughly
 6–8%.
 
-**How OmniRank uses it:** two ways. First, a site with modest rankings can still be cited,
+**How Rankwright uses it:** two ways. First, a site with modest rankings can still be cited,
 so the GEO layer is worth doing early. Second, and more importantly as a guard, the
 `measure` skill (planned, v0.5) must never diagnose a citation change from a rank change.
 They move independently.
@@ -92,11 +92,11 @@ They move independently.
 | Claim | Status |
 |---|---|
 | "Publishing `llms.txt` causes AI engines to cite you" | **Unproven.** It is a public proposal. No engine has documented reading it as a ranking or retrieval input. See [[FAQ#is-llmstxt-a-real-established-standard]]. |
-| "These techniques guarantee rankings" | **False.** Nothing guarantees rankings. OmniRank fixes signals engines demonstrably use; outcomes are downstream and uncontrolled. |
+| "These techniques guarantee rankings" | **False.** Nothing guarantees rankings. Rankwright fixes signals engines demonstrably use; outcomes are downstream and uncontrolled. |
 | "A 40% lift is what you will get" | **Misreading.** That figure is one benchmark under one set of conditions, not a forecast for your site. |
 | "Brand mentions cause citations" | **Not established.** The correlation is real; the causal direction is not demonstrated and brand size confounds it. |
 | "This works the same in every language" | **Untested.** No study in this list covered non-English content. |
-| "`omnirank fix` applies this research automatically" | **False.** `fix` splices constants and resolves existing values for 4 mechanical finding ids; it drafts no prose and adds no statistics, quotations or citations. |
+| "`rankwright fix` applies this research automatically" | **False.** `fix` splices constants and resolves existing values for 4 mechanical finding ids; it drafts no prose and adds no statistics, quotations or citations. |
 
 ## Measuring it yourself
 
@@ -114,7 +114,7 @@ Two calibrations matter when reading those numbers:
 
 ## Citing this project
 
-OmniRank ships a `CITATION.cff`, so GitHub's "Cite this repository" button produces a
+Rankwright ships a `CITATION.cff`, so GitHub's "Cite this repository" button produces a
 correct reference. Code is MIT; documentation and the generated corpus are CC BY 4.0.
 
 ---

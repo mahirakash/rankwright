@@ -10,11 +10,11 @@ RESPONSE_ERROR_MS = 5000
 HTML_WARN_BYTES = 500_000
 MAX_HEAD_SCRIPTS = 2
 
-# gzip and deflate are the only encodings OmniRank's own client (see fetch.py) ever
+# gzip and deflate are the only encodings Rankwright's own client (see fetch.py) ever
 # advertises in Accept-Encoding, so they are the only ones it can actually observe
 # a server choosing. br/zstd are matched defensively in case a server ignores
 # Accept-Encoding and sends one anyway (fetch() already handles that response
-# gracefully), but OmniRank never claims to verify them — see docs/audit-guide.md.
+# gracefully), but Rankwright never claims to verify them — see docs/audit-guide.md.
 _COMPRESSED = ("gzip", "br", "deflate", "zstd")
 
 
@@ -25,7 +25,7 @@ def _f(id_: str, gate: str, url: str, severity: str, observed: str,
 
 
 def _response_time(page: PageData) -> list[Finding]:
-    """Wall-clock time for OmniRank's own request, start to finish.
+    """Wall-clock time for Rankwright's own request, start to finish.
 
     This is NOT time-to-first-byte: `page.elapsed_ms` brackets the entire
     `client.get()` call — DNS, TCP, TLS, request, and reading the *complete* response
@@ -105,7 +105,7 @@ def run(page: PageData) -> list[Finding]:
     """Performance signals derivable from one HTTP response.
 
     Deliberately excludes anything requiring a browser — no LCP, CLS, INP or
-    Lighthouse score. OmniRank does not measure those and must not imply it does.
+    Lighthouse score. Rankwright does not measure those and must not imply it does.
     """
     return [
         *_response_time(page),

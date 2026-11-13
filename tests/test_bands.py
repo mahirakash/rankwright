@@ -1,7 +1,7 @@
 import pytest
 
-from omnirank.bands import DEFAULT_BAND, Band, measure, resolve_band, script_of
-from omnirank.config import Config
+from rankwright.bands import DEFAULT_BAND, Band, measure, resolve_band, script_of
+from rankwright.config import Config
 
 
 def cfg(raw=None) -> Config:
@@ -107,7 +107,7 @@ def test_describe_reads_naturally():
 
 def test_inverted_band_from_config_is_rejected():
     import pytest
-    from omnirank.config import ConfigError
+    from rankwright.config import ConfigError
 
     c = cfg({"aeo": {"answerBlock": {"default": {"unit": "words", "min": 100, "max": 5}}}})
     with pytest.raises(ConfigError, match=r"aeo\.answerBlock\.default.*100.*5"):
@@ -116,7 +116,7 @@ def test_inverted_band_from_config_is_rejected():
 
 def test_inverted_by_script_band_is_rejected():
     import pytest
-    from omnirank.config import ConfigError
+    from rankwright.config import ConfigError
 
     c = cfg({"aeo": {"answerBlock": {
         "default": {"unit": "words", "min": 40, "max": 60},

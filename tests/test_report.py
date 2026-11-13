@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
-from omnirank.registry import REGISTRY, SCORING_GATES_BY_LAYER, scoring_gate_count
-from omnirank.report import Finding, NotEvaluated, Report
+from rankwright.registry import REGISTRY, SCORING_GATES_BY_LAYER, scoring_gate_count
+from rankwright.report import Finding, NotEvaluated, Report
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / "schemas" / "report.schema.json").read_text())
@@ -135,7 +135,7 @@ def test_a_pre_0_3_0_report_carrying_auto_fixable_still_validates():
     # the schema would invalidate every report written before this release.
     legacy = {
         "generatedAt": "2026-08-03T00:00:00Z",
-        "tool": {"name": "omnirank", "version": "0.2.1"},
+        "tool": {"name": "rankwright", "version": "0.2.1"},
         "site": "https://x.example", "kind": "audit",
         "score": {"overall": 100},
         "stats": {"urlsChecked": 1, "passed": 1, "failed": 0, "warned": 0},

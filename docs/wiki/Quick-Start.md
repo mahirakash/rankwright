@@ -1,9 +1,9 @@
 # Quick Start
 
-This page takes a fresh checkout of OmniRank from zero to a first audit report in seven
+This page takes a fresh checkout of Rankwright from zero to a first audit report in seven
 numbered steps: clone the repository, create a virtual environment, install the CLI, run
-`omnirank audit` against a live URL, read the score and findings, locate the JSON report
-OmniRank writes to disk, and preview a mechanical fix available today.
+`rankwright audit` against a live URL, read the score and findings, locate the JSON report
+Rankwright writes to disk, and preview a mechanical fix available today.
 
 Every command below was actually run against the real repository at v0.4.0, and the
 output shown is pasted verbatim — nothing staged, nothing cropped.
@@ -16,14 +16,14 @@ output shown is pasted verbatim — nothing staged, nothing cropped.
 | git | any recent version | Cloning the repository |
 | Node.js | 22+ | Only if you use the in-repo GEO-artifacts generator (`scripts/node`) instead of the Python crawl path — see [[GEO-Artifacts-Skill]] |
 
-OmniRank is not published to PyPI, npm, or a container registry — it installs from
+Rankwright is not published to PyPI, npm, or a container registry — it installs from
 source.
 
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git
-cd OmniRank
+git clone https://github.com/mahirakash/rankwright.git
+cd Rankwright
 ```
 
 ## 2. Create a virtual environment
@@ -44,15 +44,15 @@ and a bare `pip install` against that interpreter refuses to run with
 make install
 ```
 
-This runs `cd scripts/py && python3 -m pip install -e ".[dev]"`. It installs `omnirank`
+This runs `cd scripts/py && python3 -m pip install -e ".[dev]"`. It installs `rankwright`
 in editable mode plus the test toolchain (`pytest`, `respx`, `ruff`,
 `rfc3339-validator`, `pyyaml`).
 
 Confirm the install:
 
 ```
-$ python3 -m omnirank.cli --version
-omnirank 0.4.0
+$ python3 -m rankwright.cli --version
+rankwright 0.4.0
 ```
 
 ## 4. Run the first audit
@@ -60,13 +60,13 @@ omnirank 0.4.0
 No configuration file is required to audit a live site — a bare URL is enough:
 
 ```bash
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 ```
 
 Real output, captured on this machine against `https://example.com`:
 
 ```
-OmniRank 0.4.0 — https://example.com
+Rankwright 0.4.0 — https://example.com
   overall 74/100  aeo 71  geo 47  perf 100  security 67  seo 88
   1 URLs checked · 17 findings in 17 groups
 
@@ -84,7 +84,7 @@ OmniRank 0.4.0 — https://example.com
         fix: Emit JSON-LD describing this page and cross-reference the site organisation by stable @id.
         e.g. https://example.com/
   [1×] seo.sitemap.missing — expected: a sitemap.xml enumerating the site's URLs
-        fix: Publish a sitemap.xml so OmniRank -- and search engines -- can discover every page. Without one, this audit only sees the homepage.
+        fix: Publish a sitemap.xml so Rankwright -- and search engines -- can discover every page. Without one, this audit only sees the homepage.
         e.g. https://example.com/sitemap.xml
   [1×] security.https-redirect.missing — expected: a 3xx redirect to the https:// URL
         fix: Redirect http:// to https:// at the origin or CDN.
@@ -118,7 +118,7 @@ OmniRank 0.4.0 — https://example.com
 
   NOT EVALUATED (2 gate(s) across 1 target(s) — see the JSON report for the reason enum)
     robots-sitemap, site — https://example.com  [no-sitemap]
-  report: .omnirank/reports/2026-08-04-audit.json
+  report: .rankwright/reports/2026-08-04-audit.json
 ```
 
 `example.com` deliberately ships nothing but a static placeholder page, so this is close
@@ -138,7 +138,7 @@ normalisation: [[Audit-Skill#how-is-the-score-computed]].
 
 | Field | Meaning |
 |---|---|
-| `observed` | What OmniRank actually found on the page — the raw fact |
+| `observed` | What Rankwright actually found on the page — the raw fact |
 | `expected` | What the gate requires |
 | `fix` | A concrete, specific instruction for closing the gap |
 
@@ -150,11 +150,11 @@ section for any gate that could not actually run.
 
 ## 6. Where the JSON report lands
 
-By default: `.omnirank/reports/<UTC-date>-audit.json`, relative to your current working
+By default: `.rankwright/reports/<UTC-date>-audit.json`, relative to your current working
 directory. Override with `--out`:
 
 ```bash
-python3 -m omnirank.cli audit https://example.com --out /tmp/report.json
+python3 -m rankwright.cli audit https://example.com --out /tmp/report.json
 ```
 
 The JSON holds every finding, not just the terminal's summary, validated against
@@ -163,11 +163,11 @@ The JSON holds every finding, not just the terminal's summary, validated against
 
 ## 7. Preview a fix — without writing anything
 
-`omnirank fix` audits the site, locates each finding's source file, and prints the diff
+`rankwright fix` audits the site, locates each finding's source file, and prints the diff
 it would apply for the four `mechanical` findings. It never writes:
 
 ```bash
-python3 -m omnirank.cli fix https://example.com --root .
+python3 -m rankwright.cli fix https://example.com --root .
 ```
 
 Full model and worked example: [[Fix-Preview]].
@@ -185,9 +185,9 @@ The run above returned `0` because no `--fail-on` gates were specified.
 ## Next: configure it for a real repo
 
 ```bash
-cp templates/omnirank.config.example.json omnirank.config.json
-python3 -m omnirank.cli audit --config omnirank.config.json --fail-on h1 canonical schema
-python3 -m omnirank.cli geo   --config omnirank.config.json --out public
+cp templates/rankwright.config.example.json rankwright.config.json
+python3 -m rankwright.cli audit --config rankwright.config.json --fail-on h1 canonical schema
+python3 -m rankwright.cli geo   --config rankwright.config.json --out public
 ```
 
 See [[Configuration-Reference]] for every field, [[Audit-Skill]] for every gate, and

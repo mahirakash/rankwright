@@ -1,7 +1,7 @@
 """Response-header and markup security signals.
 
 Scope is deliberately narrow. `docs/research/2026-08-04-competitive-gap-analysis.md`
-SS4 draws the line: OmniRank checks security only where insecurity demonstrably
+SS4 draws the line: Rankwright checks security only where insecurity demonstrably
 breaks crawling, indexing or rendering -- Mozilla Observatory and testssl.sh grade
 headers properly and free, and an SEO tool that scores CSP strength is doing a job
 it cannot do well. So the four header gates here are `info`: they cost 0 points
@@ -25,10 +25,10 @@ from ..html import has_rel
 from ..page import PageData
 from ..report import Finding, NotEvaluated
 
-# OmniRank's own floor for Strict-Transport-Security max-age: 180 days in seconds.
+# Rankwright's own floor for Strict-Transport-Security max-age: 180 days in seconds.
 # Named here, and named in the finding text, because it is a CHOICE and not a
 # vendor requirement -- Chromium's HSTS preload submission form asks for a longer
-# max-age than this, and OmniRank deliberately claims nothing whatsoever about the
+# max-age than this, and Rankwright deliberately claims nothing whatsoever about the
 # preload list, which it cannot observe.
 HSTS_MIN_MAX_AGE = 15_552_000
 
@@ -70,7 +70,7 @@ def _hsts(page: PageData) -> list[Finding]:
                    "a Strict-Transport-Security header",
                    "Send Strict-Transport-Security from the origin or CDN so browsers "
                    "refuse to downgrade to http. This is reported as a fact, not a "
-                   "defect: OmniRank grades security headers only where their absence "
+                   "defect: Rankwright grades security headers only where their absence "
                    "breaks crawling, indexing or rendering, and this one does not.")]
     match = _MAX_AGE.search(value)
     if match is None:
@@ -84,9 +84,9 @@ def _hsts(page: PageData) -> list[Finding]:
                f"Strict-Transport-Security max-age={seconds}",
                f"max-age of at least {HSTS_MIN_MAX_AGE} seconds",
                f"Raise max-age to at least {HSTS_MIN_MAX_AGE}. That figure is "
-               "HSTS_MIN_MAX_AGE in gates/security.py -- OmniRank's own floor "
+               "HSTS_MIN_MAX_AGE in gates/security.py -- Rankwright's own floor "
                "(180 days), not an industry standard and not a vendor requirement. "
-               "OmniRank makes no claim about any browser's HSTS preload "
+               "Rankwright makes no claim about any browser's HSTS preload "
                "programme, which it cannot observe.")]
 
 
@@ -100,7 +100,7 @@ def _nosniff(page: PageData) -> list[Finding]:
                "X-Content-Type-Options: nosniff",
                "Send X-Content-Type-Options: nosniff so browsers honour the declared "
                "Content-Type. Reported as a fact: this is not an SEO or AEO signal "
-               "and OmniRank does not grade it.")]
+               "and Rankwright does not grade it.")]
 
 
 def _csp(page: PageData) -> list[Finding]:
@@ -109,7 +109,7 @@ def _csp(page: PageData) -> list[Finding]:
     return [_f("security.csp.absent", "csp", page.url, "info",
                "no Content-Security-Policy, by header or meta http-equiv",
                "a Content-Security-Policy",
-               "Consider adding a Content-Security-Policy. OmniRank reports only "
+               "Consider adding a Content-Security-Policy. Rankwright reports only "
                "total absence and deliberately does not assess a policy's contents: "
                "whether a given CSP is adequate is a judgement about your threat "
                "model, not something an SEO auditor can determine.")]
@@ -122,11 +122,11 @@ def _referrer_policy(page: PageData) -> list[Finding]:
                "no Referrer-Policy header",
                "a Referrer-Policy header",
                "Consider sending a Referrer-Policy. Reported as a fact: its absence "
-               "affects neither crawling nor indexing, and OmniRank does not grade "
+               "affects neither crawling nor indexing, and Rankwright does not grade "
                "which policy value you should choose.")]
 
 
-# The subresource-bearing (element, attribute) pairs OmniRank reads, split the way the
+# The subresource-bearing (element, attribute) pairs Rankwright reads, split the way the
 # W3C Mixed Content spec splits them. `link` is filtered further by rel below: a
 # <link rel="canonical" href="http://..."> is not a subresource -- the browser never
 # fetches it while rendering -- and reporting it as mixed content would be a fabricated
@@ -139,7 +139,7 @@ _ACTIVE_LINK_RELS: frozenset[str] = frozenset({"stylesheet", "preload", "modulep
 
 # OPTIONALLY-BLOCKABLE ("passive") content: browsers silently rewrite the request to
 # https:// before fetching it (Chrome/Firefox both auto-upgrade images and favicons),
-# and only fail if no https:// version exists at that path -- something OmniRank
+# and only fail if no https:// version exists at that path -- something Rankwright
 # cannot observe from the HTML alone. Claiming these "are not loading for your
 # visitors at all" would be false for the common case where the upgrade succeeds.
 _PASSIVE_ATTRS: tuple[tuple[str, str], ...] = (("img", "src"),)
@@ -218,7 +218,7 @@ def _mixed_content(page: PageData) -> list[Finding]:
             "Serve these over https, or add upgrade-insecure-requests to the page's "
             "Content-Security-Policy. Browsers rewrite these requests to https "
             "before fetching them, so they usually still load -- but the rewrite "
-            "fails silently if no https version exists at that path, which OmniRank "
+            "fails silently if no https version exists at that path, which Rankwright "
             "cannot verify from the HTML alone."))
     return findings
 

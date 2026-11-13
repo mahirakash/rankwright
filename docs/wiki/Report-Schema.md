@@ -1,19 +1,19 @@
 # Report Schema
 
-Every `omnirank audit` run writes a JSON file matching `schemas/report.schema.json`: a
+Every `rankwright audit` run writes a JSON file matching `schemas/report.schema.json`: a
 timestamp, a per-layer score, run statistics, a findings array and a `notEvaluated`
 array. Each finding's id follows the pattern `layer.gate.condition` and, once released,
 is never renamed — only added to or deprecated in place.
 
 Verified directly against `schemas/report.schema.json` and
-`scripts/py/omnirank/report.py`.
+`scripts/py/rankwright/report.py`.
 
 ## What does the top-level JSON look like?
 
 | Field | Type | Description |
 |---|---|---|
 | `generatedAt` | string, `date-time` | When the file was written, RFC 3339 UTC |
-| `tool` | object `{name, version}` | `name` is always `"omnirank"`; `version` is the installed package version (e.g. `"0.4.0"`) |
+| `tool` | object `{name, version}` | `name` is always `"rankwright"`; `version` is the installed package version (e.g. `"0.4.0"`) |
 | `site` | string | The audited site URL |
 | `kind` | enum: `audit`, `entity`, `rank`, `citation`, `mention-gap`, `indexing`, `weekly` | Only `audit` is produced by any shipped skill |
 | `score` | object, requires `overall` | Per-layer integer score (0-100) plus `overall` |
@@ -39,11 +39,11 @@ Verified directly against `schemas/report.schema.json` and
 | `layer` | enum: `seo`, `aeo`, `geo`, `offsite`, `smm`, `perf`, `security` | yes | **`security` is new in v0.4.0.** See layer table below |
 | `url` | string | yes | The URL the finding is about |
 | `gate` | string | yes | The coarser name `--fail-on` matches against (e.g. `canonical`, not `seo.canonical.missing`) |
-| `observed` | string | yes | What OmniRank actually found — the raw fact |
+| `observed` | string | yes | What Rankwright actually found — the raw fact |
 | `expected` | string | yes | What the gate requires |
 | `fix` | string | yes | A concrete, specific instruction for closing the gap |
 | `fixTier` | enum: `mechanical`, `templated`, `drafted`, `advisory`, `infrastructure` | yes, since v0.3.0 | The epistemic axis: what kind of information the correct edit requires. A static, derived property of `id` — see [[Fix-Tiers-and-Applicability]] |
-| `applicability` | enum: `safe`, `unsafe`, `display-only` | only when `omnirank fix` computed it | The safety axis, per finding-instance. **Absent from a plain `omnirank audit` file**, which does no locating |
+| `applicability` | enum: `safe`, `unsafe`, `display-only` | only when `rankwright fix` computed it | The safety axis, per finding-instance. **Absent from a plain `rankwright audit` file**, which does no locating |
 | `autoFixable` | boolean | **Never emitted since 0.3.0** | Deprecated. Kept in the schema, and only in the schema, so files written before v0.3.0 still validate. Use `fixTier` |
 
 `observed` and `expected` describe the current state; `fix` is the action to take.

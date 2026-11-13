@@ -16,7 +16,7 @@ Output is `og.png` at 1280×640 — GitHub's recommended size, and it must stay 
 for it, and `gh repo edit` cannot set it either. This step cannot be automated — it must be
 done by hand, every time the image changes:
 
-1. Open <https://github.com/bemoshiur/OmniRank/settings>
+1. Open <https://github.com/mahirakash/rankwright/settings>
 2. Scroll to **Social preview**
 3. **Edit** → **Upload an image** → choose `.github/assets/og.png`
 

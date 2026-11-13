@@ -8,11 +8,11 @@ import {
   buildLlmsFull,
   buildLlmsTxt,
   ConfigError,
-  type OmniRankConfig,
+  type RankwrightConfig,
   type Page,
 } from "./generate.js";
 
-const config: OmniRankConfig = {
+const config: RankwrightConfig = {
   site: {
     name: "X Example",
     legalName: "TICON System Limited",
@@ -82,7 +82,7 @@ describe("buildFacts", () => {
   });
 });
 
-// --- v0.2.1: OmniRank must never infer a content licence, but must not refuse to ---
+// --- v0.2.1: Rankwright must never infer a content licence, but must not refuse to ---
 // --- generate either -----------------------------------------------------------
 //
 // geo.license used to fall back to "CC-BY-4.0" when unset, silently publishing an
@@ -92,16 +92,16 @@ describe("buildFacts", () => {
 // "none" opt-out) could not generate anything. An absent geo.license now resolves
 // exactly like the explicit "none" opt-out: it generates, and grants nothing.
 
-const configWithoutGeo: OmniRankConfig = {
+const configWithoutGeo: RankwrightConfig = {
   site: { name: "X Example", url: "https://x.example", entityType: "Organization" },
 };
 
-const configWithGeoButNoLicense: OmniRankConfig = {
+const configWithGeoButNoLicense: RankwrightConfig = {
   site: { name: "X Example", url: "https://x.example", entityType: "Organization" },
   geo: { answerBlockSelector: ".answer-block" },
 };
 
-const withLicense = (license: string | null): OmniRankConfig => ({
+const withLicense = (license: string | null): RankwrightConfig => ({
   site: { name: "X Example", url: "https://x.example", entityType: "Organization" },
   geo: { license },
 });
@@ -189,11 +189,11 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const pythonBin = path.join(repoRoot, ".venv", "bin", "python");
 
 describe.skipIf(!existsSync(pythonBin))("Python/Node parity for an absent licence", () => {
-  it("buildLlmsTxt/buildLlmsFull/facts.license match omnirank's Python output exactly", () => {
+  it("buildLlmsTxt/buildLlmsFull/facts.license match rankwright's Python output exactly", () => {
     const pySnippet = `
 import json
-from omnirank.config import Config
-from omnirank.geo_artifacts import Page, build_facts, build_llms_full, build_llms_txt
+from rankwright.config import Config
+from rankwright.geo_artifacts import Page, build_facts, build_llms_full, build_llms_txt
 
 cfg = Config({
     "site": {"name": "X Example", "url": "https://x.example", "entityType": "Organization"},

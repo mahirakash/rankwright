@@ -1,4 +1,4 @@
-### [OmniRank](https://github.com/bemoshiur/OmniRank)
+### [Rankwright](https://github.com/mahirakash/rankwright)
 
 **One page. Every engine.**
 
@@ -43,6 +43,6 @@
 
 ---
 
-[⬇ Download skill](https://github.com/bemoshiur/OmniRank/releases/latest/download/omnirank-skill.zip)
-· [Issues](https://github.com/bemoshiur/OmniRank/issues)
-· [Discussions](https://github.com/bemoshiur/OmniRank/discussions)
+[⬇ Download skill](https://github.com/mahirakash/rankwright/releases/latest/download/rankwright-skill.zip)
+· [Issues](https://github.com/mahirakash/rankwright/issues)
+· [Discussions](https://github.com/mahirakash/rankwright/discussions)

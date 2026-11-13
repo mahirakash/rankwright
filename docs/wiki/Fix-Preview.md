@@ -1,6 +1,6 @@
 # Fix Preview
 
-`omnirank fix` answers the question no URL-keyed SEO tool can: which file is wrong? It
+`rankwright fix` answers the question no URL-keyed SEO tool can: which file is wrong? It
 audits a site, resolves each finding's URL to a source file, and prints the unified diff
 it would apply. It writes nothing — there is no `--write` flag, and passing one exits
 before any network call runs. That has been true since v0.3.0 and remains true in
@@ -9,12 +9,12 @@ new `security` layer, five contradiction gates, on-page accessibility gates) rat
 on write access. Writing ships once the locator is proven against real repositories and
 the write guarantees it depends on are implemented and tested — not on a release number.
 
-Verified against `scripts/py/omnirank/cli.py`, `scripts/py/omnirank/fixes/`, and a real
+Verified against `scripts/py/rankwright/cli.py`, `scripts/py/rankwright/fixes/`, and a real
 run captured on this machine, shown in full below.
 
-## What does `omnirank fix` actually do?
+## What does `rankwright fix` actually do?
 
-Three steps, all read-only: audit the site (the same `audit_site()` `omnirank audit`
+Three steps, all read-only: audit the site (the same `audit_site()` `rankwright audit`
 uses), detect the project's framework and locate each finding's source file (see
 [[The-Locator]]), then generate a diff for every finding whose `fixTier` is `mechanical`
 — currently 4 of 67 ids — when the locator's confidence and the edit's blast radius both
@@ -22,14 +22,14 @@ allow it (see [[Fix-Tiers-and-Applicability]]). Everything else is grouped and r
 as a reason it was not fixed, never silently dropped.
 
 ```bash
-omnirank fix https://example.com --root .
-omnirank fix --config omnirank.config.json --json
+rankwright fix https://example.com --root .
+rankwright fix --config rankwright.config.json --json
 ```
 
 | Flag | Description |
 |---|---|
 | `url` (positional) | Site root; omit when using `--config` |
-| `--config PATH` | Path to `omnirank.config.json` |
+| `--config PATH` | Path to `rankwright.config.json` |
 | `--root PATH` | Repository root to locate findings in. Default: `.` |
 | `--json` | Emit the fix plan as structured JSON, including an explicit `"wrote": []` |
 | `--top N` | Limit the grouped "NOT FIXED" summary to the top N groups (default: all) |
@@ -47,8 +47,8 @@ placeholder) the project's own demo GIF is rendered from — served locally with
 -m http.server` and audited with no config file:
 
 ```
-$ python3 -m omnirank.cli audit http://127.0.0.1:8792
-OmniRank 0.4.0 — http://127.0.0.1:8792
+$ python3 -m rankwright.cli audit http://127.0.0.1:8792
+Rankwright 0.4.0 — http://127.0.0.1:8792
   overall 93/100  aeo 100  geo 87  perf 85  security 100  seo 93
   3 URLs checked · 19 findings in 9 groups
 
@@ -71,12 +71,12 @@ nothing — the three `info`-only header findings (`nosniff`, `csp`, `referrer-p
 fired but cost nothing and never touch the score. See [[Security-Layer]].
 
 Three of the errors above — two `seo.canonical.missing` and one `seo.canonical.relative` —
-are `mechanical`-tier. Now preview what `omnirank fix` would do about them, against the
+are `mechanical`-tier. Now preview what `rankwright fix` would do about them, against the
 same fixture, with no config and no `--write`:
 
 ```
-$ python3 -m omnirank.cli fix http://127.0.0.1:8792 --root scripts/fixtures/demo-site
-OmniRank 0.4.0 — fix preview (writes nothing)
+$ python3 -m rankwright.cli fix http://127.0.0.1:8792 --root scripts/fixtures/demo-site
+Rankwright 0.4.0 — fix preview (writes nothing)
   framework: static (confidence high; evidence: index.html)
   2 diff(s) ready · 1 finding(s) not fixable here
 
@@ -126,14 +126,14 @@ naming individually:
    rather than guessing where `<head>` was meant to end. This is the applicability model
    working as designed: a plausible insertion point is not the same as a correct one.
 
-## Does `omnirank fix` write anything, ever?
+## Does `rankwright fix` write anything, ever?
 
 No. Not with any flag, any config, or any combination of the two. Passing `--write`
 prints a refusal and exits `2` before `load_config()` or any network call runs:
 
 ```
-$ python3 -m omnirank.cli fix http://127.0.0.1:8792 --root scripts/fixtures/demo-site --write
-omnirank: omnirank fix has no --write path. This release locates findings and prints
+$ python3 -m rankwright.cli fix http://127.0.0.1:8792 --root scripts/fixtures/demo-site --write
+rankwright: rankwright fix has no --write path. This release locates findings and prints
 the diff it would apply; it writes nothing. Writing ships once the locator has been
 proven against real repositories and the write guarantees in
 docs/research/2026-08-04-automation-architecture.md section 2.5 are implemented and
@@ -144,7 +144,7 @@ guarantees exist, would be worse than not shipping it.
 `fixes/base.py` states the same guarantee in its own module docstring: "NOTHING IN THIS
 PACKAGE OPENS A FILE FOR WRITING." A test in the repository's own suite asserts it
 directly. File modification ships once the locator is proven against real repositories
-and the write guarantees (git-dirty checks, a journal, `omnirank undo`) described in
+and the write guarantees (git-dirty checks, a journal, `rankwright undo`) described in
 `docs/research/2026-08-04-automation-architecture.md` are implemented and tested — not
 on a release number. v0.4.0 deliberately spent its budget on broadening what `audit`
 covers instead: auditing better is zero-risk, and a richer audit is what earns the right
@@ -185,5 +185,5 @@ would rather under-ship now than earn back trust later.
 - [[Fix-Tiers-and-Applicability]] — the `fixTier` × `applicability` model in full
 - [[The-Locator]] — how the `framework:` line and each file path above were determined
 - [[Finding-Reference]] — every finding id's `fixTier`, so you know what to expect before running `fix`
-- [[CI-Recipes#gating-on-omnirank-fix-instead-of-or-alongside---fail-on]] — using `fix`'s exit code in a pipeline
-- [[Troubleshooting#omnirank-fix-says-a-finding-is-not-fixable-here]] — reading every decline reason
+- [[CI-Recipes#gating-on-rankwright-fix-instead-of-or-alongside---fail-on]] — using `fix`'s exit code in a pipeline
+- [[Troubleshooting#rankwright-fix-says-a-finding-is-not-fixable-here]] — reading every decline reason

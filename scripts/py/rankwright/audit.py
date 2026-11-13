@@ -30,7 +30,7 @@ PER_PAGE_GATES = ("seo", "aeo", "perf", "security", "onpage")
 
 
 def default_config(url: str) -> Config:
-    """A usable Config from a bare URL, so `omnirank audit <url>` needs no file."""
+    """A usable Config from a bare URL, so `rankwright audit <url>` needs no file."""
     return Config({
         "site": {"name": url, "url": url, "entityType": "Organization"},
     })
@@ -90,7 +90,7 @@ def audit_site(config: Config, client: httpx.Client | None = None,
                     url=f"{config.site_url}/sitemap.xml", gate="sitemap-health",
                     observed="no sitemap.xml found (or it listed no URLs)",
                     expected="a sitemap.xml enumerating the site's URLs",
-                    fix="Publish a sitemap.xml so OmniRank -- and search engines -- "
+                    fix="Publish a sitemap.xml so Rankwright -- and search engines -- "
                         "can discover every page. Without one, this audit only "
                         "sees the homepage."))
                 report.flag_not_evaluated(NotEvaluated(

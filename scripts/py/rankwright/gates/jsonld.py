@@ -54,7 +54,7 @@ MAX_WALK_DEPTH = 100
 def _walk(node: object, depth: int = 0) -> list[dict]:
     """Every dict anywhere in the tree, so nested ratings and reviews are seen.
 
-    Depth-capped: OmniRank parses untrusted third-party markup, and an
+    Depth-capped: Rankwright parses untrusted third-party markup, and an
     unbounded walk turns a hostile or malformed document into a crashed scan.
     """
     if depth > MAX_WALK_DEPTH:
@@ -99,7 +99,7 @@ def _fabrication(blocks: list[dict], url: str) -> list[Finding]:
 
 
 # The date this table was transcribed from Google's rich-result documentation.
-# Named in every finding: the table is OmniRank's reading of Google's docs on one
+# Named in every finding: the table is Rankwright's reading of Google's docs on one
 # day, not a live contract, and a reader is entitled to judge its age. SS6 of
 # docs/research/2026-08-04-competitive-gap-analysis.md is explicit that a stale
 # required-property table produces FABRICATED errors -- which is why these findings
@@ -240,7 +240,7 @@ def _required_properties(blocks: list[dict], url: str) -> list[Finding]:
             "RICH_RESULT_RULES in gates/jsonld.py: without these the page stays "
             "valid and simply is not eligible for the rich result. Eligibility is "
             "also not display -- Google decides per query whether to show one, and "
-            "OmniRank cannot observe that."))
+            "Rankwright cannot observe that."))
     return findings
 
 

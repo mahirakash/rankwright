@@ -1,5 +1,5 @@
-from omnirank.gates import site
-from omnirank.page import PageData
+from rankwright.gates import site
+from rankwright.page import PageData
 
 SITE = "https://x.example"
 

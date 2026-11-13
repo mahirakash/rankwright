@@ -1,10 +1,10 @@
-# Fix preview (`omnirank fix`)
+# Fix preview (`rankwright fix`)
 
-`omnirank fix` answers the question every other SEO tool cannot: **which file is
+`rankwright fix` answers the question every other SEO tool cannot: **which file is
 wrong?** It runs an audit, resolves each finding's URL to a source file, and prints
 the unified diff it would apply.
 
-`omnirank fix` writes nothing. There is no `--write` flag, and passing one exits 2
+`rankwright fix` writes nothing. There is no `--write` flag, and passing one exits 2
 with an explanation rather than silently doing nothing.
 
 Writing is gated on the locator being proven against real repositories and on the
@@ -14,8 +14,8 @@ spends its budget on audit coverage instead: auditing better is zero-risk, and a
 richer audit is what earns the right to edit files later.
 
 ```bash
-omnirank fix https://example.com --root .
-omnirank fix --config omnirank.config.json --json
+rankwright fix https://example.com --root .
+rankwright fix --config rankwright.config.json --json
 ```
 
 Exit codes: `0` nothing to fix · `1` at least one diff was produced (gate CI on this)

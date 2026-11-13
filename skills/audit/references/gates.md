@@ -30,7 +30,7 @@ they diverge in a way that trips people up.
 The word range is not arbitrary. Answer engines lift whole blocks; under 40 words carries
 too little to answer with, over 60 gets truncated or skipped. The selector defaults to
 `.answer-block` and is configurable via `geo.answerBlockSelector` in
-`omnirank.config.json`.
+`rankwright.config.json`.
 
 ## GEO
 
@@ -122,7 +122,7 @@ an SEO tool scoring CSP strength would be doing a job it cannot do well.
 | Gate | Finding id | Rule | Severity |
 |---|---|---|---|
 | `hsts` | `security.hsts.missing` | An `https://` response carries no `Strict-Transport-Security` header | info |
-| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below `HSTS_MIN_MAX_AGE` (15,552,000 seconds / 180 days — OmniRank's own floor, not a vendor requirement) | info |
+| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below `HSTS_MIN_MAX_AGE` (15,552,000 seconds / 180 days — Rankwright's own floor, not a vendor requirement) | info |
 | `nosniff` | `security.nosniff.missing` | `X-Content-Type-Options` is not exactly `nosniff` | info |
 | `csp` | `security.csp.absent` | No `Content-Security-Policy`, by header or `<meta http-equiv>` | info |
 | `referrer-policy` | `security.referrer-policy.missing` | No `Referrer-Policy` header | info |
@@ -134,12 +134,12 @@ an SEO tool scoring CSP strength would be doing a job it cannot do well.
 They are reported as inventory facts, not graded: whether a given HSTS `max-age` or CSP is
 *adequate* is a judgement about your threat model that an SEO auditor has no business
 making. Only `mixed-content`'s active-subresource id and `https-redirect` are `error`,
-because only those two break something OmniRank can actually observe — browsers block
+because only those two break something Rankwright can actually observe — browsers block
 mixed *active* content outright, and a non-redirecting `http://` origin gives every page a
 live duplicate that splits canonical signal between two URLs. The passive-subresource id
 (v0.4.0 final review, S4) is `warning`: browsers silently rewrite an `img` or icon request
 to `https://` before fetching it, so it is only a confirmed failure when no `https://`
-version exists at that path — something OmniRank cannot verify from the HTML alone, so it
+version exists at that path — something Rankwright cannot verify from the HTML alone, so it
 does not claim the resource "is not loading" the way the active-content id does.
 `security` enters the report's `layersRun` the same way `aeo` and `perf` do — only after
 at least one page was actually fetched (v0.4.0 final review, S5; a successful
@@ -176,8 +176,8 @@ Two things worth knowing before wiring these into `--fail-on`:
   A 200-page site sharing one template title produces one finding, not 200.
 - **Targets outside the crawled set are never judged.** `canonical-cluster` and
   `hreflang-reciprocity` only evaluate a target when that target is itself one of the
-  pages OmniRank fetched. A canonical or hreflang alternate pointing outside the
-  crawled set produces no finding either way — OmniRank never reports on a gate it
+  pages Rankwright fetched. A canonical or hreflang alternate pointing outside the
+  crawled set produces no finding either way — Rankwright never reports on a gate it
   could not actually evaluate.
 
 ## Indexability contradictions (v0.4.0)
@@ -199,7 +199,7 @@ every one carries `layer: "seo"`.
 
 Two rules govern every check in this module:
 
-- **Never judge a URL OmniRank did not see.** A canonical target already in the crawled
+- **Never judge a URL Rankwright did not see.** A canonical target already in the crawled
   set is judged from the `PageData` already held — no second fetch. A target outside it is
   probed once, deduplicated across every page pointing at it, up to `MAX_CANONICAL_PROBES`
   (25 per audit); anything past that budget is `budget-exceeded` in `notEvaluated`, never
@@ -210,19 +210,19 @@ Two rules govern every check in this module:
   `no-sitemap`, `page-unreachable`, or `matcher-unsupported` in `notEvaluated` rather than
   a pass when it cannot reach a verdict. `matcher-unsupported` is real on Python 3.11–3.13:
   `urllib.robotparser` only became RFC 9309 compliant in Python 3.14, so on earlier
-  interpreters OmniRank refuses to answer rather than trust a matcher it knows may ignore
-  wildcards or mis-order `Allow`/`Disallow` overlaps — see `omnirank/robots.py`.
+  interpreters Rankwright refuses to answer rather than trust a matcher it knows may ignore
+  wildcards or mis-order `Allow`/`Disallow` overlaps — see `rankwright/robots.py`.
 
 ## Performance
 
 `perf.run(page)` derives every finding from the single HTTP response already captured
 for that page — response time, raw HTML size, the `content-encoding` header, and the
-`<head>` markup. **No browser is involved.** OmniRank cannot measure Largest
+`<head>` markup. **No browser is involved.** Rankwright cannot measure Largest
 Contentful Paint, Cumulative Layout Shift, Interaction to Next Paint, or produce a
 Lighthouse score, and no finding text implies otherwise.
 
-The thresholds below are OmniRank's own tunable defaults, not an industry benchmark —
-each is a named constant in `scripts/py/omnirank/gates/perf.py`.
+The thresholds below are Rankwright's own tunable defaults, not an industry benchmark —
+each is a named constant in `scripts/py/rankwright/gates/perf.py`.
 
 | Gate | Finding id | Rule (constant) | Severity |
 |---|---|---|---|
@@ -236,11 +236,11 @@ each is a named constant in `scripts/py/omnirank/gates/perf.py`.
 `client.get()` call — DNS, TCP, TLS, request, and reading the *complete* response body —
 so it measures a full download, not first-byte latency; the gate was renamed from `ttfb`
 for exactly this reason, with thresholds raised to match. It is measured from wherever
-OmniRank's own request ran — a laptop, a CI runner — never from a real visitor's location
+Rankwright's own request ran — a laptop, a CI runner — never from a real visitor's location
 or network. Treat every `perf` finding as a signal to investigate, not as a metric any
 user actually experienced.
 
-**`compression` can only verify `gzip`/`deflate`.** OmniRank's HTTP client does not
+**`compression` can only verify `gzip`/`deflate`.** Rankwright's HTTP client does not
 depend on `brotli` or `zstandard`, so it never requests `br` or `zstd` via
 `Accept-Encoding` — an origin will not choose to send either back in response to a
 request that never asked for them.
@@ -292,5 +292,5 @@ agree:
 | `seo.schema.no-context` | mechanical | Adds `"@context": "https://schema.org"` to an unambiguous node |
 
 Everything else is `templated`, `drafted`, `advisory` or `infrastructure`, and is
-reported rather than patched. `omnirank fix` writes nothing — see
+reported rather than patched. `rankwright fix` writes nothing — see
 [fix-preview.md](../../../docs/fix-preview.md) for the condition writing ships under.

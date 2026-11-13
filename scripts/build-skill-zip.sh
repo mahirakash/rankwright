@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Build a downloadable Claude-skill ZIP for OmniRank.
+# Build a downloadable Claude-skill ZIP for Rankwright.
 #
 # Usage: scripts/build-skill-zip.sh [version]
 #   version   optional; defaults to the "version" field in
 #             .claude-plugin/plugin.json
 #
-# Stages a top-level `omnirank/` folder containing the pieces a user needs
+# Stages a top-level `rankwright/` folder containing the pieces a user needs
 # to install the skill without cloning the repo, strips build/cache
-# artifacts, zips it, and writes dist/omnirank-skill-<version>.zip.
+# artifacts, zips it, and writes dist/rankwright-skill-<version>.zip.
 
 set -euo pipefail
 
@@ -28,12 +28,12 @@ else
 fi
 
 DIST_DIR="${ROOT}/dist"
-OUT_ZIP="${DIST_DIR}/omnirank-skill-${VERSION}.zip"
+OUT_ZIP="${DIST_DIR}/rankwright-skill-${VERSION}.zip"
 
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "${WORK_DIR}"' EXIT
 
-STAGE="${WORK_DIR}/omnirank"
+STAGE="${WORK_DIR}/rankwright"
 mkdir -p "${STAGE}"
 
 # Paths staged into the release, relative to repo root. Missing ones are
@@ -71,7 +71,7 @@ find "${STAGE}" -type f -name "*.pyc" -delete
 mkdir -p "${DIST_DIR}"
 rm -f "${OUT_ZIP}"
 
-(cd "${WORK_DIR}" && zip -rq "${OUT_ZIP}" "omnirank")
+(cd "${WORK_DIR}" && zip -rq "${OUT_ZIP}" "rankwright")
 
 if [[ ! -s "${OUT_ZIP}" ]]; then
   echo "ERROR: ${OUT_ZIP} was not created or is empty" >&2
@@ -79,8 +79,8 @@ if [[ ! -s "${OUT_ZIP}" ]]; then
 fi
 
 LISTING="$(unzip -l "${OUT_ZIP}")"
-if ! grep -q "omnirank/.claude-plugin/plugin.json" <<< "${LISTING}"; then
-  echo "ERROR: ${OUT_ZIP} does not contain omnirank/.claude-plugin/plugin.json" >&2
+if ! grep -q "rankwright/.claude-plugin/plugin.json" <<< "${LISTING}"; then
+  echo "ERROR: ${OUT_ZIP} does not contain rankwright/.claude-plugin/plugin.json" >&2
   exit 1
 fi
 

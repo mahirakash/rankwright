@@ -22,7 +22,7 @@ pre-deploy verification, or "why doesn't ChatGPT cite us?"
 
 Audit only diagnoses. It never edits the site.
 
-`omnirank fix` shows the diff it would apply for the four `mechanical` findings and
+`rankwright fix` shows the diff it would apply for the four `mechanical` findings and
 writes nothing — there is no `--write` flag. Run it to answer "which file is
 wrong?", then hand the diff to a human.
 
@@ -30,14 +30,14 @@ wrong?", then hand the diff to a human.
 
 ```bash
 # Zero-config, any live site
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 
 # Configured repo, CI-ready
-python3 -m omnirank.cli audit --config omnirank.config.json --fail-on h1 canonical schema
+python3 -m rankwright.cli audit --config rankwright.config.json --fail-on h1 canonical schema
 ```
 
 Exit codes: `0` clean, `1` a configured gate failed, `2` usage or config error.
-The JSON report lands in `.omnirank/reports/<date>-audit.json`.
+The JSON report lands in `.rankwright/reports/<date>-audit.json`.
 
 `--fail-on` takes **gate names** (`h1`, `canonical`, `title-length`, `llms-txt`,
 `facts-json`, `schema`, ...), not finding ids — see `references/gates.md` for the

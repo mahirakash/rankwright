@@ -1,23 +1,23 @@
 # Security Layer
 
-OmniRank's `security` layer, new in v0.4.0, checks eight things about a page's response
+Rankwright's `security` layer, new in v0.4.0, checks eight things about a page's response
 headers and markup. Four header gates are inventory only — reported, never graded,
 because a stronger tool already grades them well. Two gates are graded because they break
 something real: mixed content browsers block outright, and a missing HTTPS redirect
 splits canonical signal across two live URLs.
 
-Verified against `scripts/py/omnirank/gates/security.py` and
-`scripts/py/omnirank/report.py`. Every claim below is checked against the source, not
+Verified against `scripts/py/rankwright/gates/security.py` and
+`scripts/py/rankwright/report.py`. Every claim below is checked against the source, not
 transcribed from memory — if this page and the code ever disagree, the code is right.
 
 ## Why does `security` exist in an SEO/AEO/GEO tool at all?
 
 Because insecurity sometimes breaks crawling, indexing, or rendering directly, and those
-three are exactly what the rest of OmniRank already measures. `docs/research/2026-08-04-competitive-gap-analysis.md`
+three are exactly what the rest of Rankwright already measures. `docs/research/2026-08-04-competitive-gap-analysis.md`
 §4 draws the scope line deliberately narrow: Mozilla Observatory and testssl.sh already
 grade security headers properly, for free, and an SEO tool that scores CSP strength is
 doing a job it cannot do well. So `security` checks only where a header's absence or a
-markup mistake demonstrably breaks something OmniRank's own audience — crawlers and
+markup mistake demonstrably breaks something Rankwright's own audience — crawlers and
 browsers rendering the page — actually experiences. Everything else is out of scope by
 design, not by oversight.
 
@@ -41,22 +41,22 @@ each side landed where it did.
 
 ## Why are the four header gates `info`, forever, on purpose?
 
-Because grading them would mean asserting a claim OmniRank cannot back. Whether a given
+Because grading them would mean asserting a claim Rankwright cannot back. Whether a given
 `Content-Security-Policy` is *adequate* is a judgement about your specific threat model —
 what you embed, what you load from third parties, what an attacker would actually gain —
 and a generic auditor reading one response has none of that context. Whether an `HSTS`
 `max-age` of 90 days versus 180 days versus a year is "enough" depends on your deployment
-cadence and risk tolerance, not on a rule OmniRank could state once and apply everywhere.
-So these four are reported as **inventory facts** — what OmniRank observed, plainly
+cadence and risk tolerance, not on a rule Rankwright could state once and apply everywhere.
+So these four are reported as **inventory facts** — what Rankwright observed, plainly
 stated — and deliberately never cost a point: `ERROR_COST`/`WARNING_COST` are the only
 nonzero costs in `report.py`, and `info` is neither. They are also excluded from
 `security`'s scoring *surface* entirely (`SCORING_GATES_BY_LAYER` in `registry.py`), not
 merely given zero cost — a subtlety that turned out to matter more than it looked like it
 would. See [A scoring bug worth knowing about](#a-scoring-bug-worth-knowing-about) below.
 
-`HSTS_MIN_MAX_AGE` (180 days) is named explicitly as **OmniRank's own floor**, not a
+`HSTS_MIN_MAX_AGE` (180 days) is named explicitly as **Rankwright's own floor**, not a
 vendor requirement — the finding text says so, and makes no claim whatsoever about any
-browser's HSTS preload submission programme, which OmniRank cannot observe from one
+browser's HSTS preload submission programme, which Rankwright cannot observe from one
 response. CSP is parsed for exactly one thing beyond noting its total absence:
 `upgrade-insecure-requests`, which suppresses both `mixed-content` findings because
 browsers rewrite the request before making it. This module never grades a policy's
@@ -64,7 +64,7 @@ contents beyond that one directive.
 
 ## Why are `mixed-content` and `https-redirect` different?
 
-Because these two break something OmniRank can observe directly, not something that
+Because these two break something Rankwright can observe directly, not something that
 depends on a threat model. A browser refuses outright to load an `http://` `<script>`,
 `<iframe>`, or stylesheet on an `https://` page — the request never happens, so the page
 is measurably broken as served, which is why `security.mixed-content.subresource` is
@@ -80,7 +80,7 @@ split is not a simplification — it changes the finding's severity and its hone
   all. The resource is not loading for any visitor, full stop, so this is `error`.
 - **Passive** (`<img>`, favicon-family `<link>` rels) — both browsers silently rewrite the
   request to `https://` before fetching it, and only fail if no `https://` version exists
-  at that exact path, which OmniRank cannot verify from the HTML alone. Claiming these
+  at that exact path, which Rankwright cannot verify from the HTML alone. Claiming these
   "are not loading" would be false in the common case where the upgrade quietly succeeds,
   so this is `warning`, not `error` — an honest downgrade, not a weaker check.
 
@@ -108,14 +108,14 @@ miss in review — a finding that costs nothing looking obviously harmless to ad
 40,000-trial randomised property test now asserts the promise holds for any finding drawn
 from the real registry, and it fails against the pre-fix code within its first 400 trials.
 
-Reproduce it yourself: `python3 -m omnirank.cli audit https://danluu.com` against v0.4.0
+Reproduce it yourself: `python3 -m rankwright.cli audit https://danluu.com` against v0.4.0
 reports `security 67`, driven by `security.https-redirect.missing` — danluu.com's plain
 `http://` origin does not redirect to `https://` — while its `hsts`, `nosniff`, `csp` and
 `referrer-policy` findings all fire too and change nothing, exactly as designed.
 
 ## Honest limits
 
-- **No claim about any browser's HSTS preload list.** OmniRank cannot observe Chromium's
+- **No claim about any browser's HSTS preload list.** Rankwright cannot observe Chromium's
   preload database from an HTTP response, and does not try to.
 - **CSP contents are never graded**, only its total absence and the one
   `upgrade-insecure-requests` directive. A CSP that is present but weak reports as present.

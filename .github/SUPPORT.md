@@ -2,7 +2,7 @@
 
 ## Questions and discussion
 
-Use [Discussions](https://github.com/bemoshiur/OmniRank/discussions):
+Use [Discussions](https://github.com/mahirakash/rankwright/discussions):
 
 - **Q&A** — how do I configure or run something
 - **Ideas** — feature proposals before they become issues
@@ -13,17 +13,16 @@ Use [Discussions](https://github.com/bemoshiur/OmniRank/discussions):
 
 ## Bugs
 
-Open an [issue](https://github.com/bemoshiur/OmniRank/issues/new/choose) with the bug
-template. Include the OmniRank version, the command you ran, and the relevant part of the
+Open an [issue](https://github.com/mahirakash/rankwright/issues/new/choose) with the bug
+template. Include the Rankwright version, the command you ran, and the relevant part of the
 JSON report. Redact secrets.
 
 ## Documentation
 
-The [wiki](https://github.com/bemoshiur/OmniRank/wiki) covers configuration, gates,
+The [wiki](https://github.com/mahirakash/rankwright/wiki) covers configuration, gates,
 adapters and CI recipes.
 
-## Commercial support
+## Origin
 
-OmniRank is built at [TICON System Limited](https://ticonsys.com), Dhaka. For
-engagements, contact moshiur@ticonsys.com or connect on
-[LinkedIn](https://www.linkedin.com/in/in-moshiur/).
+Rankwright is a fork of [OmniRank](https://github.com/bemoshiur/OmniRank) by S M Moshiur Rahman
+(TICON System Limited, Dhaka). Questions about the original project belong there.

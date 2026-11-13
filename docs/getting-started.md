@@ -13,14 +13,14 @@ bottom covers the likely causes.
 | git | any recent version | Cloning the repository |
 | Node.js | 22+ | Only if you use the **in-repo** GEO-artifacts generator (`scripts/node`) instead of the Python crawl path — see [geo-artifacts-guide.md](geo-artifacts-guide.md) |
 
-OmniRank is not published to PyPI, npm, or a container registry as of v0.1.1. It installs
+Rankwright is not published to PyPI, npm, or a container registry as of v0.1.1. It installs
 from source.
 
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git
-cd OmniRank
+git clone https://github.com/mahirakash/rankwright.git
+cd Rankwright
 ```
 
 ## 2. Create a virtual environment
@@ -64,7 +64,7 @@ make install
 ```
 
 This runs `cd scripts/py && python3 -m pip install -e ".[dev]"` (see `Makefile`). It
-installs `omnirank` in editable mode — code changes take effect immediately, no
+installs `rankwright` in editable mode — code changes take effect immediately, no
 reinstall — plus the test toolchain (`pytest`, `respx`, `ruff`, `rfc3339-validator`,
 `pyyaml`).
 
@@ -77,8 +77,8 @@ cd scripts/py && python3 -m pip install -e ".[dev]" && cd ../..
 Confirm the install:
 
 ```bash
-$ python3 -m omnirank.cli --version
-omnirank 0.1.1
+$ python3 -m rankwright.cli --version
+rankwright 0.1.1
 ```
 
 ## 4. Run the first audit
@@ -86,13 +86,13 @@ omnirank 0.1.1
 No configuration file is required to audit a live site — a bare URL is enough:
 
 ```bash
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 ```
 
 Real output, captured against `https://example.com` on this machine:
 
 ```
-OmniRank 0.2.0 — https://example.com
+Rankwright 0.2.0 — https://example.com
   overall 76/100  aeo 80  geo 60  perf 100  seo 67
   1 URLs checked, 10 findings
   [FAIL] seo.canonical.missing  https://example.com/
@@ -125,7 +125,7 @@ OmniRank 0.2.0 — https://example.com
   [FAIL] geo.ai-allowlist.missing  https://example.com/robots.txt
          observed: HTTP 404 at /robots.txt
          fix: Publish a robots.txt that explicitly allows AI crawlers.
-  report: .omnirank/reports/2026-08-03-audit.json
+  report: .rankwright/reports/2026-08-03-audit.json
 ```
 
 `example.com` deliberately ships nothing but a static placeholder page, so this is close
@@ -144,7 +144,7 @@ ran.
 
 | Field | Meaning |
 |---|---|
-| `observed` | What OmniRank actually found on the page — the raw fact |
+| `observed` | What Rankwright actually found on the page — the raw fact |
 | `expected` | What the gate requires |
 | `fix` | A concrete, specific instruction for closing the gap |
 
@@ -156,12 +156,12 @@ full gate table and how the two relate.
 
 ## 6. Where the JSON report lands
 
-By default: `.omnirank/reports/<UTC-date>-audit.json`, relative to your current working
+By default: `.rankwright/reports/<UTC-date>-audit.json`, relative to your current working
 directory — the terminal output above ends with `report:
-.omnirank/reports/2026-08-03-audit.json`. Override the path with `--out`:
+.rankwright/reports/2026-08-03-audit.json`. Override the path with `--out`:
 
 ```bash
-python3 -m omnirank.cli audit https://example.com --out /tmp/report.json
+python3 -m rankwright.cli audit https://example.com --out /tmp/report.json
 ```
 
 The JSON is the same data as the terminal summary, in full — every finding, not just the
@@ -171,7 +171,7 @@ first 25 the terminal view truncates to — validated against `schemas/report.sc
 
 | Code | Meaning |
 |---|---|
-| `0` | Clean — no `--fail-on` gate had an error-severity finding, or `geo` finished writing its three artifacts (this includes a bare `omnirank geo <url>` with no config, which grants no reuse rights and says so on stderr — see below) |
+| `0` | Clean — no `--fail-on` gate had an error-severity finding, or `geo` finished writing its three artifacts (this includes a bare `rankwright geo <url>` with no config, which grants no reuse rights and says so on stderr — see below) |
 | `1` | At least one gate named in `--fail-on` (or your config's `audit.failOn`) had an error-severity finding |
 | `2` | Usage or configuration error — missing/invalid config file, or neither a URL nor `--config` given |
 
@@ -180,7 +180,7 @@ reported, but nothing was configured to fail the build on them. This makes exit 
 opt-in and safe to wire into CI once you decide which gates matter; see
 [ci-integration.md](ci-integration.md).
 
-**`geo` works with no config file, but says so.** `omnirank geo <url>` with no
+**`geo` works with no config file, but says so.** `rankwright geo <url>` with no
 `--config` uses an in-memory default config that has no `geo` section, so `geo.license`
 is always unset — as of v0.2.1 that generates the three artifacts anyway (granting no
 reuse rights, same as the explicit `"none"`) and prints a one-line notice to stderr
@@ -198,31 +198,31 @@ back to [step 2](#2-create-a-virtual-environment): create and activate a venv, t
 install inside it. Never pass `--break-system-packages` — it defeats the protection PEP
 668 exists to provide and can corrupt the system Python's package set.
 
-### `omnirank: provide a URL or --config`
+### `rankwright: provide a URL or --config`
 
-You ran `omnirank audit` with neither a URL nor `--config`. Exit code `2`. Add one:
+You ran `rankwright audit` with neither a URL nor `--config`. Exit code `2`. Add one:
 
 ```bash
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 # or
-python3 -m omnirank.cli audit --config omnirank.config.json
+python3 -m rankwright.cli audit --config rankwright.config.json
 ```
 
-### `ModuleNotFoundError: No module named 'omnirank'`
+### `ModuleNotFoundError: No module named 'rankwright'`
 
 The install did not target the interpreter you are now running. Confirm the venv is
 active (`which python3` should point inside `.venv/bin/`) and re-run `make install`. If
-you are running `python3 -m omnirank.cli` from a shell where you `source .venv/bin/activate`d
+you are running `python3 -m rankwright.cli` from a shell where you `source .venv/bin/activate`d
 in a different terminal tab, the activation did not carry over — activate it in the shell
 you are actually using.
 
-### `omnirank: Config not found: <path>`
+### `rankwright: Config not found: <path>`
 
 `--config` was given a path that does not exist relative to your current working
 directory. Exit code `2`. Check the path, or copy the starter template first:
 
 ```bash
-cp templates/omnirank.config.example.json omnirank.config.json
+cp templates/rankwright.config.example.json rankwright.config.json
 ```
 
 See [configuration.md](configuration.md) for every field, and

@@ -28,7 +28,7 @@ Unacceptable behaviour:
 
 ## Enforcement
 
-Report unacceptable behaviour to **moshiur@ticonsys.com**. All complaints will be
+Report unacceptable behaviour to the maintainer, [@mahirakash](https://github.com/mahirakash), through a [private vulnerability report](https://github.com/mahirakash/rankwright/security/advisories/new). All complaints will be
 reviewed and investigated promptly and fairly. Maintainers will respect the privacy and
 security of the reporter.
 

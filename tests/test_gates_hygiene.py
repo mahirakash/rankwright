@@ -1,8 +1,8 @@
 import httpx
 import respx
 
-from omnirank.fetch import make_client
-from omnirank.gates import hygiene
+from rankwright.fetch import make_client
+from rankwright.gates import hygiene
 
 SITE = "https://x.example"
 

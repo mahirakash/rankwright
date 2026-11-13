@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/bemoshiur/OmniRank/main/schemas/report.schema.json",
-  "title": "OmniRank report",
+  "$id": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/report.schema.json",
+  "title": "Rankwright report",
   "type": "object",
   "required": ["generatedAt", "tool", "site", "kind", "score", "stats", "findings"],
   "additionalProperties": false,
@@ -11,7 +11,7 @@
       "type": "object",
       "required": ["name", "version"],
       "additionalProperties": false,
-      "properties": { "name": { "const": "omnirank" }, "version": { "type": "string" } }
+      "properties": { "name": { "const": "rankwright" }, "version": { "type": "string" } }
     },
     "site": { "type": "string" },
     "kind": {
@@ -59,14 +59,14 @@
           },
           "applicability": {
             "enum": ["safe", "unsafe", "display-only"],
-            "description": "The SAFETY axis, computed per finding-instance as the minimum of the tier ceiling, the locator's confidence, the edit's blast radius and any protected-surface ceiling. Every input can demote; none can promote. Absent from an `omnirank audit` report, which does no locating."
+            "description": "The SAFETY axis, computed per finding-instance as the minimum of the tier ceiling, the locator's confidence, the edit's blast radius and any protected-surface ceiling. Every input can demote; none can promote. Absent from an `rankwright audit` report, which does no locating."
           }
         }
       }
     },
     "notEvaluated": {
       "type": "array",
-      "description": "Gates OmniRank could not actually run, so it does not stay silent about them. Additive/optional: a report generated before v0.2.1 has no notEvaluated key and still validates.",
+      "description": "Gates Rankwright could not actually run, so it does not stay silent about them. Additive/optional: a report generated before v0.2.1 has no notEvaluated key and still validates.",
       "items": {
         "type": "object",
         "required": ["gate", "reason"],
@@ -76,7 +76,7 @@
           "reason": {
             "enum": ["no-sitemap", "page-unreachable", "not-applicable",
                      "adapter-absent", "matcher-unsupported", "budget-exceeded"],
-            "description": "Why the gate could not run. Additive: matcher-unsupported and budget-exceeded arrive in 0.4.0, so a report written earlier contains neither and still validates. matcher-unsupported means the check needed a stdlib capability this interpreter lacks (urllib.robotparser is RFC 9309 compliant only on Python 3.14+); OmniRank refuses to judge rather than answer from a matcher it knows is wrong."
+            "description": "Why the gate could not run. Additive: matcher-unsupported and budget-exceeded arrive in 0.4.0, so a report written earlier contains neither and still validates. matcher-unsupported means the check needed a stdlib capability this interpreter lacks (urllib.robotparser is RFC 9309 compliant only on Python 3.14+); Rankwright refuses to judge rather than answer from a matcher it knows is wrong."
           },
           "url": { "type": "string", "description": "Set for a per-page gate that could not run." },
           "site": { "type": "string", "description": "Set for a site-level gate that could not run." }

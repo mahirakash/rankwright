@@ -1,14 +1,14 @@
 <div align="center">
 
-# OmniRank
+# Rankwright
 
 **One page. Every engine.**
 
 Score a site's SEO, AEO and GEO signals against its real HTML, then generate the
 machine-readable ground truth AI engines can cite.
 
-[![CI](https://github.com/bemoshiur/OmniRank/actions/workflows/ci.yml/badge.svg)](https://github.com/bemoshiur/OmniRank/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/bemoshiur/OmniRank)](https://github.com/bemoshiur/OmniRank/releases)
+[![CI](https://github.com/mahirakash/rankwright/actions/workflows/ci.yml/badge.svg)](https://github.com/mahirakash/rankwright/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/mahirakash/rankwright)](https://github.com/mahirakash/rankwright/releases)
 [![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Content: CC BY 4.0](https://img.shields.io/badge/content-CC%20BY%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](docs/getting-started.md#prerequisites)
@@ -18,22 +18,22 @@ machine-readable ground truth AI engines can cite.
 
 ---
 
-OmniRank scores a website's live HTML against the concrete rules that search engines,
+Rankwright scores a website's live HTML against the concrete rules that search engines,
 answer engines and generative AI systems use to crawl, quote and cite content, then
 generates `llms.txt`, `llms-full.txt` and `facts.json` so the page becomes machine-readable
 ground truth an AI engine can cite directly.
 
-![Terminal recording of `omnirank audit` scoring a live site and printing a prioritised fix list](.github/assets/demo.gif)
+![Terminal recording of `rankwright audit` scoring a live site and printing a prioritised fix list](.github/assets/demo.gif)
 
-*Real terminal output from `omnirank audit https://example.com` — nothing staged, nothing cropped.*
+*Real terminal output from `rankwright audit https://example.com` — nothing staged, nothing cropped.*
 
 ## SEO, AEO and GEO read the same HTML
 
 Three audiences parse one document. A crawlable, well-marked-up, machine-readable page wins
-all three at once — that is the entire bet OmniRank makes, and why it audits one artifact
+all three at once — that is the entire bet Rankwright makes, and why it audits one artifact
 (your rendered HTML) instead of three separate tools.
 
-| Layer | Audience | What it wants | What OmniRank does |
+| Layer | Audience | What it wants | What Rankwright does |
 |---|---|---|---|
 | **SEO** | Googlebot, Bingbot | Crawlable, canonical, correctly sized metadata, valid structured data | Checks `h1`, `canonical`, title/description length, OpenGraph, JSON-LD |
 | **AEO** | AI Overviews, Copilot, voice assistants | A short, liftable, factual answer near the top of the page | Checks for a 40–60 word AnswerBlock, an FAQ section, and `speakable` markup |
@@ -41,24 +41,24 @@ all three at once — that is the entire bet OmniRank makes, and why it audits o
 
 The table above is not aspirational copy — it is also, deliberately, how this README is
 written. It has one `<h1>`, an AnswerBlock-shaped opening paragraph, an FAQ section, and
-descriptive headings. If OmniRank asked your page to do these things, it does them too.
+descriptive headings. If Rankwright asked your page to do these things, it does them too.
 
 ## Audit any site in one command
 
-OmniRank is not published to PyPI, npm or a container registry — install it from source
+Rankwright is not published to PyPI, npm or a container registry — install it from source
 into a virtual environment. Homebrew and other PEP 668-managed Python installs refuse a
 bare `pip install`, so activate a venv first:
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git && cd OmniRank
+git clone https://github.com/mahirakash/rankwright.git && cd Rankwright
 python3 -m venv .venv && source .venv/bin/activate && make install
-python3 -m omnirank.cli audit https://example.com
+python3 -m rankwright.cli audit https://example.com
 ```
 
 Real output, captured against `https://example.com`:
 
 ```
-OmniRank 0.2.0 — https://example.com
+Rankwright 0.2.0 — https://example.com
   overall 76/100  aeo 80  geo 60  perf 100  seo 67
   1 URLs checked, 10 findings
   [FAIL] seo.canonical.missing  https://example.com/
@@ -91,7 +91,7 @@ OmniRank 0.2.0 — https://example.com
   [FAIL] geo.ai-allowlist.missing  https://example.com/robots.txt
          observed: HTTP 404 at /robots.txt
          fix: Publish a robots.txt that explicitly allows AI crawlers.
-  report: .omnirank/reports/2026-08-03-audit.json
+  report: .rankwright/reports/2026-08-03-audit.json
 ```
 
 `example.com` ships nothing but a static placeholder page, so this is close to a worst
@@ -101,14 +101,14 @@ carries `observed`, `expected`, and `fix` — enough to act on without opening t
 For a configured repo, copy the starter config and gate a build on specific gates:
 
 ```bash
-cp templates/omnirank.config.example.json omnirank.config.json
-python3 -m omnirank.cli audit --config omnirank.config.json --fail-on h1 canonical schema
-python3 -m omnirank.cli geo   --config omnirank.config.json --out public
+cp templates/rankwright.config.example.json rankwright.config.json
+python3 -m rankwright.cli audit --config rankwright.config.json --fail-on h1 canonical schema
+python3 -m rankwright.cli geo   --config rankwright.config.json --out public
 ```
 
 Exit codes: `0` clean · `1` a `--fail-on` gate failed · `2` usage or config error. The
 non-zero exit is what makes it a CI gate, not just a report — see
-[Use OmniRank as a CI gate](#use-omnirank-as-a-ci-gate) below.
+[Use Rankwright as a CI gate](#use-rankwright-as-a-ci-gate) below.
 
 ## What ships in v0.4.0
 
@@ -127,7 +127,7 @@ Google's required rich-result properties for eight structured-data types; and on
 accessibility overlap (missing `alt`, skipped heading levels, empty or generic link
 text, missing `lang`). It also normalises the score model so a layer's budget scales
 with its own gate count instead of a flat constant — **scores from 0.3.0 and 0.4.0 are
-not comparable.** `omnirank fix` still writes nothing to your project; file
+not comparable.** `rankwright fix` still writes nothing to your project; file
 modification ships once the locator is proven against real repositories and the write
 guarantees in `docs/research/2026-08-04-automation-architecture.md` §2.5 are
 implemented and tested. Everything under Roadmap below is not present in v0.4.0.
@@ -151,7 +151,7 @@ Shopify, Astro, Vue and Svelte land at v1.0. None of the skills in this table ex
 installed package today — asking Claude Code to "write our JSON-LD" or "submit this URL to
 Google" will not trigger anything, because `aeo-onpage` and `indexing` are not built yet.
 
-## Every gate OmniRank checks, grouped by layer
+## Every gate Rankwright checks, grouped by layer
 
 42 gate names exist in the config schema; 21 can fail a build (error-capable) and 21
 cannot — 16 are warning-only, 4 (the security header gates) are info-only, and one mixes
@@ -237,15 +237,15 @@ contradiction come from the site's own declarations
 
 | Gate | Rule | Severity |
 |---|---|---|
-| `response-time` | Full response ≥ 2000 ms (warning) or ≥ 5000 ms (error) — OmniRank's own tunable thresholds. This is the complete time for OmniRank's own request (DNS through the last byte of the body), **not** time-to-first-byte; it measures a full download, not server think-time | warning / error |
+| `response-time` | Full response ≥ 2000 ms (warning) or ≥ 5000 ms (error) — Rankwright's own tunable thresholds. This is the complete time for Rankwright's own request (DNS through the last byte of the body), **not** time-to-first-byte; it measures a full download, not server think-time | warning / error |
 | `page-weight` | Raw HTML exceeds 500,000 bytes before any subresource | warning |
-| `compression` | No `gzip`/`deflate` `content-encoding` — the only encodings OmniRank's client ever requests, so `br`/`zstd` are matched if present but never verifiable | warning |
+| `compression` | No `gzip`/`deflate` `content-encoding` — the only encodings Rankwright's client ever requests, so `br`/`zstd` are matched if present but never verifiable | warning |
 | `render-blocking` | More than 2 blocking `<script>` tags in `<head>` | warning |
 
 `perf` never measures Largest Contentful Paint, Cumulative Layout Shift, Interaction to
-Next Paint, or a Lighthouse score — OmniRank has no browser. See
+Next Paint, or a Lighthouse score — Rankwright has no browser. See
 [audit-guide.md](docs/audit-guide.md#performance-perf-layer) for the named threshold
-constants and [faq.md](docs/faq.md#does-omnirank-measure-core-web-vitals) for the full
+constants and [faq.md](docs/faq.md#does-rankwright-measure-core-web-vitals) for the full
 answer.
 
 **On-page** — new in v0.4.0; body markup, not the `<head>` indexing signals above
@@ -257,13 +257,13 @@ answer.
 | `link-text` | Every link has an accessible name, and it isn't a generic phrase like "click here" | warning / info |
 | `lang` | `<html>` declares a non-empty `lang` | error |
 
-## Download and install OmniRank
+## Download and install Rankwright
 
 **Option 1 — packaged skill for Claude Code, no clone required:**
 
 ```bash
-curl -LO https://github.com/bemoshiur/OmniRank/releases/latest/download/omnirank-skill.zip
-unzip omnirank-skill.zip -d ~/.claude/plugins/
+curl -LO https://github.com/mahirakash/rankwright/releases/latest/download/rankwright-skill.zip
+unzip rankwright-skill.zip -d ~/.claude/plugins/
 ```
 
 The archive is built by [`scripts/build-skill-zip.sh`](scripts/build-skill-zip.sh) and
@@ -273,13 +273,13 @@ both skills register, without the tests, CI config or Node sources. Build it you
 instead of downloading it:
 
 ```bash
-./scripts/build-skill-zip.sh          # -> dist/omnirank-skill-<version>.zip
+./scripts/build-skill-zip.sh          # -> dist/rankwright-skill-<version>.zip
 ```
 
 **Option 2 — clone, for CLI use or contributing:**
 
 ```bash
-git clone https://github.com/bemoshiur/OmniRank.git ~/.claude/plugins/omnirank
+git clone https://github.com/mahirakash/rankwright.git ~/.claude/plugins/rankwright
 ```
 
 This gets the full repository — tests, CI config, and the Node GEO-artifacts generator —
@@ -287,13 +287,13 @@ and lets you `git pull` to update instead of re-downloading a release archive. S
 [claude-code-setup.md](docs/claude-code-setup.md) for confirming the skills registered and
 the real trigger phrases for each.
 
-## Use OmniRank as a CI gate
+## Use Rankwright as a CI gate
 
-`omnirank audit --fail-on <gates>` exits `1` when a named gate has an error-severity
+`rankwright audit --fail-on <gates>` exits `1` when a named gate has an error-severity
 finding and `0` otherwise — that is the entire integration surface:
 
 ```yaml
-name: OmniRank audit
+name: Rankwright audit
 
 on:
   pull_request:
@@ -309,18 +309,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install OmniRank
-        run: pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
+      - name: Install Rankwright
+        run: pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
 
       - name: Audit
         run: |
-          omnirank audit --config omnirank.config.json --out omnirank-report.json \
+          rankwright audit --config rankwright.config.json --out rankwright-report.json \
             --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
 ```
 
 ```bash
 # Fail the build while a mechanical fix is outstanding. Writes nothing.
-python3 -m omnirank.cli fix --config omnirank.config.json --root .
+python3 -m rankwright.cli fix --config rankwright.config.json --root .
 ```
 
 Picking `--fail-on h1 canonical schema` (structural baseline) is a better starting point
@@ -344,7 +344,7 @@ a skipped submission is otherwise indistinguishable from a successful one in log
 **Audit diagnoses; it never edits.** `geo-artifacts` writes the three GEO artifacts it
 generates and nothing else — neither skill touches existing site source.
 
-## What OmniRank does not do
+## What Rankwright does not do
 
 - **It does not force rankings.** Nothing can. It scores the signals search and answer
   engines are known to use, and hands you a prioritised list of gaps to close.
@@ -360,12 +360,12 @@ generates and nothing else — neither skill touches existing site source.
 ## Frequently asked questions
 
 <details>
-<summary>Does OmniRank guarantee my site will rank higher?</summary>
+<summary>Does Rankwright guarantee my site will rank higher?</summary>
 
 No — nothing can guarantee a ranking, since search and answer engines rank content using
-signals no third-party tool controls. OmniRank scores a site against the concrete,
+signals no third-party tool controls. Rankwright scores a site against the concrete,
 checkable signals those engines are known to use and returns a prioritised list of gaps;
-closing them improves the odds without touching what OmniRank cannot see, such as backlink
+closing them improves the odds without touching what Rankwright cannot see, such as backlink
 profile or content quality relative to competitors. See [faq.md](docs/faq.md) for the full
 answer.
 </details>
@@ -373,7 +373,7 @@ answer.
 <details>
 <summary>Is my site's data sent anywhere when I run an audit?</summary>
 
-No — OmniRank runs entirely on your machine or CI runner and only makes outbound HTTP
+No — Rankwright runs entirely on your machine or CI runner and only makes outbound HTTP
 requests to the URL you point it at, fetching pages, `sitemap.xml`, `robots.txt`,
 `llms.txt`, `llms-full.txt` and `facts.json` from that one site. There is no telemetry and
 no third-party API call in the `audit` or `geo-artifacts` code paths.
@@ -389,7 +389,7 @@ actually serve in production — the GEO layer checks exactly that.
 </details>
 
 <details>
-<summary>Does OmniRank edit my site automatically?</summary>
+<summary>Does Rankwright edit my site automatically?</summary>
 
 No — `audit` only diagnoses; `SKILL.md` states directly that "Audit only diagnoses. It
 never edits the site." `geo-artifacts` does write files, but only the three GEO artifacts
@@ -397,11 +397,11 @@ it generates into the output directory you specify, never existing site source.
 </details>
 
 <details>
-<summary>Is OmniRank on PyPI or npm yet?</summary>
+<summary>Is Rankwright on PyPI or npm yet?</summary>
 
 No, not as of v0.2.0. Install the Python CLI from source — clone the repository and `pip
 install -e ./scripts/py` inside a virtual environment, or install directly from git with
-`pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"`.
+`pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"`.
 The Node generator is likewise unpublished; import `scripts/node/src/generate.ts` directly
 or copy it into your project.
 </details>
@@ -416,24 +416,24 @@ is not required at all for the CLI.
 </details>
 
 <details>
-<summary>Will using OmniRank guarantee ChatGPT or Perplexity cites my site?</summary>
+<summary>Will using Rankwright guarantee ChatGPT or Perplexity cites my site?</summary>
 
 No — publishing `llms.txt`, `llms-full.txt` and `facts.json` follows the community
 [llms.txt convention](https://llmstxt.org/) and grants an explicit citation licence, which
 removes a real barrier to a model quoting the content, but no engine's retrieval or
-citation behaviour is under OmniRank's control. Publishing them is a low-cost,
+citation behaviour is under Rankwright's control. Publishing them is a low-cost,
 evidence-backed bet, not a guarantee.
 </details>
 
 <details>
 <summary>Can I run an audit without writing a config file first?</summary>
 
-Yes, for both commands — `omnirank audit <url>` and `omnirank geo <url>` both work with
+Yes, for both commands — `rankwright audit <url>` and `rankwright geo <url>` both work with
 just a URL, using an in-memory default config. Since the in-memory default config has no
-`geo` section, a bare `omnirank geo <url>` has no configured `geo.license` either — as of
+`geo` section, a bare `rankwright geo <url>` has no configured `geo.license` either — as of
 v0.2.1 that generates the artifacts anyway, stating plainly that no reuse licence is
 granted, and prints a one-line notice to stderr saying so (a config's generated files are
-published to your site, so OmniRank tells you rather than silently choosing "no rights"
+published to your site, so Rankwright tells you rather than silently choosing "no rights"
 on your behalf). Write a config with `geo.license` set to a real licence and pass it with
 `--config` to actually grant reuse rights, or set it to `"none"` explicitly to make that
 choice permanent and silence the notice; see
@@ -472,13 +472,13 @@ applicable, and every command shown was actually run.
 |---|---|
 | [docs/README.md](docs/README.md) | Documentation index and reading order by task |
 | [getting-started.md](docs/getting-started.md) | Zero-to-first-audit: install, run, read the result, exit codes |
-| [configuration.md](docs/configuration.md) | Every `omnirank.config.json` field, with a complete example |
+| [configuration.md](docs/configuration.md) | Every `rankwright.config.json` field, with a complete example |
 | [audit-guide.md](docs/audit-guide.md) | The `audit` skill in depth: every gate, the scoring formula, a worked example |
 | [geo-artifacts-guide.md](docs/geo-artifacts-guide.md) | Generating the three GEO artifacts and the OpenNext/CloudFront 403 trap |
 | [ci-integration.md](docs/ci-integration.md) | GitHub Actions, GitLab CI, shell examples, and choosing `--fail-on` gates |
 | [claude-code-setup.md](docs/claude-code-setup.md) | Installing as a Claude Code plugin and the real trigger phrases per skill |
 | [troubleshooting.md](docs/troubleshooting.md) | Real error text for likely failures, with the fix for each |
-| [faq.md](docs/faq.md) | 17 direct, honest answers, including what OmniRank does not do |
+| [faq.md](docs/faq.md) | 17 direct, honest answers, including what Rankwright does not do |
 
 ## Contributing
 
@@ -486,12 +486,12 @@ Read [CONTRIBUTING.md](.github/CONTRIBUTING.md) before opening a pull request �
 the non-negotiables (real-only data, never claiming an unevaluated gate passed, `env:`
 secrets only) and the test-driven workflow this project enforces on itself.
 
-If OmniRank caught something on your site that you'd otherwise have shipped broken, a star
+If Rankwright caught something on your site that you'd otherwise have shipped broken, a star
 helps the next person searching "AEO audit tool" find it too — that's the only ask.
 
 ## Credits & Standards
 
-OmniRank implements and builds on public standards and published research:
+Rankwright implements and builds on public standards and published research:
 
 - [schema.org](https://schema.org) — structured-data vocabulary
 - [IndexNow](https://www.indexnow.org/) — instant indexing protocol
@@ -508,21 +508,16 @@ OmniRank implements and builds on public standards and published research:
 Correlations from that research are observational, drawn largely from English-language B2B
 datasets, and are treated as directional. Validate empirically per site.
 
-Built and maintained by [S M Moshiur Rahman](https://github.com/bemoshiur) at
-[TICON System Limited](https://ticonsys.com), Dhaka.
+Rankwright is a fork of [OmniRank](https://github.com/bemoshiur/OmniRank) by
+[S M Moshiur Rahman](https://github.com/bemoshiur) (TICON System Limited, Dhaka), who
+designed and built the audit, GEO-artifact and fix-preview engine. The schema, IndexNow,
+rank-tracking and publishing commands were added in this fork.
 
 ## Contact
 
-**S M Moshiur Rahman** — Director, Business & Operations, TICON System Limited
+Maintained by [@mahirakash](https://github.com/mahirakash).
 
-| | |
-|---|---|
-| 💼 LinkedIn | [in/in-moshiur](https://www.linkedin.com/in/in-moshiur/) |
-| ✉️ Email | [moshiur@ticonsys.com](mailto:moshiur@ticonsys.com) |
-| 🌐 Web | [ticonsys.com](https://ticonsys.com) |
-| 💻 GitHub | [@bemoshiur](https://github.com/bemoshiur) |
-
-For bugs and feature requests, use [Issues](https://github.com/bemoshiur/OmniRank/issues/new/choose)
+For bugs and feature requests, use [Issues](https://github.com/mahirakash/rankwright/issues/new/choose)
 rather than direct message — it keeps the answer searchable for the next person.
 
 ## Licence

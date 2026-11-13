@@ -29,7 +29,7 @@ Layer = Literal["seo", "aeo", "geo", "offsite", "smm", "perf", "security"]
 #                        compliant (wildcards, longest-match) in Python 3.14; on
 #                        3.11-3.13 it silently gives the WRONG answer for such
 #                        rules, so gates/contradictions.py refuses to judge rather
-#                        than fabricate. See omnirank/robots.py.
+#                        than fabricate. See rankwright/robots.py.
 #   budget-exceeded      a bounded probe pass hit its cap before reaching this URL.
 NotEvaluatedReason = Literal[
     "no-sitemap", "page-unreachable", "not-applicable", "adapter-absent",
@@ -66,7 +66,7 @@ class Finding:
     `applicability` is the orthogonal SAFETY axis and is per-instance, not
     per-id: it is computed by `applicability.compute_applicability()` from the
     tier, the locator's confidence, the edit's blast radius and any protected
-    surface involved. `omnirank audit` never sets it -- an audit does no
+    surface involved. `rankwright audit` never sets it -- an audit does no
     locating -- so it stays None there and is omitted from the JSON.
     """
 
@@ -103,7 +103,7 @@ class Finding:
 
 @dataclass(frozen=True)
 class NotEvaluated:
-    """A gate OmniRank could not actually run, recorded instead of staying silent.
+    """A gate Rankwright could not actually run, recorded instead of staying silent.
 
     A gate that could not run is never reported as passing (see Finding), but a
     site- or page-level gate that never ran at all previously produced no signal
@@ -223,7 +223,7 @@ class Report:
         flagged_urls = {f.url for f in self.findings if f.severity in ("error", "warning")}
         return {
             "generatedAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-            "tool": {"name": "omnirank", "version": __version__},
+            "tool": {"name": "rankwright", "version": __version__},
             "site": self.site,
             "kind": self.kind,
             "score": self.score(),

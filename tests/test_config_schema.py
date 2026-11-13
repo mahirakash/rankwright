@@ -4,7 +4,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = json.loads((ROOT / "schemas" / "omnirank.config.schema.json").read_text())
+SCHEMA = json.loads((ROOT / "schemas" / "rankwright.config.schema.json").read_text())
 
 
 def validator():
@@ -16,7 +16,7 @@ def test_schema_itself_is_valid():
 
 
 def test_example_config_validates():
-    example = json.loads((ROOT / "templates" / "omnirank.config.example.json").read_text())
+    example = json.loads((ROOT / "templates" / "rankwright.config.example.json").read_text())
     assert list(validator().iter_errors(example)) == []
 
 

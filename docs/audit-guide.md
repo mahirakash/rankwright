@@ -5,7 +5,7 @@ plus a site-level cross-URL pass, an indexability-contradictions pass, and one
 sitemap-hygiene check, and produces a prioritised, actionable fix list. It never edits
 the site; it only diagnoses. This page documents the CLI flags, every gate, the exact
 scoring formula, and a worked example, all verified against the source in
-`scripts/py/omnirank/` and `schemas/`.
+`scripts/py/rankwright/` and `schemas/`.
 
 As of 0.2.0, `audit_site()` keeps every fetched page's HTML alive as a `PageData` record
 instead of discarding it after the per-page gates run. That is what makes the site-level
@@ -18,8 +18,8 @@ Verbatim `--help` output, captured after the console summary was changed to grou
 findings by id (see "Console output" below):
 
 ```
-$ python3 -m omnirank.cli audit --help
-usage: omnirank audit [-h] [--config CONFIG] [--out OUT]
+$ python3 -m rankwright.cli audit --help
+usage: rankwright audit [-h] [--config CONFIG] [--out OUT]
                       [--fail-on [FAIL_ON ...]] [--detail] [--top TOP]
                       [url]
 
@@ -28,9 +28,9 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --config CONFIG       Path to omnirank.config.json
+  --config CONFIG       Path to rankwright.config.json
   --out OUT             Report path (default
-                        .omnirank/reports/<date>-audit.json)
+                        .rankwright/reports/<date>-audit.json)
   --fail-on [FAIL_ON ...]
                         Gate ids that force exit code 1. Overrides config.
   --detail              Print every finding individually instead of the
@@ -42,8 +42,8 @@ options:
 | Flag | Required | Description |
 |---|---|---|
 | `url` (positional) | Only if `--config` is absent | Site root to audit. Omit when passing `--config` — the config's `site.url` is used instead. |
-| `--config PATH` | No | Path to a validated `omnirank.config.json`. See [configuration.md](configuration.md). |
-| `--out PATH` | No | Where the JSON report is written. Default: `.omnirank/reports/<UTC-date>-audit.json`. |
+| `--config PATH` | No | Path to a validated `rankwright.config.json`. See [configuration.md](configuration.md). |
+| `--out PATH` | No | Where the JSON report is written. Default: `.rankwright/reports/<UTC-date>-audit.json`. |
 | `--fail-on [GATE ...]` | No | Zero or more **gate names** (not finding ids) that force exit code `1` when they carry an error-severity finding. |
 | `--detail` | No | Print the old, ungrouped, one-finding-per-block listing (capped at 25) instead of the grouped summary. Useful when you're debugging one URL and need the raw `observed` value for each finding. |
 | `--top N` | No | Show only the first N groups of the grouped summary (default: all groups). Groups are already ordered errors-first, then by descending count, so `--top` keeps the highest-signal issues — handy for keeping CI logs short. Ignored when `--detail` is set. |
@@ -134,14 +134,14 @@ people up.
 
 The 40–60 word range is not arbitrary: answer engines lift whole blocks verbatim. Fewer
 than 40 words rarely carries a complete answer; more than 60 tends to get truncated or
-skipped. `geo.answerBlockSelector` in `omnirank.config.json` changes the selector (see
+skipped. `geo.answerBlockSelector` in `rankwright.config.json` changes the selector (see
 [configuration.md](configuration.md#geo)).
 
 **40–60 words is a Latin-script default, not a universal rule.** `bands.resolve_band()`
 picks the range actually scored, per page, from the page's `<html lang>` value.
 Chinese, Japanese, Korean, Thai, Lao, Khmer, Burmese, Tibetan and Dzongkha (the `cjk`
 script family) have no space-delimited words — `str.split()` returns one token for an
-entire paragraph — so OmniRank measures characters for them (80–200 by default) instead
+entire paragraph — so Rankwright measures characters for them (80–200 by default) instead
 of words. Bengali, Hindi, Tamil, Arabic and the other Brahmic/Arabic/Cyrillic-script
 languages remain space-delimited and keep word counting. Full precedence rules and
 config keys: [configuration.md#aeoanswerblock](configuration.md#aeoanswerblock).
@@ -153,7 +153,7 @@ config keys: [configuration.md#aeoanswerblock](configuration.md#aeoanswerblock).
 | `llms-txt` | `/llms.txt` returns HTTP 200 | error |
 | `llms-full` | `/llms-full.txt` returns HTTP 200 | error |
 | `facts-json` | `/facts.json` returns HTTP 200 **and** parses as JSON | error |
-| `ai-allowlist` | `/robots.txt` does not `Disallow: /` any of the AI crawler user-agents OmniRank checks | error |
+| `ai-allowlist` | `/robots.txt` does not `Disallow: /` any of the AI crawler user-agents Rankwright checks | error |
 | `citation-licence` | `/llms.txt` contains a licence or attribution statement | warning |
 
 **Finding ids are derived from the artifact's filename with its extension stripped, not
@@ -226,7 +226,7 @@ exists to build in the first place.
 extra request per audit against the site's `http://` origin. All findings carry
 `layer: "security"` — a layer that did not exist before v0.4.0.
 
-Scope is deliberately narrow: OmniRank checks security only where insecurity
+Scope is deliberately narrow: Rankwright checks security only where insecurity
 demonstrably breaks crawling, indexing or rendering. Mozilla Observatory and testssl.sh
 already grade headers properly; an SEO tool scoring CSP strength would be doing a job it
 cannot do well.
@@ -234,7 +234,7 @@ cannot do well.
 | Gate | Finding id | Rule | Severity |
 |---|---|---|---|
 | `hsts` | `security.hsts.missing` | An `https://` response carries no `Strict-Transport-Security` header | info |
-| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below `HSTS_MIN_MAX_AGE` (15,552,000 seconds / 180 days — OmniRank's own floor, not a vendor requirement) | info |
+| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below `HSTS_MIN_MAX_AGE` (15,552,000 seconds / 180 days — Rankwright's own floor, not a vendor requirement) | info |
 | `nosniff` | `security.nosniff.missing` | `X-Content-Type-Options` is not exactly `nosniff` | info |
 | `csp` | `security.csp.absent` | No `Content-Security-Policy`, by header or `<meta http-equiv>` | info |
 | `referrer-policy` | `security.referrer-policy.missing` | No `Referrer-Policy` header | info |
@@ -246,11 +246,11 @@ cannot do well.
 They are reported as inventory facts, not graded: whether a given HSTS `max-age` or CSP is
 adequate is a judgement about your threat model that an SEO auditor has no business
 making. Only `mixed-content`'s active-subresource id and `https-redirect` are `error`,
-because only those two break something OmniRank can actually observe — browsers block
+because only those two break something Rankwright can actually observe — browsers block
 mixed *active* content outright, and a non-redirecting `http://` origin gives every page a
 live duplicate that splits canonical signal between two URLs. The passive-subresource id
 is `warning`: browsers auto-upgrade an `img` or icon request to `https://` first and only
-fail if no `https://` version exists there, which OmniRank cannot verify from the HTML
+fail if no `https://` version exists there, which Rankwright cannot verify from the HTML
 alone, so it is reported without claiming a rendering failure it did not observe.
 `security` enters the report's `layersRun` only when at least one page was actually
 fetched — exactly the same rule `aeo` and `perf` follow, so a zero-page audit leaves
@@ -287,11 +287,11 @@ value, attached to the first URL in that group — never one finding per affecte
 
 **Targets outside the crawled set are never judged.** `canonical-cluster` and
 `hreflang-reciprocity` only evaluate a target when that target is itself one of the
-pages OmniRank fetched (checked against `sitemap_urls`/`targets`, not the live web). A
+pages Rankwright fetched (checked against `sitemap_urls`/`targets`, not the live web). A
 canonical or hreflang alternate pointing outside the crawled set — a different sitemap,
 a URL excluded by `audit.sampleSize`, an external domain — produces no finding either
-way; OmniRank never reports on a gate it could not actually evaluate. `noindex-in-sitemap`
-similarly only fires for pages OmniRank both fetched and found listed in `sitemap.xml`.
+way; Rankwright never reports on a gate it could not actually evaluate. `noindex-in-sitemap`
+similarly only fires for pages Rankwright both fetched and found listed in `sitemap.xml`.
 
 ### Indexability contradictions (v0.4.0)
 
@@ -312,7 +312,7 @@ every one carries `layer: "seo"`.
 
 Two rules govern every check in this module:
 
-- **Never judge a URL OmniRank did not see.** `robots-sitemap` only evaluates sitemap
+- **Never judge a URL Rankwright did not see.** `robots-sitemap` only evaluates sitemap
   URLs on robots.txt's OWN host — `RobotFileParser.can_fetch()` discards the host and
   matches on path alone, so a sitemap index listing other hosts' URLs (a CDN, a blog
   subdomain) gets those reported `not-applicable` in `notEvaluated` rather than judged
@@ -327,20 +327,20 @@ Two rules govern every check in this module:
   `no-sitemap`, `page-unreachable`, `not-applicable`, or `matcher-unsupported` in
   `notEvaluated` rather than a pass when it cannot reach a verdict. `matcher-unsupported`
   is real on Python 3.11–3.13: `urllib.robotparser` only became RFC 9309 compliant in
-  Python 3.14, so on earlier interpreters OmniRank refuses to answer rather than trust a
+  Python 3.14, so on earlier interpreters Rankwright refuses to answer rather than trust a
   matcher it knows may ignore wildcards or mis-order `Allow`/`Disallow` overlaps — see
-  `omnirank/robots.py`.
+  `rankwright/robots.py`.
 
 ### Performance (`perf` layer)
 
 `perf.run(page)` derives every finding from the single HTTP response already captured
 for that page during the per-page fetch — response time, raw HTML size, the
 `content-encoding` header, and the `<head>` markup. **No browser is involved.**
-OmniRank cannot measure Largest Contentful Paint, Cumulative Layout Shift, Interaction
+Rankwright cannot measure Largest Contentful Paint, Cumulative Layout Shift, Interaction
 to Next Paint, or produce a Lighthouse score, and no finding text implies otherwise.
 
-The thresholds below are OmniRank's own tunable defaults, not an industry benchmark —
-each is a named constant in `scripts/py/omnirank/gates/perf.py`, and a fork or future
+The thresholds below are Rankwright's own tunable defaults, not an industry benchmark —
+each is a named constant in `scripts/py/rankwright/gates/perf.py`, and a fork or future
 config option can change them.
 
 | Gate | Finding id | Rule (constant) | Severity |
@@ -360,15 +360,15 @@ vanished on re-measurement once the "slow" response turned out to be a large bod
 slow server. The gate is named `response-time` for exactly this reason, its thresholds
 (2000 ms / 5000 ms) are set higher to account for measuring a full download rather than
 first-byte latency, and its `fix` text says explicitly that it covers "the complete
-download, not server think-time." It is measured from wherever OmniRank's own request
+download, not server think-time." It is measured from wherever Rankwright's own request
 ran — a laptop, a CI runner — never from a real visitor's location or network. Treat
 every `perf` finding as a signal to investigate, not as a metric any user actually
 experienced.
 
-**`compression` can only ever verify `gzip` or `deflate`.** OmniRank's HTTP client
+**`compression` can only ever verify `gzip` or `deflate`.** Rankwright's HTTP client
 (`fetch.py`) does not depend on the `brotli` or `zstandard` Python packages, so it never
 sends `br` or `zstd` in its `Accept-Encoding` request header — a well-behaved origin will
-therefore never choose to send either back, and OmniRank has no way to confirm a site
+therefore never choose to send either back, and Rankwright has no way to confirm a site
 supports them even if it does. The `_COMPRESSED` check still matches the literal strings
 `br` and `zstd` defensively, in case a misconfigured origin ignores `Accept-Encoding` and
 sends one anyway, but the gate's real, exercised coverage is `gzip`/`deflate` only.
@@ -426,20 +426,20 @@ slugs should be errors) and `check_sitemap()` (every sitemap URL should return 2
 URL the sitemap listed that `_collect()` could not already confirm reachable, it
 distinguishes a redirecting entry (warning — the sitemap should point at the final URL)
 from a genuinely dead one (error) — a signal the blanket `seo.page.unreachable` finding
-cannot give on its own, since OmniRank's client never follows redirects and so cannot
+cannot give on its own, since Rankwright's client never follows redirects and so cannot
 tell "redirects somewhere" apart from "truly gone" without asking again.
 
 **`check_removed()` is not wired in, and `crawl-hygiene` no longer exists as a
 `--fail-on` gate name.** It needs an explicit list of URLs your site used to serve and no
-longer does — nothing in `omnirank.config.json` supplies that list, so there was no way
+longer does — nothing in `rankwright.config.json` supplies that list, so there was no way
 for `audit_site()` to call it automatically. Shipping `crawl-hygiene` as a config-accepted
 gate name that could never actually fire was its own kind of fabrication, so v0.2.1 removed
-it from `schemas/omnirank.config.schema.json` rather than leave it silently inert. The
+it from `schemas/rankwright.config.schema.json` rather than leave it silently inert. The
 function itself is untouched — call it directly with your own list of retired URLs:
 
 ```python
-from omnirank.fetch import make_client
-from omnirank.gates import hygiene
+from rankwright.fetch import make_client
+from rankwright.gates import hygiene
 
 client = make_client()
 findings = hygiene.check_removed(client, ["https://example.com/old-page"])
@@ -464,7 +464,7 @@ slug up, and `permanentRedirect` (308) unknown slugs to the section hub.
 
 ## Scoring
 
-Verified directly against `scripts/py/omnirank/report.py`:
+Verified directly against `scripts/py/rankwright/report.py`:
 
 ```python
 ERROR_COST = 10
@@ -540,7 +540,7 @@ scored `100`. Before this was fixed (final review, S5), `security` was also admi
 a successful `https-redirect` probe *alone*, so `mixed-content` — one of only two
 `security` scoring gates — was silently counted clean on a zero-page audit; verified
 against a real report, `rust-lang.org` showed `security: 100` with `urlsChecked: 1` and 0
-pages parsed while `aeo`/`perf` were correctly absent. A plain `omnirank audit` against a
+pages parsed while `aeo`/`perf` were correctly absent. A plain `rankwright audit` against a
 reachable site still reports all five layers; an `overall` divisor of anything other
 than 5 is the signal that at least one layer never ran.
 
@@ -548,8 +548,8 @@ than 5 is the signal that at least one layer never ran.
 exception above:**
 
 ```
-$ python3 -m omnirank.cli audit https://example.com/nope-xyz
-OmniRank 0.4.0 — https://example.com/nope-xyz
+$ python3 -m rankwright.cli audit https://example.com/nope-xyz
+Rankwright 0.4.0 — https://example.com/nope-xyz
   overall 70/100  geo 47  security 67  seo 96
   1 URLs checked · 7 findings in 7 groups
 
@@ -558,7 +558,7 @@ OmniRank 0.4.0 — https://example.com/nope-xyz
         fix: Gates could not be evaluated for this URL. Restore the page or remove it from the sitemap.
         e.g. https://example.com/nope-xyz/
   [1×] seo.sitemap.missing — expected: a sitemap.xml enumerating the site's URLs
-        fix: Publish a sitemap.xml so OmniRank -- and search engines -- can discover every page. Without one, this audit only sees the homepage.
+        fix: Publish a sitemap.xml so Rankwright -- and search engines -- can discover every page. Without one, this audit only sees the homepage.
         e.g. https://example.com/nope-xyz/sitemap.xml
   [1×] security.https-redirect.missing — expected: a 3xx redirect to the https:// URL
         fix: Redirect http:// to https:// at the origin or CDN. Serving both schemes gives every page a live duplicate, splitting the canonical and link signals between two URLs that engines must reconcile themselves.
@@ -596,7 +596,7 @@ Running the CLI against `https://example.com` with no config — real output, ca
 this machine against the live site on v0.4.0:
 
 ```
-OmniRank 0.4.0 — https://example.com
+Rankwright 0.4.0 — https://example.com
   overall 74/100  aeo 71  geo 47  perf 100  security 67  seo 88
   1 URLs checked · 17 findings in 17 groups
 ```
@@ -643,7 +643,7 @@ successive runs, since a gate can emit several distinct ids.
 ## `--fail-on` as a CI gate
 
 ```bash
-python3 -m omnirank.cli audit --config omnirank.config.json --fail-on h1 canonical schema
+python3 -m rankwright.cli audit --config rankwright.config.json --fail-on h1 canonical schema
 ```
 
 Exit code becomes `1` if any of `h1`, `canonical`, or `schema` has an error-severity
@@ -656,7 +656,7 @@ gates are safe to gate a build on.
 Every finding carries a `fixTier` in the JSON report — `mechanical`, `templated`,
 `drafted`, `advisory` or `infrastructure` — describing what kind of information the
 correct edit requires. It is a static property of the finding id and is declared for
-all 67 ids in `scripts/py/omnirank/registry.py`. It replaces `autoFixable`, which
+all 67 ids in `scripts/py/rankwright/registry.py`. It replaces `autoFixable`, which
 recorded which module a finding lived in rather than whether fixing it was safe.
 
 Only the four `mechanical` ids can produce a diff today: `seo.canonical.missing`,
@@ -667,7 +667,7 @@ Only the four `mechanical` ids can produce a diff today: `seo.canonical.missing`
 ## See also
 
 - [Getting started](getting-started.md) — install and run your first audit
-- [configuration.md](configuration.md) — every `omnirank.config.json` field, including
+- [configuration.md](configuration.md) — every `rankwright.config.json` field, including
   `audit.sampleSize` and `audit.failOn`
 - [geo-artifacts-guide.md](geo-artifacts-guide.md) — generating the artifacts the GEO
   layer checks for

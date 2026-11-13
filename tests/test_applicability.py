@@ -1,6 +1,6 @@
 import pytest
 
-from omnirank.applicability import (
+from rankwright.applicability import (
     CONFIDENCE_CEILING,
     MAX_SAFE_BLAST_RADIUS,
     MAX_UNSAFE_BLAST_RADIUS,
@@ -9,7 +9,7 @@ from omnirank.applicability import (
     compute_applicability,
     surface_ceiling,
 )
-from omnirank.registry import REGISTRY
+from rankwright.registry import REGISTRY
 
 MECHANICAL = "seo.canonical.missing"
 TEMPLATED = "seo.og.missing"

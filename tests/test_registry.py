@@ -5,9 +5,9 @@ from pathlib import Path
 import httpx
 import respx
 
-from omnirank.fetch import make_client
-from omnirank.gates import geo
-from omnirank.registry import (
+from rankwright.fetch import make_client
+from rankwright.gates import geo
+from rankwright.registry import (
     MECHANICAL_IDS,
     NEVER_APPLICABLE,
     PROTECTED_SURFACES,
@@ -18,7 +18,7 @@ from omnirank.registry import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_DIR = ROOT / "scripts" / "py" / "omnirank"
+SOURCE_DIR = ROOT / "scripts" / "py" / "rankwright"
 LAYERS = ("seo", "aeo", "geo", "offsite", "smm", "perf", "security")
 ID_LITERAL = re.compile(r'"([a-z0-9-]+\.[a-z0-9-]+\.[a-z0-9-]+)"')
 
@@ -78,7 +78,7 @@ def test_tier_distribution_matches_the_fixability_classification():
 
 
 def test_the_seo_layer_has_twenty_four_scoring_gates_after_v0_4_0():
-    from omnirank.registry import SCORING_GATES_BY_LAYER
+    from rankwright.registry import SCORING_GATES_BY_LAYER
 
     assert len(SCORING_GATES_BY_LAYER["seo"]) == 24, (
         "16 through v0.3.0 plus 8 in v0.4.0. This number is the denominator "
@@ -107,7 +107,7 @@ def test_every_registered_id_matches_the_report_schema_pattern():
 
 
 def test_reachable_gates_all_exist_in_the_fail_on_enum():
-    schema = json.loads((ROOT / "schemas" / "omnirank.config.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas" / "rankwright.config.schema.json").read_text())
     allowed = set(
         schema["properties"]["audit"]["properties"]["failOn"]["items"]["enum"])
     offenders = sorted(

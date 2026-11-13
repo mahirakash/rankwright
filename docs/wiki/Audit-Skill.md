@@ -4,10 +4,10 @@ The audit skill scores a site across **five** content layers — SEO, AEO, GEO, 
 security — plus a site-level cross-URL pass, an indexability-contradictions pass, and one
 sitemap-hygiene check, returning findings that carry an observed value, an expected
 value, a fix and a `fixTier`. It never edits the site; it only diagnoses, then hands the
-list to a human, CI job, or `omnirank fix`.
+list to a human, CI job, or `rankwright fix`.
 
-Everything on this page is verified against `scripts/py/omnirank/audit.py`,
-`scripts/py/omnirank/gates/`, `scripts/py/omnirank/report.py`, and `skills/audit/`.
+Everything on this page is verified against `scripts/py/rankwright/audit.py`,
+`scripts/py/rankwright/gates/`, `scripts/py/rankwright/report.py`, and `skills/audit/`.
 
 ## When does the `audit` skill trigger in Claude Code?
 
@@ -22,8 +22,8 @@ phrases and what will *not* trigger it: [[Claude-Code-Setup#what-should-i-say-to
 Verbatim `--help` output from v0.4.0:
 
 ```
-$ python3 -m omnirank.cli audit --help
-usage: omnirank audit [-h] [--config CONFIG] [--out OUT]
+$ python3 -m rankwright.cli audit --help
+usage: rankwright audit [-h] [--config CONFIG] [--out OUT]
                       [--fail-on [FAIL_ON ...]] [--detail] [--top TOP]
                       [url]
 
@@ -32,9 +32,9 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --config CONFIG       Path to omnirank.config.json
+  --config CONFIG       Path to rankwright.config.json
   --out OUT             Report path (default
-                        .omnirank/reports/<date>-audit.json)
+                        .rankwright/reports/<date>-audit.json)
   --fail-on [FAIL_ON ...]
                         Gate ids that force exit code 1. Overrides config.
   --detail              Print every finding individually instead of the
@@ -46,8 +46,8 @@ options:
 | Flag | Required | Description |
 |---|---|---|
 | `url` (positional) | Only if `--config` is absent | Site root to audit |
-| `--config PATH` | No | Path to a validated `omnirank.config.json` — see [[Configuration-Reference]] |
-| `--out PATH` | No | Where the JSON report is written. Default: `.omnirank/reports/<UTC-date>-audit.json` |
+| `--config PATH` | No | Path to a validated `rankwright.config.json` — see [[Configuration-Reference]] |
+| `--out PATH` | No | Where the JSON report is written. Default: `.rankwright/reports/<UTC-date>-audit.json` |
 | `--fail-on [GATE ...]` | No | Zero or more **gate names** (not finding ids) that force exit code `1` when they carry an error-severity finding |
 | `--detail` | No | Print the old, ungrouped, one-finding-per-block listing (capped at 25) instead of the grouped summary |
 | `--top N` | No | Show only the first N groups of the grouped summary (default: all). Ignored with `--detail` |
@@ -143,7 +143,7 @@ silently** — see `lang` under [On-page gates](#on-page-gates-new-in-v040) belo
 | `llms-txt` | `/llms.txt` returns HTTP 200 | error |
 | `llms-full` | `/llms-full.txt` returns HTTP 200 | error |
 | `facts-json` | `/facts.json` returns HTTP 200 **and** parses as JSON | error |
-| `ai-allowlist` | `/robots.txt` does not `Disallow: /` any of the AI crawler user-agents OmniRank checks | error |
+| `ai-allowlist` | `/robots.txt` does not `Disallow: /` any of the AI crawler user-agents Rankwright checks | error |
 | `citation-licence` | `/llms.txt` contains a licence or attribution statement | warning |
 
 **Finding ids are derived from the artifact's filename with its extension stripped, not
@@ -202,7 +202,7 @@ levels deep), so a `Review` or `AggregateRating` nested inside `mainEntity` or
 attribute VALUES case-insensitively — `meta name="Description"`, `rel="Canonical"`,
 `hreflang="X-Default"`, and both `application/LD+JSON` and
 `application/ld+json; charset=utf-8` are all recognised correctly. The shared comparison
-lives in `omnirank/html.py`.
+lives in `rankwright/html.py`.
 
 The fabrication gates are not a style preference. An `AggregateRating` with no real
 `ratingCount` is a manual-action risk with Google, and it corrodes the trust the markup
@@ -215,7 +215,7 @@ exists to build in the first place.
 extra request per audit against the site's `http://` origin. All findings carry
 `layer: "security"`, a layer that did not exist before v0.4.0.
 
-Scope is deliberately narrow: OmniRank checks security only where insecurity demonstrably
+Scope is deliberately narrow: Rankwright checks security only where insecurity demonstrably
 breaks crawling, indexing or rendering. Mozilla Observatory and testssl.sh already grade
 headers properly; an SEO tool scoring CSP strength would be doing a job it cannot do well.
 Full detail, including why only two of the six ids can move the score: [[Security-Layer]].
@@ -223,7 +223,7 @@ Full detail, including why only two of the six ids can move the score: [[Securit
 | Gate | Finding id | Rule | Severity |
 |---|---|---|---|
 | `hsts` | `security.hsts.missing` | An `https://` response carries no `Strict-Transport-Security` header | info |
-| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below 15,552,000 seconds (180 days — OmniRank's own floor, not a vendor requirement) | info |
+| `hsts` | `security.hsts.short-max-age` | `Strict-Transport-Security` present but `max-age` below 15,552,000 seconds (180 days — Rankwright's own floor, not a vendor requirement) | info |
 | `nosniff` | `security.nosniff.missing` | `X-Content-Type-Options` is not exactly `nosniff` | info |
 | `csp` | `security.csp.absent` | No `Content-Security-Policy`, by header or `<meta http-equiv>` | info |
 | `referrer-policy` | `security.referrer-policy.missing` | No `Referrer-Policy` header | info |
@@ -254,7 +254,7 @@ either way.
 
 Defects provable from the site's own declarations, with no external truth required — the
 category `docs/research/2026-08-04-competitive-gap-analysis.md` §1 identifies as the one
-OmniRank can credibly own at 100% precision, since both halves of every contradiction come
+Rankwright can credibly own at 100% precision, since both halves of every contradiction come
 from the site itself. Full detail, including the two rules every check in this module
 follows and the real Python-version caveat: [[Contradictions]].
 
@@ -269,7 +269,7 @@ follows and the real Python-version caveat: [[Contradictions]].
 ### Performance gates (`perf` layer) — new in v0.2.0
 
 `perf.run(page)` derives every finding from the single HTTP response already captured for
-that page. **No browser is involved** — OmniRank cannot measure Largest Contentful Paint,
+that page. **No browser is involved** — Rankwright cannot measure Largest Contentful Paint,
 Cumulative Layout Shift, Interaction to Next Paint, or produce a Lighthouse score.
 
 | Gate | Finding id | Rule (constant) | Severity |
@@ -282,7 +282,7 @@ Cumulative Layout Shift, Interaction to Next Paint, or produce a Lighthouse scor
 
 **The gate is named `response-time`, not `ttfb`.** `page.elapsed_ms` brackets the *entire*
 `client.get()` call — DNS through reading the complete response body — not the time to
-first byte. Treat every `perf` finding as a signal to investigate from wherever OmniRank's
+first byte. Treat every `perf` finding as a signal to investigate from wherever Rankwright's
 own request ran (a laptop, a CI runner), never as a metric a real visitor experienced.
 Full detail: `docs/audit-guide.md#performance-perf-layer`.
 
@@ -339,8 +339,8 @@ fire was its own kind of fabrication, so v0.2.1 removed it from the schema. Call
 function directly if you need it:
 
 ```python
-from omnirank.fetch import make_client
-from omnirank.gates import hygiene
+from rankwright.fetch import make_client
+from rankwright.gates import hygiene
 
 client = make_client()
 findings = hygiene.check_removed(client, ["https://example.com/old-page"])
@@ -363,7 +363,7 @@ A `5xx` on an unknown slug most often means a dynamic route shipped with
 
 ## How is the score computed?
 
-Verified directly against `scripts/py/omnirank/report.py`:
+Verified directly against `scripts/py/rankwright/report.py`:
 
 ```python
 ERROR_COST = 10
@@ -416,15 +416,15 @@ registry. See [[Security-Layer#a-scoring-bug-worth-knowing-about]] for the full 
 **`layers_run`.** `seo` and `geo` are marked run unconditionally at the start of
 `audit_site()`. `aeo`, `perf` and `security` are only marked run **after** at least one
 page was actually fetched — if zero pages parse, all three are absent from the score map
-entirely, never a fabricated `100`. A plain `omnirank audit` against a reachable site
+entirely, never a fabricated `100`. A plain `rankwright audit` against a reachable site
 reports all **five** layers; an `overall` divisor other than 5 is the signal at least one
 layer never ran.
 
 **The unreachable-URL edge case,** reproduced directly against v0.4.0:
 
 ```
-$ python3 -m omnirank.cli audit https://example.com/nope-xyz
-OmniRank 0.4.0 — https://example.com/nope-xyz
+$ python3 -m rankwright.cli audit https://example.com/nope-xyz
+Rankwright 0.4.0 — https://example.com/nope-xyz
   overall 70/100  geo 47  security 67  seo 96
   1 URLs checked · 7 findings in 7 groups
 
@@ -447,7 +447,7 @@ Running the CLI against `https://example.com` with no config — real output, ca
 v0.4.0:
 
 ```
-OmniRank 0.4.0 — https://example.com
+Rankwright 0.4.0 — https://example.com
   overall 74/100  aeo 71  geo 47  perf 100  security 67  seo 88
   1 URLs checked · 17 findings in 17 groups
 ```
@@ -477,7 +477,7 @@ carry roughly 3x the score weight of warnings per gate, and reference `id`, not 
 ## Using `--fail-on` as a CI gate
 
 ```bash
-python3 -m omnirank.cli audit --config omnirank.config.json --fail-on h1 canonical schema
+python3 -m rankwright.cli audit --config rankwright.config.json --fail-on h1 canonical schema
 ```
 
 Exit code becomes `1` if any of `h1`, `canonical`, or `schema` has an error-severity
@@ -488,7 +488,7 @@ build on.
 
 Every finding also carries a `fixTier` (`mechanical`, `templated`, `drafted`, `advisory`
 or `infrastructure`), a static property of the finding id declared in
-`scripts/py/omnirank/registry.py` for all 67 ids. It replaced `autoFixable`, which
+`scripts/py/rankwright/registry.py` for all 67 ids. It replaced `autoFixable`, which
 recorded which module a finding lived in rather than whether fixing it was safe. Only the
 four `mechanical` ids can produce a diff today. See [[Fix-Tiers-and-Applicability]] and
 [[Fix-Preview]].
@@ -498,7 +498,7 @@ four `mechanical` ids can produce a diff today. See [[Fix-Tiers-and-Applicabilit
 - [[Quick-Start]] — install and run your first audit
 - [[Security-Layer]] — the new `security` layer in full, including its honest limits
 - [[Contradictions]] — the new indexability-contradiction gates in full
-- [[Configuration-Reference]] — every `omnirank.config.json` field, including
+- [[Configuration-Reference]] — every `rankwright.config.json` field, including
   `audit.sampleSize` and `audit.failOn`
 - [[GEO-Artifacts-Skill]] — generating the artifacts the GEO layer checks for
 - [[Report-Schema]] — the full finding shape and id convention

@@ -1,20 +1,28 @@
 cff-version: 1.2.0
-title: "OmniRank: an SEO, AEO, GEO and SMM growth engine"
-message: "If you use OmniRank in your work, please cite it as below."
+title: "Rankwright: an SEO, AEO and GEO toolkit"
+message: "If you use Rankwright in your work, please cite it as below."
 type: software
 authors:
+  - name: "Mahir (mahirakash)"
   - family-names: Rahman
     given-names: S M Moshiur
-    email: moshiur@ticonsys.com
     affiliation: TICON System Limited
-    city: Dhaka
-    country: BD
-repository-code: "https://github.com/bemoshiur/OmniRank"
-url: "https://ticonsys.com"
+repository-code: "https://github.com/mahirakash/rankwright"
+url: "https://github.com/mahirakash/rankwright"
 abstract: >-
-  OmniRank audits websites across search-engine, answer-engine and
-  generative-engine criteria, and generates machine-ingestible ground truth
-  (llms.txt, llms-full.txt, facts.json) for AI crawlers.
+  Rankwright audits websites across search-engine, answer-engine and
+  generative-engine criteria, generates machine-ingestible ground truth
+  (llms.txt, llms-full.txt, facts.json) and JSON-LD, submits changed URLs
+  through IndexNow, tracks rankings, and publishes approved changes. It is a
+  fork of OmniRank by S M Moshiur Rahman.
+references:
+  - type: software
+    title: OmniRank
+    authors:
+      - family-names: Rahman
+        given-names: S M Moshiur
+    repository-code: "https://github.com/bemoshiur/OmniRank"
+    license: MIT
 keywords:
   - seo
   - answer-engine-optimization

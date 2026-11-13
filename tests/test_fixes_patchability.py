@@ -23,10 +23,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from omnirank.fixes import canonical, schema
-from omnirank.fixes.base import newline_style, unified_diff
-from omnirank.locator import Location
-from omnirank.report import Finding
+from rankwright.fixes import canonical, schema
+from rankwright.fixes.base import newline_style, unified_diff
+from rankwright.locator import Location
+from rankwright.report import Finding
 
 from ._patch import apply_and_read, git_apply_check
 

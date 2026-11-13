@@ -1,14 +1,14 @@
 # FAQ
 
-Direct answers, verified against the source in `scripts/py/omnirank/` and `schemas/`.
+Direct answers, verified against the source in `scripts/py/rankwright/` and `schemas/`.
 See [troubleshooting.md](troubleshooting.md) for error text and
 [audit-guide.md](audit-guide.md) / [geo-artifacts-guide.md](geo-artifacts-guide.md) for
 full detail on anything summarised here.
 
-### Does OmniRank guarantee rankings?
+### Does Rankwright guarantee rankings?
 
 No. Nothing can guarantee a ranking — search and answer engines rank content using
-signals no third-party tool controls. OmniRank scores a site against the concrete,
+signals no third-party tool controls. Rankwright scores a site against the concrete,
 checkable signals those engines are known to use (crawlable structure, valid metadata,
 valid structured data, machine-readable ground truth, citation permission) and gives you
 a prioritised list of gaps. Closing every gap it finds improves the odds; it does not fix
@@ -17,7 +17,7 @@ competitors, or engine-specific ranking factors that change without notice.
 
 ### Is my data sent anywhere?
 
-No. OmniRank runs entirely on your machine (or your CI runner) and only makes outbound
+No. Rankwright runs entirely on your machine (or your CI runner) and only makes outbound
 HTTP requests to the site URL you point it at — fetching pages, `sitemap.xml`,
 `robots.txt`, `llms.txt`, `llms-full.txt`, and `facts.json` from that one site. There is
 no telemetry, no phone-home, and no third-party API call in the `audit` or
@@ -40,24 +40,24 @@ JSON-LD, and no `llms.txt` will commonly hit this on the GEO layer, since every 
 `llms.txt`, `llms-full.txt`, `facts.json`, and `robots.txt`-allowlist missing is a
 separate broken gate.
 
-### Does OmniRank measure Core Web Vitals?
+### Does Rankwright measure Core Web Vitals?
 
-No. OmniRank has no browser, so it cannot measure Largest Contentful Paint, Cumulative
+No. Rankwright has no browser, so it cannot measure Largest Contentful Paint, Cumulative
 Layout Shift or Interaction to Next Paint. Its `perf` layer reports only what one HTTP
 response reveals: full response time (`response-time` — **not** time-to-first-byte; see
 below), HTML weight, compression, and render-blocking scripts in the head — four gates in
-`scripts/py/omnirank/gates/perf.py`, each against a tunable OmniRank default
+`scripts/py/rankwright/gates/perf.py`, each against a tunable Rankwright default
 (`RESPONSE_WARN_MS`, `RESPONSE_ERROR_MS`, `HTML_WARN_BYTES`, `MAX_HEAD_SCRIPTS`), not an
 industry benchmark. For field metrics use Chrome UX Report data or Lighthouse directly.
 
 `response-time` in particular is not TTFB despite sounding like it: `page.elapsed_ms`
-brackets OmniRank's entire request — DNS through reading the complete response body —
+brackets Rankwright's entire request — DNS through reading the complete response body —
 not the time until the first byte arrived. The gate was named `ttfb` and measured the
 same value in an earlier draft of 0.2.0; that overstated real TTFB several-fold and
 produced findings that vanished on re-measurement, so it was renamed and its thresholds
 raised to reflect that it measures a full download.
 
-### Does OmniRank work on non-Next.js sites?
+### Does Rankwright work on non-Next.js sites?
 
 Yes, for the `audit` skill and the Python path of `geo-artifacts` — both work against any
 live URL over plain HTTP, regardless of what generated the HTML. The `stack.framework`
@@ -69,7 +69,7 @@ documentation — the OpenNext/CloudFront 403 trap, the `dynamicParams` trap —
 real failure mode on that specific stack; it does not mean the tool itself is
 Next.js-only.
 
-### Does OmniRank edit my site automatically?
+### Does Rankwright edit my site automatically?
 
 No. `audit` only diagnoses — it never writes to your site's source or output. `SKILL.md`
 states this directly: "Audit only diagnoses. It never edits the site." `geo-artifacts`
@@ -77,9 +77,9 @@ does write files, but only the three GEO artifacts it generates (`llms.txt`,
 `llms-full.txt`, `facts.json`) into the output directory you specify — it never touches
 existing site source files.
 
-### Will OmniRank edit my files?
+### Will Rankwright edit my files?
 
-Not yet. `omnirank fix` locates each finding, prints the unified diff it would
+Not yet. `rankwright fix` locates each finding, prints the unified diff it would
 apply, and stops — there is no `--write` flag, and passing one exits `2`. File
 modification ships once the locator is proven against real repositories and the
 write guarantees it depends on are implemented and tested. See
@@ -110,7 +110,7 @@ is **not** warning-only — it emits an error-severity finding once response tim
 As of v0.2.1, `crawl-hygiene` no longer exists as a `--fail-on` value at all — it used to
 be accepted by the config schema, but its check (`hygiene.check_removed()`) needs an
 explicit removed-URL list no config field supplies, so it could never produce a finding
-from a plain `omnirank audit` run. Rather than leave a config-accepted gate name that
+from a plain `rankwright audit` run. Rather than leave a config-accepted gate name that
 could never fire, it was removed from the schema. `sitemap-health` is not inert: an
 unreachable target URL reports its `seo.page.unreachable` finding under `gate:
 "sitemap-health"` (see `_collect()` in `audit.py`), and as of v0.2.1
@@ -132,7 +132,7 @@ in the report; they just cannot flip the exit code on their own.
 Yes. A layer scoring `100` means it accumulated zero error/warning-cost findings *and*
 it actually ran — `Report.score()` only includes a layer that is present in
 `layers_run`, and `audit_site()` only adds `aeo`/`perf` to `layers_run` once at least one
-page was actually fetched and parsed. If the one page OmniRank tried to audit is
+page was actually fetched and parsed. If the one page Rankwright tried to audit is
 unreachable, the AEO, JSON-LD and perf checks never run for that URL (the loop in
 `_collect()` records one `seo.page.unreachable` error and moves on), so `aeo` and `perf`
 are **absent** from the score map entirely rather than shown as a false `100` — you will
@@ -141,28 +141,28 @@ not see `aeo 100` on a site that never served any content. `seo` and `geo` alway
 always appear. Always check for a `seo.page.unreachable` finding, and check which layers
 are actually present in the score line, before trusting a report.
 
-### Can I run OmniRank without a config file?
+### Can I run Rankwright without a config file?
 
-Yes, for both commands. `omnirank audit <url>` and `omnirank geo <url>` both work with
+Yes, for both commands. `rankwright audit <url>` and `rankwright geo <url>` both work with
 just a URL — `default_config()` builds a minimal in-memory config (`entityType:
 "Organization"`, the URL as both name and site URL). Since that config has no `geo`
-section, a bare `omnirank geo <url>` has no configured `geo.license` either — as of
+section, a bare `rankwright geo <url>` has no configured `geo.license` either — as of
 v0.2.1 that generates the artifacts anyway, granting no reuse rights, and prints a
 one-line notice to stderr saying so, rather than refusing to run: the generated files
-are published to your site, so OmniRank tells you it defaulted to "no rights" instead of
+are published to your site, so Rankwright tells you it defaulted to "no rights" instead of
 choosing that silently. Write a config with `geo.license` set to a real licence and pass
 it with `--config` to actually grant reuse rights, or set it to `"none"` explicitly to
 make that choice permanent and silence the notice. Beyond that, a config file is also
 required for CI gating with a committed `audit.failOn`, first-party facts (`nap`,
 `identifiers`, `statistics`), and anything the roadmap skills will need from `secrets`.
 
-### Is OmniRank on PyPI or npm?
+### Is Rankwright on PyPI or npm?
 
 No, not as of v0.2.0. Install the Python CLI from source — clone the repository and `pip
-install -e ./scripts/py` inside a virtual environment, or `pip install "omnirank @
-git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"` directly from git
+install -e ./scripts/py` inside a virtual environment, or `pip install "rankwright @
+git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"` directly from git
 — see [getting-started.md](getting-started.md). The Node generator
-(`@omnirank/generators`) is likewise not published; use it by importing
+(`@rankwright/generators`) is likewise not published; use it by importing
 `scripts/node/src/generate.ts` directly or copying it into your project.
 
 ### What happens if a `secrets` entry points at an environment variable that isn't set?
@@ -174,17 +174,17 @@ indistinguishable from a successful one in logs," so a missing secret must fail 
 No shipped skill in v0.2.0 calls `secret()` automatically — this only matters if you or a
 future skill calls it directly. See [configuration.md#secrets](configuration.md#secrets).
 
-### Does OmniRank guarantee that ChatGPT, Perplexity, Claude, or Gemini will cite my site once `llms.txt` exists?
+### Does Rankwright guarantee that ChatGPT, Perplexity, Claude, or Gemini will cite my site once `llms.txt` exists?
 
 No. Publishing `llms.txt`, `llms-full.txt`, and `facts.json` follows the community
 [llms.txt convention](https://llmstxt.org/) and gives an explicit citation licence, which
 removes a real barrier (a cautious model declining to quote content with no clear
-permission) — but no engine's retrieval or citation behavior is under OmniRank's control,
+permission) — but no engine's retrieval or citation behavior is under Rankwright's control,
 and this repository cannot verify what any specific engine's crawler actually does with
 these files once published. Publishing them is a low-cost, evidence-backed bet, not a
 guarantee.
 
-### What Python and Node versions does OmniRank require?
+### What Python and Node versions does Rankwright require?
 
 Python 3.11 or newer (`pyproject.toml` sets `requires-python = ">=3.11"`; CI tests 3.11,
 3.12, and 3.13). Node 22 or newer, only if you use the in-repo Node GEO-artifacts
@@ -193,7 +193,7 @@ at all for the CLI or the Python crawl path.
 
 ### Where does the audit report get written, and what format is it?
 
-To `.omnirank/reports/<UTC-date>-audit.json` by default (override with `--out`), as JSON
+To `.rankwright/reports/<UTC-date>-audit.json` by default (override with `--out`), as JSON
 validated against `schemas/report.schema.json` — `generatedAt`, `tool`, `site`, `kind`,
 `score` (per layer plus `overall`), `stats` (`urlsChecked`/`passed`/`failed`/`warned`),
 and the full `findings` array, each with `id`, `severity`, `layer`, `url`, `gate`,
@@ -204,5 +204,5 @@ and the full `findings` array, each with `id`, `severity`, `layer`, `url`, `gate
 
 No. Code is MIT (`LICENSE`). Documentation and the content corpus exposed via `llms.txt`
 and `llms-full.txt` are CC BY 4.0 (`LICENSE-CONTENT`) — the same permissive-with-
-attribution licence OmniRank asks sites to grant their own content under in the citation
+attribution licence Rankwright asks sites to grant their own content under in the citation
 licence block it generates.

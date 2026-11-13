@@ -3,8 +3,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from omnirank.fetch import Fetched
-from omnirank.page import PageData
+from rankwright.fetch import Fetched
+from rankwright.page import PageData
 
 HTML = "<html lang='en'><head><title>T</title></head><body><h1>H</h1></body></html>"
 
@@ -70,11 +70,11 @@ def test_replace_does_not_inherit_the_cached_soup():
 def test_xml_parsed_as_html_warning_is_silenced_at_package_import():
     # S8: pytest's own warnings plugin resets the filter list per test, so this
     # must run in a clean subprocess to actually exercise the filter that
-    # `omnirank/__init__.py` installs at import time for real callers (the CLI,
-    # a script importing `omnirank`) rather than pytest's test harness.
+    # `rankwright/__init__.py` installs at import time for real callers (the CLI,
+    # a script importing `rankwright`) rather than pytest's test harness.
     script = (
         "import warnings\n"
-        "import omnirank  # noqa: F401 -- installs the filter as a side effect\n"
+        "import rankwright  # noqa: F401 -- installs the filter as a side effect\n"
         "from bs4 import BeautifulSoup\n"
         "with warnings.catch_warnings(record=True) as caught:\n"
         "    BeautifulSoup('<?xml version=\"1.0\"?><urlset><url>"

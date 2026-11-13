@@ -3,10 +3,10 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-from omnirank.fixes import schema
-from omnirank.html import find_ldjson_scripts
-from omnirank.locator import Location
-from omnirank.report import Finding
+from rankwright.fixes import schema
+from rankwright.html import find_ldjson_scripts
+from rankwright.locator import Location
+from rankwright.report import Finding
 
 from ._patch import apply_and_read, git_apply_check
 

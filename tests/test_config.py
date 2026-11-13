@@ -2,11 +2,11 @@ import json
 
 import pytest
 
-from omnirank.config import Config, ConfigError, load_config
+from rankwright.config import Config, ConfigError, load_config
 
 
 def write(tmp_path, data):
-    p = tmp_path / "omnirank.config.json"
+    p = tmp_path / "rankwright.config.json"
     p.write_text(json.dumps(data))
     return p
 

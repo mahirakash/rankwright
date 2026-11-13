@@ -1,6 +1,6 @@
 ## Tiering table
 
-All 48 finding ids OmniRank can emit. `autoFixable` column = the value the code sets today.
+All 48 finding ids Rankwright can emit. `autoFixable` column = the value the code sets today.
 
 | # | Finding id | Module | Sev | Tier | autoFixable now | Exact edit that resolves it | Info the tool does not have | Blast radius if wrong |
 |---|---|---|---|---|---|---|---|
@@ -48,7 +48,7 @@ All 48 finding ids OmniRank can emit. `autoFixable` column = the value the code 
 | 42 | `seo.page.unreachable` | audit.py | error | **ADVISORY** | `false` | Restore the page, **or** remove it from the sitemap | Cause of the non-200 (fires on 404, 5xx, and network errors alike — status `0` included). Overlaps INFRASTRUCTURE when the cause is a 5xx | High, same either/or as #41 |
 | 43 | `geo.llms-full.forbidden` | gates/geo.py | error | **INFRASTRUCTURE** | `false` | Write the file into `publicDir` during prebuild so it is served as a static object, not from a dynamic route | Hosting topology (the fix text presumes OpenNext/CloudFront + S3 origin) | Low for the file itself; the build/deploy pipeline change is the real risk surface |
 | 44 | `geo.facts.forbidden` | gates/geo.py | error | **INFRASTRUCTURE** | `false` | Same as #43 for `facts.json` | Same | Same |
-| 45 | `perf.response-time.critical` | gates/perf.py | error | **INFRASTRUCTURE** | `false` | Origin/CDN work: cold starts, uncached queries, origin distance | Server-side telemetry OmniRank has none of. The finding's own text disclaims it as "a signal to investigate, not a user metric" — it measures full download from wherever the audit ran | N/A — no source edit exists to get wrong |
+| 45 | `perf.response-time.critical` | gates/perf.py | error | **INFRASTRUCTURE** | `false` | Origin/CDN work: cold starts, uncached queries, origin distance | Server-side telemetry Rankwright has none of. The finding's own text disclaims it as "a signal to investigate, not a user metric" — it measures full download from wherever the audit ran | N/A — no source edit exists to get wrong |
 | 46 | `perf.response-time.slow` | gates/perf.py | warning | **INFRASTRUCTURE** | `false` | Add caching or a CDN | Same as #45 | N/A |
 | 47 | `perf.compression.missing` | gates/perf.py | warning | **INFRASTRUCTURE** | `false` | Enable gzip/brotli/zstd at origin or CDN | Whether the origin already supports brotli — `fetch.py` only advertises gzip/deflate, so this can fire on a correctly-configured brotli-only server | N/A for source. False positive risk is the real cost |
 | 48 | `seo.crawl-hygiene.server-error` | gates/hygiene.py | error | **INFRASTRUCTURE** | `false` | Set `dynamicParams=true` and `permanentRedirect` unknown slugs to their hub | The hub URL to redirect to; whether the stack is even Next.js (the fix text assumes it). *Also: never emitted — see note E* | Medium. Changing route generation affects every dynamic URL, not just the audited one |
@@ -61,7 +61,7 @@ All 48 finding ids OmniRank can emit. `autoFixable` column = the value the code 
 
 ### A. `autoFixable` is not an assessment — it is an artifact of which file the finding lives in
 
-`Finding.auto_fixable` (`scripts/py/omnirank/report.py:52`) defaults to `False`, and **only `gates/seo.py` can ever set it**. Its local helper is the only one with the parameter:
+`Finding.auto_fixable` (`scripts/py/rankwright/report.py:52`) defaults to `False`, and **only `gates/seo.py` can ever set it**. Its local helper is the only one with the parameter:
 
 ```python
 def _f(id_: str, gate: str, url: str, severity: str, observed: str,
@@ -94,7 +94,7 @@ Both are safer than `seo.description.long`, which is marked `true` today.
 
 ### E. Two findings in the table can never actually be emitted
 
-`seo.crawl-hygiene.server-error` and `seo.crawl-hygiene.not-found` come only from `hygiene.check_removed()`, which `audit.py` never calls (confirmed against `CHANGELOG.md:38`, `docs/audit-guide.md:299`, and the v0.2.0 plan, which states it "remains unwired… needs a config field that does not exist yet"). The `crawl-hygiene` gate name is also **absent from `audit.failOn`'s enum** in `schemas/omnirank.config.schema.json`, so it cannot even be selected. They are tiered above for completeness; a fix mode would never see them.
+`seo.crawl-hygiene.server-error` and `seo.crawl-hygiene.not-found` come only from `hygiene.check_removed()`, which `audit.py` never calls (confirmed against `CHANGELOG.md:38`, `docs/audit-guide.md:299`, and the v0.2.0 plan, which states it "remains unwired… needs a config field that does not exist yet"). The `crawl-hygiene` gate name is also **absent from `audit.failOn`'s enum** in `schemas/rankwright.config.schema.json`, so it cannot even be selected. They are tiered above for completeness; a fix mode would never see them.
 
 ### F. Structural gaps that block a fix mode regardless of tier
 
@@ -106,10 +106,10 @@ Both are safer than `seo.description.long`, which is marked `true` today.
 
 ### G. Documentation drift on this field
 
-`docs/wiki/Report-Schema.md:44` describes `autoFixable` as *"Present and `true` only on findings OmniRank could, in principle, patch itself… absence means false."* But `Finding.to_dict()` (`report.py:54-65`) **always** emits the key, so the documented absence case never occurs, and `false` in a report means "the gate module has no `auto` parameter," not "OmniRank assessed this as unfixable." The schema correctly marks the field optional; the emitter does not exercise that.
+`docs/wiki/Report-Schema.md:44` describes `autoFixable` as *"Present and `true` only on findings Rankwright could, in principle, patch itself… absence means false."* But `Finding.to_dict()` (`report.py:54-65`) **always** emits the key, so the documented absence case never occurs, and `false` in a report means "the gate module has no `auto` parameter," not "Rankwright assessed this as unfixable." The schema correctly marks the field optional; the emitter does not exercise that.
 
 ### H. Recommendation if a fix mode is built
 
 Replace `autoFixable: boolean` with `fixTier: "mechanical" | "templated" | "drafted" | "advisory" | "infrastructure"` in `schemas/report.schema.json`, add the parameter to the `_f()` helper in **every** gate module (not just `seo.py`), and gate unattended application to `mechanical` only — which after the corrections above is 4 findings: `seo.canonical.missing`, `seo.canonical.relative`, `seo.schema.no-context`, `seo.canonical.chained`. Keeping the boolean and honouring it as-written would auto-apply two unsafe fixes (`seo.h1.multiple`, `seo.description.long`) and skip two safe ones.
 
-**Files read:** `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/scripts/py/omnirank/gates/{seo,jsonld,aeo,geo,site,perf,hygiene}.py`, `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/scripts/py/omnirank/{audit,report,config,bands,page,cli,geo_artifacts}.py`, `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/schemas/{report,omnirank.config}.schema.json`.
+**Files read:** `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/scripts/py/rankwright/gates/{seo,jsonld,aeo,geo,site,perf,hygiene}.py`, `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/scripts/py/rankwright/{audit,report,config,bands,page,cli,geo_artifacts}.py`, `/Users/smmoshiurrahman/Downloads/Projects/ClaudeCode Skill/SEO-AEO-GEO-SMM-CLAUDE-SKILL/schemas/{report,rankwright.config}.schema.json`.

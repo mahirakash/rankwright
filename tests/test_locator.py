@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from omnirank.framework import Detection
-from omnirank.locator import NOT_LOCATED, Location, locate, route_of
+from rankwright.framework import Detection
+from rankwright.locator import NOT_LOCATED, Location, locate, route_of
 
 NEXT = Detection("next-app-router", "high", ("next.config.mjs", "app/layout.tsx"))
 
@@ -261,7 +261,7 @@ def test_not_located_is_the_default_location():
     assert NOT_LOCATED.confidence == "none"
 
 
-from omnirank.locator import blast_radius   # noqa: E402  (grouped with the suite above)
+from rankwright.locator import blast_radius   # noqa: E402  (grouped with the suite above)
 
 STATIC = Detection("static", "medium", ("index.html",))
 JEKYLL = Detection("jekyll", "high", ("_config.yml", "_layouts"))

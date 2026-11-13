@@ -1,6 +1,6 @@
 # Finding Reference
 
-OmniRank emits 67 finding ids across five layers, and every one carries a `fixTier` declared once, in `scripts/py/omnirank/registry.py`. This page lists all 67, generated directly from that registry rather than transcribed by hand, so it cannot silently drift from the code the way the pre-v0.3.0 wiki did.
+Rankwright emits 67 finding ids across five layers, and every one carries a `fixTier` declared once, in `scripts/py/rankwright/registry.py`. This page lists all 67, generated directly from that registry rather than transcribed by hand, so it cannot silently drift from the code the way the pre-v0.3.0 wiki did.
 
 Two coverage tests (`tests/test_registry.py`) assert the registry and the emitting gate code cannot drift apart in either direction: every id a gate can actually emit is registered, and every registered id is emitted by some gate or explicitly marked `reachable=False`. A finding id cannot ship untiered.
 
@@ -119,7 +119,7 @@ Two coverage tests (`tests/test_registry.py`) assert the registry and the emitti
 | `advisory` | 16 | Two opposite correct answers exist; only the owner can choose |
 | `infrastructure` | 12 | No source edit exists; the fix lives in CDN, origin or build config |
 
-Only the 4 `mechanical` ids — `seo.canonical.chained`, `seo.canonical.missing`, `seo.canonical.relative`, `seo.schema.no-context` — have a fix generator in `omnirank fix` today, unchanged since v0.3.0. That is intentional, not a gap to be embarrassed about: see [[Fix-Tiers-and-Applicability]] for why every other tier ceilings at `unsafe` or `display-only` regardless of how confidently the locator finds the file. All 19 new v0.4.0 ids landed outside the `mechanical` tier — a `security` header gap is `infrastructure` (the fix is a CDN/origin config change, not a source edit), and every contradiction gate is `advisory` (the site has two opposite correct fixes and only the owner knows which one is intended).
+Only the 4 `mechanical` ids — `seo.canonical.chained`, `seo.canonical.missing`, `seo.canonical.relative`, `seo.schema.no-context` — have a fix generator in `rankwright fix` today, unchanged since v0.3.0. That is intentional, not a gap to be embarrassed about: see [[Fix-Tiers-and-Applicability]] for why every other tier ceilings at `unsafe` or `display-only` regardless of how confidently the locator finds the file. All 19 new v0.4.0 ids landed outside the `mechanical` tier — a `security` header gap is `infrastructure` (the fix is a CDN/origin config change, not a source edit), and every contradiction gate is `advisory` (the site has two opposite correct fixes and only the owner knows which one is intended).
 
 ## Why is `seo.crawl-hygiene.*` marked unreachable?
 
@@ -127,7 +127,7 @@ Two ids, `seo.crawl-hygiene.not-found` and `seo.crawl-hygiene.server-error`, car
 
 ## What's new in v0.4.0?
 
-19 new finding ids across four gate modules (`CHANGELOG.md`'s 0.4.0 entry says "18" in its headline prose — the registry itself is the source of truth, and a diff against the v0.3.0 tag shows 19 additions and 0 removals) — verify the count directly yourself with `git diff v0.3.0 HEAD -- scripts/py/omnirank/registry.py`:
+19 new finding ids across four gate modules (`CHANGELOG.md`'s 0.4.0 entry says "18" in its headline prose — the registry itself is the source of truth, and a diff against the v0.3.0 tag shows 19 additions and 0 removals) — verify the count directly yourself with `git diff v0.3.0 HEAD -- scripts/py/rankwright/registry.py`:
 
 - **`security` layer (8 ids, `gates/security.py`)** — four response-header gates (`hsts`, `nosniff`, `csp`, `referrer-policy`), all `info` severity and excluded from scoring entirely; plus `mixed-content` (split into a blockable `error` and an auto-upgraded `warning`) and `https-redirect` (`error`). See [[Security-Layer]].
 - **Indexability contradictions (5 ids, `gates/contradictions.py`)** — `seo.robots-sitemap.disallowed`, `seo.canonical-target.noindexed`, `seo.canonical-target.not-found`, `seo.canonical-target.redirects`, `seo.hreflang-noindex.alternate`. See [[Contradictions]].
@@ -140,4 +140,4 @@ Two ids, `seo.crawl-hygiene.not-found` and `seo.crawl-hygiene.server-error`, car
 - [[Audit-Skill]] — every gate's rule and severity, in prose, grouped by layer
 - [[Security-Layer]] / [[Contradictions]] — the two v0.4.0 gate groups in full detail
 - [[Fix-Tiers-and-Applicability]] — what `fixTier` and `applicability` mean and how they combine
-- [[Fix-Preview]] — what `omnirank fix` actually does with the 4 `mechanical` ids
+- [[Fix-Preview]] — what `rankwright fix` actually does with the 4 `mechanical` ids

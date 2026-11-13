@@ -38,7 +38,7 @@ def test_ci_lints():
 
 def test_ci_python_matrix_includes_3_14():
     # S7 (final v0.4.0 review): the robots-sitemap contradiction gate's matcher
-    # probe (omnirank/robots.py) has two behaviourally different code paths --
+    # probe (rankwright/robots.py) has two behaviourally different code paths --
     # `evaluated is True` on 3.14 (RFC 9309 compliant) and `evaluated is False`
     # on 3.11-3.13 (matcher-unsupported). A matrix that stops at 3.13 never
     # exercises the firing path at all, so a regression there would go green on
@@ -67,7 +67,7 @@ def test_release_triggers_on_version_tags():
 def test_release_builds_and_attaches_the_skill_zip():
     body = RELEASE.read_text()
     assert "build-skill-zip.sh" in body
-    assert "omnirank-skill.zip" in body
+    assert "rankwright-skill.zip" in body
 
 
 def test_release_has_contents_write_permission():

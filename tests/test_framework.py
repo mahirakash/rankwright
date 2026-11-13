@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from omnirank.framework import (
+from rankwright.framework import (
     CONFIG_FRAMEWORK_ALIASES,
     UNKNOWN,
     Detection,
@@ -168,7 +168,7 @@ def test_detection_is_frozen():
 
 
 def test_every_config_framework_value_has_an_alias():
-    schema = json.loads((ROOT / "schemas" / "omnirank.config.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas" / "rankwright.config.schema.json").read_text())
     declared = set(
         schema["properties"]["stack"]["properties"]["framework"]["enum"])
     missing = sorted(declared - set(CONFIG_FRAMEWORK_ALIASES))

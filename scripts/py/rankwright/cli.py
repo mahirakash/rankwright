@@ -19,7 +19,7 @@ SEVERITY_SECTION = {"error": "ERRORS", "warning": "WARNINGS", "info": "INFO"}
 MAX_EXAMPLE_URLS = 3
 
 WRITE_UNAVAILABLE = (
-    "omnirank fix has no --write path. This release locates findings and prints "
+    "rankwright fix has no --write path. This release locates findings and prints "
     "the diff it would apply; it writes nothing. Writing ships once the locator "
     "has been proven against real repositories and the write guarantees in "
     "docs/research/2026-08-04-automation-architecture.md section 2.5 are "
@@ -109,7 +109,7 @@ def _summarise(report: Report, fail_on: list[str], *,
                 detail: bool = False, top: int | None = None) -> str:
     score = report.score()
     lines = [
-        f"OmniRank {__version__} — {report.site}",
+        f"Rankwright {__version__} — {report.site}",
         f"  overall {score['overall']}/100  "
         + "  ".join(f"{k} {v}" for k, v in sorted(score.items()) if k != "overall"),
     ]
@@ -210,7 +210,7 @@ def _format_fix(detection: Detection, outcomes: list[FixOutcome], *,
     fixed = [o for o in outcomes if o.fixed]
     skipped = [o for o in outcomes if not o.fixed]
     lines = [
-        f"OmniRank {__version__} — fix preview (writes nothing)",
+        f"Rankwright {__version__} — fix preview (writes nothing)",
         (f"  framework: {detection.framework} (confidence {detection.confidence}; "
          f"evidence: {', '.join(detection.evidence)})"),
         f"  {len(fixed)} diff(s) ready · {len(skipped)} finding(s) not fixable here",
@@ -237,7 +237,7 @@ def _format_fix(detection: Detection, outcomes: list[FixOutcome], *,
 def _fix_json(config: Config, detection: Detection,
               outcomes: list[FixOutcome]) -> dict:
     return {
-        "tool": {"name": "omnirank", "version": __version__},
+        "tool": {"name": "rankwright", "version": __version__},
         "site": config.site_url,
         "framework": {
             "name": detection.framework,
@@ -252,14 +252,14 @@ def _fix_json(config: Config, detection: Detection,
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="omnirank")
-    parser.add_argument("--version", action="version", version=f"omnirank {__version__}")
+    parser = argparse.ArgumentParser(prog="rankwright")
+    parser.add_argument("--version", action="version", version=f"rankwright {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     audit = sub.add_parser("audit", help="Score a site across SEO/AEO/GEO gates")
     audit.add_argument("url", nargs="?", help="Site root. Omit when using --config.")
-    audit.add_argument("--config", help="Path to omnirank.config.json")
-    audit.add_argument("--out", help="Report path (default .omnirank/reports/<date>-audit.json)")
+    audit.add_argument("--config", help="Path to rankwright.config.json")
+    audit.add_argument("--out", help="Report path (default .rankwright/reports/<date>-audit.json)")
     audit.add_argument("--fail-on", nargs="*", default=None,
                        help="Gate ids that force exit code 1. Overrides config.")
     audit.add_argument("--detail", action="store_true",
@@ -271,13 +271,13 @@ def _build_parser() -> argparse.ArgumentParser:
 
     geo = sub.add_parser("geo", help="Generate llms.txt, llms-full.txt and facts.json")
     geo.add_argument("url", nargs="?", help="Site root. Omit when using --config.")
-    geo.add_argument("--config", help="Path to omnirank.config.json")
+    geo.add_argument("--config", help="Path to rankwright.config.json")
     geo.add_argument("--out", default="public", help="Output directory (default: public)")
 
     fix = sub.add_parser(
-        "fix", help="Show the diffs OmniRank could apply. Writes nothing.")
+        "fix", help="Show the diffs Rankwright could apply. Writes nothing.")
     fix.add_argument("url", nargs="?", help="Site root. Omit when using --config.")
-    fix.add_argument("--config", help="Path to omnirank.config.json")
+    fix.add_argument("--config", help="Path to rankwright.config.json")
     fix.add_argument("--root", default=".",
                      help="Repository root to locate findings in (default: .)")
     fix.add_argument("--json", action="store_true",
@@ -300,18 +300,18 @@ def main(argv: list[str] | None = None) -> int:
     # Before load_config and before any network call, so the refusal is instant
     # and cannot be mistaken for a failure part-way through a run.
     if args.command == "fix" and args.write:
-        print(f"omnirank: {WRITE_UNAVAILABLE}", file=sys.stderr)
+        print(f"rankwright: {WRITE_UNAVAILABLE}", file=sys.stderr)
         return 2
 
     try:
         config = load_config(args.config) if args.config else None
     except ConfigError as exc:
-        print(f"omnirank: {exc}", file=sys.stderr)
+        print(f"rankwright: {exc}", file=sys.stderr)
         return 2
 
     if config is None:
         if not args.url:
-            print("omnirank: provide a URL or --config", file=sys.stderr)
+            print("rankwright: provide a URL or --config", file=sys.stderr)
             return 2
         config = default_config(args.url.rstrip("/"))
 
@@ -323,12 +323,12 @@ def main(argv: list[str] | None = None) -> int:
         # is a deliberate choice and needs no notice. Say so on stderr so the choice
         # isn't made silently, without touching the generated files or exit code.
         if license_is_absent(config):
-            print(f"omnirank: {LICENSE_ABSENT_NOTICE}", file=sys.stderr)
+            print(f"rankwright: {LICENSE_ABSENT_NOTICE}", file=sys.stderr)
 
         try:
             written = generate(config, args.out)
         except ConfigError as exc:
-            print(f"omnirank: {exc}", file=sys.stderr)
+            print(f"rankwright: {exc}", file=sys.stderr)
             return 2
         for path in written:
             print(f"  wrote {path}")
@@ -349,7 +349,7 @@ def main(argv: list[str] | None = None) -> int:
     report = audit_site(config)
     fail_on = args.fail_on if args.fail_on is not None else config.fail_on
 
-    out = args.out or f".omnirank/reports/{datetime.now(UTC).date().isoformat()}-audit.json"
+    out = args.out or f".rankwright/reports/{datetime.now(UTC).date().isoformat()}-audit.json"
     written = report.write(out)
 
     print(_summarise(report, fail_on, detail=args.detail, top=args.top))

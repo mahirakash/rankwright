@@ -4,8 +4,8 @@ from pathlib import Path
 import httpx
 import respx
 
-from omnirank.cli import _summarise, main
-from omnirank.report import Finding, Report
+from rankwright.cli import _summarise, main
+from rankwright.report import Finding, Report
 from tests.test_audit import SITE, mock_site
 
 
@@ -15,7 +15,7 @@ def test_clean_site_exits_zero(tmp_path, capsys):
     out = tmp_path / "r.json"
     assert main(["audit", SITE, "--out", str(out)]) == 0
     assert json.loads(out.read_text())["score"]["overall"] == 100
-    assert "OmniRank" in capsys.readouterr().out
+    assert "Rankwright" in capsys.readouterr().out
 
 
 @respx.mock
@@ -47,12 +47,12 @@ def test_no_url_and_no_config_exits_two():
     assert main(["audit"]) == 2
 
 
-# --- v0.2.1: `omnirank geo` must never silently grant a licence, but must also -----
+# --- v0.2.1: `rankwright geo` must never silently grant a licence, but must also -----
 # --- keep working with zero config (a headline feature the first fix broke) -------
 #
 # geo.license used to default to "CC-BY-4.0" when unset, silently publishing a reuse
 # grant the site owner never gave. That was fixed by raising -- but the raise made
-# `omnirank geo <url>` with no config file (there is no config to carry a licence
+# `rankwright geo <url>` with no config file (there is no config to carry a licence
 # choice) always exit 2, breaking zero-config `geo` generation the same way
 # zero-config `audit` still works. An absent geo.license now behaves exactly like
 # the explicit "none" opt-out: it generates and grants nothing, at exit 0, with a
@@ -87,7 +87,7 @@ def test_geo_command_without_config_prints_the_no_licence_notice_and_grants_noth
 @respx.mock
 def test_geo_command_with_config_missing_license_exits_zero_with_notice(tmp_path, capsys):
     mock_site()
-    config_path = tmp_path / "omnirank.config.json"
+    config_path = tmp_path / "rankwright.config.json"
     config_path.write_text(json.dumps({
         "site": {"name": "X", "url": SITE, "entityType": "Organization"},
         "geo": {"answerBlockSelector": ".answer-block"},
@@ -103,7 +103,7 @@ def test_geo_command_with_config_missing_license_exits_zero_with_notice(tmp_path
 @respx.mock
 def test_geo_command_with_license_none_writes_artifacts_with_no_grant(tmp_path, capsys):
     mock_site()
-    config_path = tmp_path / "omnirank.config.json"
+    config_path = tmp_path / "rankwright.config.json"
     config_path.write_text(json.dumps({
         "site": {"name": "X", "url": SITE, "entityType": "Organization"},
         "geo": {"license": "none"},
@@ -123,7 +123,7 @@ def test_geo_command_with_license_none_writes_artifacts_with_no_grant(tmp_path, 
 @respx.mock
 def test_geo_command_with_real_license_unchanged(tmp_path, capsys):
     mock_site()
-    config_path = tmp_path / "omnirank.config.json"
+    config_path = tmp_path / "rankwright.config.json"
     config_path.write_text(json.dumps({
         "site": {"name": "X", "url": SITE, "entityType": "Organization"},
         "geo": {"license": "CC-BY-4.0"},
@@ -226,7 +226,7 @@ def test_clean_report_has_no_not_evaluated_section():
 
 
 def test_not_evaluated_entries_appear_in_the_console_summary():
-    from omnirank.report import NotEvaluated
+    from rankwright.report import NotEvaluated
 
     report = _report([])
     report.flag_not_evaluated(NotEvaluated(
@@ -289,9 +289,9 @@ def test_report_json_unaffected_by_detail_flag(tmp_path):
     assert len(a["findings"]) > 0
 
 
-# --- v0.3.0: `omnirank fix` -----------------------------------------------
+# --- v0.3.0: `rankwright fix` -----------------------------------------------
 
-from omnirank.cli import WRITE_UNAVAILABLE
+from rankwright.cli import WRITE_UNAVAILABLE
 
 FIXABLE_PAGE = """<!doctype html>
 <html lang="en">
@@ -419,7 +419,7 @@ def test_fix_json_is_structured_and_states_that_nothing_was_written(tmp_path, ca
     code = main(["fix", SITE, "--root", str(fixable_repo(tmp_path)), "--json"])
     payload = json.loads(capsys.readouterr().out)
     assert code == 1
-    assert payload["tool"]["name"] == "omnirank"
+    assert payload["tool"]["name"] == "rankwright"
     assert payload["wrote"] == []
     assert payload["framework"]["name"] == "jekyll"
     assert payload["framework"]["confidence"] == "high"
@@ -437,7 +437,7 @@ def test_fix_json_records_every_skip_with_a_reason(tmp_path, capsys):
     main(["fix", SITE, "--root", str(tmp_path), "--json"])
     payload = json.loads(capsys.readouterr().out)
     assert payload["fixes"] == []
-    assert payload["skipped"], "a finding OmniRank could not fix must still be reported"
+    assert payload["skipped"], "a finding Rankwright could not fix must still be reported"
     assert all("reason" in entry for entry in payload["skipped"])
     assert all("diff" not in entry for entry in payload["skipped"])
 
@@ -460,16 +460,16 @@ def test_fix_with_a_missing_config_exits_two(tmp_path):
     assert main(["fix", "--config", str(tmp_path / "nope.json")]) == 2
 
 
-# --- S1: `omnirank fix`'s NOT FIXED section, grouped like audit's summary ----
+# --- S1: `rankwright fix`'s NOT FIXED section, grouped like audit's summary ----
 #
 # A real run against danluu.com printed 293 lines: 142 entries with one
 # identical reason string, one line each. `audit` solved exactly this problem
 # in v0.2.1 (`_group_findings`, tested above); the same grouping now applies to
 # fix's "NOT FIXED" section.
 
-from omnirank.cli import _format_fix                    # noqa: E402
-from omnirank.fixes.base import FixOutcome               # noqa: E402
-from omnirank.framework import Detection as _Detection   # noqa: E402
+from rankwright.cli import _format_fix                    # noqa: E402
+from rankwright.fixes.base import FixOutcome               # noqa: E402
+from rankwright.framework import Detection as _Detection   # noqa: E402
 
 _FIX_DETECTION = _Detection("jekyll", "high", ("_config.yml", "_layouts"))
 

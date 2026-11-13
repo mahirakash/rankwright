@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from omnirank.fixes import canonical
-from omnirank.fixes.base import FixOutcome, outcome, quote_char, unified_diff
-from omnirank.locator import Location
-from omnirank.report import Finding
+from rankwright.fixes import canonical
+from rankwright.fixes.base import FixOutcome, outcome, quote_char, unified_diff
+from rankwright.locator import Location
+from rankwright.report import Finding
 
 PAGE = """<!doctype html>
 <html lang="en">
@@ -266,7 +266,7 @@ def test_a_missing_file_declines_rather_than_raising(tmp_path):
 
 
 def test_the_fixes_package_never_writes():
-    """No call in omnirank/fixes may create, modify or delete a file.
+    """No call in rankwright/fixes may create, modify or delete a file.
 
     Checked against the parsed AST rather than the raw text: a substring scan for
     "open(" also rejects `path.open("r")`, which writes nothing, and would equally
@@ -282,7 +282,7 @@ def test_the_fixes_package_never_writes():
     forbidden_names = {"rmtree", "copy", "copy2", "copyfile", "move", "remove"}
     write_modes = set("wax+")
 
-    package = Path(__file__).resolve().parents[1] / "scripts" / "py" / "omnirank" / "fixes"
+    package = Path(__file__).resolve().parents[1] / "scripts" / "py" / "rankwright" / "fixes"
     offences: list[str] = []
 
     for path in sorted(package.glob("*.py")):
@@ -313,13 +313,13 @@ def test_the_fixes_package_never_writes():
                     offences.append(f"{path.name}:{node.lineno} opens with mode {mode!r}")
 
     assert not offences, (
-        "omnirank/fixes must never write; this release only previews diffs:\n  "
+        "rankwright/fixes must never write; this release only previews diffs:\n  "
         + "\n  ".join(offences))
 
 
-from omnirank.fixes import GENERATORS, generate   # noqa: E402
-from omnirank.gates import site as site_gate      # noqa: E402
-from omnirank.page import PageData                # noqa: E402
+from rankwright.fixes import GENERATORS, generate   # noqa: E402
+from rankwright.gates import site as site_gate      # noqa: E402
+from rankwright.page import PageData                # noqa: E402
 
 CHAINED_PAGE = PAGE.replace(
     "    <title>Home</title>\n",
@@ -386,7 +386,7 @@ def test_the_chained_regex_matches_what_the_gate_actually_emits():
 
 
 def test_generators_cover_exactly_the_mechanical_tier():
-    from omnirank.registry import MECHANICAL_IDS
+    from rankwright.registry import MECHANICAL_IDS
 
     assert set(GENERATORS) == set(MECHANICAL_IDS)
 

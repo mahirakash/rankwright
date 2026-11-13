@@ -46,9 +46,17 @@ def test_changelog_documents_v0_1_0():
 def test_readme_has_contact_section():
     body = (ROOT / "README.md").read_text()
     assert "## Contact" in body
+    assert "@mahirakash" in body
+
+
+def test_readme_credits_the_original_project():
+    body = (ROOT / "README.md").read_text()
+    assert "https://github.com/bemoshiur/OmniRank" in body
     assert "S M Moshiur Rahman" in body
-    assert "moshiur@ticonsys.com" in body
-    assert "https://www.linkedin.com/in/in-moshiur/" in body
+
+
+def test_licence_keeps_the_original_copyright_notice():
+    assert "Copyright (c) 2026 S M Moshiur Rahman" in (ROOT / "LICENSE").read_text()
 
 
 def test_citation_names_the_full_author_name():
@@ -60,14 +68,14 @@ def test_citation_names_the_full_author_name():
 def test_plugin_manifest_author_matches_citation():
     import json
     manifest = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
-    assert manifest["author"]["name"] == "S M Moshiur Rahman"
-    assert manifest["author"]["email"] == "moshiur@ticonsys.com"
+    assert manifest["author"]["name"] == "mahirakash"
+    assert "email" not in manifest["author"]
 
 
 def test_readme_links_the_skill_zip_download():
     body = (ROOT / "README.md").read_text()
     assert "## Download" in body
-    assert "releases/latest/download/omnirank-skill.zip" in body
+    assert "releases/latest/download/rankwright-skill.zip" in body
     assert "build-skill-zip.sh" in body
 
 
@@ -112,7 +120,7 @@ def test_every_version_declaration_agrees():
     import json
     import re
 
-    init = (ROOT / "scripts" / "py" / "omnirank" / "__init__.py").read_text()
+    init = (ROOT / "scripts" / "py" / "rankwright" / "__init__.py").read_text()
     version = re.search(r'__version__ = "([^"]+)"', init).group(1)
     assert version == "0.4.0"
 

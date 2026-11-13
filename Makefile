@@ -12,4 +12,4 @@ lint:
 	python3 -m ruff check scripts/py
 
 audit:
-	python3 -m omnirank.cli audit $(URL)
+	python3 -m rankwright.cli audit $(URL)

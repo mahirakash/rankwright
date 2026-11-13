@@ -4,10 +4,10 @@ import httpx
 import pytest
 import respx
 
-from omnirank.audit import default_config
-from omnirank.config import Config
-from omnirank.fetch import make_client
-from omnirank.geo_artifacts import (Page, build_facts, build_llms_full,
+from rankwright.audit import default_config
+from rankwright.config import Config
+from rankwright.fetch import make_client
+from rankwright.geo_artifacts import (Page, build_facts, build_llms_full,
                                     build_llms_txt, generate, harvest)
 
 SITE = "https://x.example"
@@ -114,8 +114,8 @@ def test_generate_creates_missing_output_dir(tmp_path):
 def test_statistics_config_passes_real_load_config(tmp_path):
     import json as _json
 
-    from omnirank.config import load_config
-    from omnirank.geo_artifacts import build_facts
+    from rankwright.config import load_config
+    from rankwright.geo_artifacts import build_facts
 
     raw = {
         "site": {"name": "X", "url": "https://x.example",
@@ -130,20 +130,20 @@ def test_statistics_config_passes_real_load_config(tmp_path):
             {"name": "ROAS", "value": "3.1x", "published": False},
         ],
     }
-    path = tmp_path / "omnirank.config.json"
+    path = tmp_path / "rankwright.config.json"
     path.write_text(_json.dumps(raw))
     cfg = load_config(path)          # must NOT raise
     facts = build_facts(cfg)
     assert [s["name"] for s in facts["statistics"]] == ["CPM"]
 
 
-# --- v0.2.1: OmniRank must never infer a content licence ---------------------------
+# --- v0.2.1: Rankwright must never infer a content licence ---------------------------
 #
-# geo.license used to default to "CC-BY-4.0" when unset. That meant running `omnirank
+# geo.license used to default to "CC-BY-4.0" when unset. That meant running `rankwright
 # geo` against a config with no licence configured published an irrevocable grant
 # permitting reuse of the site owner's content, over their own signature, that they
 # never actually gave. That was fixed by raising instead of guessing -- but the raise
-# went one step too far and made `omnirank geo <url>` with no config file (which has
+# went one step too far and made `rankwright geo <url>` with no config file (which has
 # no `geo` section at all) always exit 2, breaking zero-config `geo` generation
 # entirely. An absent geo.license now resolves exactly like the explicit "none"
 # opt-out: it generates, and grants nothing. Only the CLI, not this module, tells the
@@ -208,7 +208,7 @@ def test_absent_license_is_byte_identical_to_explicit_none():
 
 
 def test_license_is_absent_true_only_when_the_key_is_truly_missing():
-    from omnirank.geo_artifacts import license_is_absent
+    from rankwright.geo_artifacts import license_is_absent
 
     assert license_is_absent(_cfg_without_geo()) is True
     assert license_is_absent(_cfg_with_geo_but_no_license()) is True

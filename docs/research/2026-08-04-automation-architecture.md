@@ -1,4 +1,4 @@
-# OmniRank Automation Architecture
+# Rankwright Automation Architecture
 
 **Status:** design proposal · **Audience:** maintainer · **Basis:** v0.2.1 working tree, the automation-landscape survey, the codemod prior-art survey, and the 48-finding fixability tiering.
 
@@ -6,7 +6,7 @@
 
 ## 1. The product thesis
 
-OmniRank becomes **the SEO/AEO/GEO tool that knows which file is wrong.** Every incumbent — Screaming Frog, Semrush, Ahrefs, Sitebulb, Lighthouse CI, unlighthouse, and all 13,000 stars of agent skills — keys its output to a URL, because a URL is the only thing they can see. OmniRank runs inside the repository, so it can resolve `https://site.com/pricing` → `app/(marketing)/pricing/page.tsx:12` → the missing `alternates.canonical` on the exported `metadata` object → a three-line diff you review in a pull request. The incumbents cannot follow, and not because they are slow: Screaming Frog's config is a GUI-produced binary blob, Sitebulb has no CLI and no Linux build, Lighthouse CI is pinned two majors behind its own engine, and OTTO/ClarityAutomate have built a business model out of *not* fixing your code — their edge-injected titles vanish the day you stop paying, by their own documentation. The one project with the right architecture (`Hainrixz/claude-seo-ai`, 32 stars, one day of commits) is framework-blind, which means it hands the hardest problem — *where does this go?* — to a language model with no route graph. That gap, `finding → file → verified diff`, is the entire product.
+Rankwright becomes **the SEO/AEO/GEO tool that knows which file is wrong.** Every incumbent — Screaming Frog, Semrush, Ahrefs, Sitebulb, Lighthouse CI, unlighthouse, and all 13,000 stars of agent skills — keys its output to a URL, because a URL is the only thing they can see. Rankwright runs inside the repository, so it can resolve `https://site.com/pricing` → `app/(marketing)/pricing/page.tsx:12` → the missing `alternates.canonical` on the exported `metadata` object → a three-line diff you review in a pull request. The incumbents cannot follow, and not because they are slow: Screaming Frog's config is a GUI-produced binary blob, Sitebulb has no CLI and no Linux build, Lighthouse CI is pinned two majors behind its own engine, and OTTO/ClarityAutomate have built a business model out of *not* fixing your code — their edge-injected titles vanish the day you stop paying, by their own documentation. The one project with the right architecture (`Hainrixz/claude-seo-ai`, 32 stars, one day of commits) is framework-blind, which means it hands the hardest problem — *where does this go?* — to a language model with no route graph. That gap, `finding → file → verified diff`, is the entire product.
 
 The sentence a developer repeats: **"It's the SEO auditor that opens the PR, because it's the only one that can see your source."**
 
@@ -14,7 +14,7 @@ The sentence a developer repeats: **"It's the SEO auditor that opens the PR, bec
 
 ## 2. The safety model
 
-This is the section that decides whether the project survives. OmniRank is about to acquire write access to repositories it does not own, to fix defects whose correctness it cannot fully verify, on surfaces (`robots.txt`, `canonical`, `noindex`) where a wrong write de-indexes a business. The prior art is unanimous on the shape of the answer, and I am proposing we copy it almost without invention.
+This is the section that decides whether the project survives. Rankwright is about to acquire write access to repositories it does not own, to fix defects whose correctness it cannot fully verify, on surfaces (`robots.txt`, `canonical`, `noindex`) where a wrong write de-indexes a business. The prior art is unanimous on the shape of the answer, and I am proposing we copy it almost without invention.
 
 ### 2.1 Two axes, not one. This is the core correction.
 
@@ -63,11 +63,11 @@ Following ESLint (suggestions are API-only, never CLI) and Ruff (unsafe fixes re
 
 | channel | applies | requires | delivery |
 |---|---|---|---|
-| `omnirank fix` *(default)* | nothing | nothing | unified diff to stdout, exit 1 if non-empty |
-| `omnirank fix --write` | `safe` only | clean target files | in-place edit + journal |
-| `omnirank fix --write --unsafe` | `safe` + `unsafe` | clean tree, per-item confirm in TTY, `--yes` in CI | in-place edit + journal |
-| `omnirank fix --pr` | `safe` + `unsafe` + protected surfaces | git remote, clean tree | branch + commit + PR, ≤5 open, sharded |
-| `omnirank suggest` | nothing, ever | nothing | JSON findings + structurally-correct TODO placeholders |
+| `rankwright fix` *(default)* | nothing | nothing | unified diff to stdout, exit 1 if non-empty |
+| `rankwright fix --write` | `safe` only | clean target files | in-place edit + journal |
+| `rankwright fix --write --unsafe` | `safe` + `unsafe` | clean tree, per-item confirm in TTY, `--yes` in CI | in-place edit + journal |
+| `rankwright fix --pr` | `safe` + `unsafe` + protected surfaces | git remote, clean tree | branch + commit + PR, ≤5 open, sharded |
+| `rankwright suggest` | nothing, ever | nothing | JSON findings + structurally-correct TODO placeholders |
 
 **What applies unattended (`--write`, no flags), concretely, out of 48 findings:** `seo.canonical.missing` (only when the resolved head owner serves exactly one route), `seo.canonical.relative`, `seo.schema.no-context`, `seo.canonical.chained` (only when `onward` is terminal), and creation-only artifact writes (`geo.llms.missing`, `geo.llms-full.missing`, `geo.facts.missing`) when the target file does not already exist. That is it. Roughly seven. If that feels thin, it is correct: OpenRewrite's first principle is *"We favor making fewer changes over making wrong changes,"* and Ruff's postmortem direction is *prove safe, else unsafe* — never *assume safe until reported*.
 
@@ -89,11 +89,11 @@ Splice bytes; never re-serialize. Every format-preserving tool in the survey (ES
 
 ### 2.5 Guarantees, stated as contracts
 
-- **G1 — Well-formedness.** If the input parsed cleanly and the output does not, **revert every change in that file** and report it as an OmniRank bug, in Ruff's words: *"Fix introduced a syntax error. Reverting all changes."* Conditional on clean input: we guarantee "we did not break it," never "we repaired pre-existing breakage."
+- **G1 — Well-formedness.** If the input parsed cleanly and the output does not, **revert every change in that file** and report it as an Rankwright bug, in Ruff's words: *"Fix introduced a syntax error. Reverting all changes."* Conditional on clean input: we guarantee "we did not break it," never "we repaired pre-existing breakage."
 - **G2 — Byte conservation.** Every byte outside a declared edit range is identical before and after. Machine-checked on every write, not a convention.
 - **G3 — Idempotency.** `fix(fix(x)) == fix(x)`. Enforced the way OpenRewrite enforces it: **every fix's test runs two cycles and asserts the second produces no diff**, with the failing file named. One extra cycle per test; highest-leverage practice in the whole prior-art survey. Idempotency is achieved by *detecting existing shape*, never by marker comments — users delete markers, and a fixer that duplicates a canonical tag because its marker was stripped is worse than one that never ran.
-- **G4 — Verification, honestly two-level.** After writing, re-run the originating gate's predicate. But the gate runs on rendered HTML and the edit is in source, so: a *source-level* assertion always runs, and the report marks the fix `applied`. A *rendered-level* assertion runs only under `--verify-rendered <url>` after a build, and only then does the report mark it `verified`. **`applied ≠ verified` must be visible in the output.** This is the one place where OmniRank's existing "never claim an unevaluated gate passed" principle transfers directly, and it is the discipline that `claude-seo-ai` states as prose in a SKILL.md and never ships as a harness.
-- **G5 — Recoverability.** Every run writes `.omnirank/fixes/<run-id>/journal.json` (pre-image SHA-256 + backup copy per touched file) and `omnirank undo <run-id>` restores, refusing if the file changed since. Git is the real rollback; the journal exists for the `--allow-dirty` path and for non-git checkouts.
+- **G4 — Verification, honestly two-level.** After writing, re-run the originating gate's predicate. But the gate runs on rendered HTML and the edit is in source, so: a *source-level* assertion always runs, and the report marks the fix `applied`. A *rendered-level* assertion runs only under `--verify-rendered <url>` after a build, and only then does the report mark it `verified`. **`applied ≠ verified` must be visible in the output.** This is the one place where Rankwright's existing "never claim an unevaluated gate passed" principle transfers directly, and it is the discipline that `claude-seo-ai` states as prose in a SKILL.md and never ships as a harness.
+- **G5 — Recoverability.** Every run writes `.rankwright/fixes/<run-id>/journal.json` (pre-image SHA-256 + backup copy per touched file) and `rankwright undo <run-id>` restores, refusing if the file changed since. Git is the real rollback; the journal exists for the `--allow-dirty` path and for non-git checkouts.
 - **Explicitly NOT guaranteed:** that your project still builds (use `--verify-cmd "npm run build"`, which reverts the run on non-zero exit); that rankings improve; Prettier-style *reversibility* (if a human deletes an injected meta description, we will re-inject a different one — we should say so rather than pretend otherwise).
 
 ### 2.6 Uncommitted work
@@ -113,9 +113,9 @@ The dependency-bot ecosystem is the closest analogue — automation with write a
 
 - **Cap open PRs at 5** (Dependabot's default, justified as reviewability).
 - **Shard by directory/CODEOWNER**, not by finding type. Route each diff to people who can evaluate it.
-- **Do not group.** Renovate documents that grouped PRs become *"Immortal PRs [that] will be recreated if closed unmerged"* because a group carries no durable rejection signal. One finding id per PR; a closed-unmerged PR is a permanent rejection, recorded in `.omnirank/rejections.json`, un-ignorable only by an explicit `omnirank fix --revive <id>`.
+- **Do not group.** Renovate documents that grouped PRs become *"Immortal PRs [that] will be recreated if closed unmerged"* because a group carries no durable rejection signal. One finding id per PR; a closed-unmerged PR is a permanent rejection, recorded in `.rankwright/rejections.json`, un-ignorable only by an explicit `rankwright fix --revive <id>`.
 - **Stop rebasing once a human pushes to the branch.**
-- **Pause on inactivity.** If an OmniRank PR sits >90 days with no human action, stop opening PRs and post a banner. Ignored automation is a bug in the automation.
+- **Pause on inactivity.** If an Rankwright PR sits >90 days with no human action, stop opening PRs and post a banner. Ignored automation is a bug in the automation.
 - **Latency is a safety feature.** The axios incident (154 bot PRs, 60% merged, 50 with zero human interaction, fastest path to `main` 56 minutes) settled this. Protected-surface fixes get a pending status check that flips to passing after a configurable window — visible in the PR, not hidden in a scheduler.
 
 ---
@@ -173,7 +173,7 @@ Three strategies, descending confidence, and the confidence is *reported*, not h
 
 **When detection or location fails**, the finding gets `notEvaluated: {gate, url, reason: "adapter-absent"}` and appears in the console's NOT EVALUATED section. We never degrade to "probably this file."
 
-**Bespoke projects** get `omnirank adapt`, which writes `omnirank.adapter.json`: a route-glob → head-owner-file map, plus per-signal insertion anchors, authored once by a human who knows the codebase. This is a better bet than heroic inference, and it is the escape hatch that makes "works in any repo" honest instead of aspirational.
+**Bespoke projects** get `rankwright adapt`, which writes `rankwright.adapter.json`: a route-glob → head-owner-file map, plus per-signal insertion anchors, authored once by a human who knows the codebase. This is a better bet than heroic inference, and it is the escape hatch that makes "works in any repo" honest instead of aspirational.
 
 ### 3.4 The fan-out guard
 
@@ -187,9 +187,9 @@ The README says: *"It does not generate AI slop. Every generated page expects a 
 
 ### 4.1 Three verbs, and only one of them is "generate"
 
-**GENERATE — deterministic, no language model, safe to automate.** Output is a pure function of config and repo facts: `llms.txt`, `llms-full.txt`, `facts.json`, JSON-LD from `site.*`/`nap`/`identifiers`/`sameAs`, sitemap entries, robots directives, hreflang sets. This is what OmniRank already does in `geo-artifacts` and it is not content creation in any sense a Google policy would recognise. Keep the word "generate" for exactly this and nothing else.
+**GENERATE — deterministic, no language model, safe to automate.** Output is a pure function of config and repo facts: `llms.txt`, `llms-full.txt`, `facts.json`, JSON-LD from `site.*`/`nap`/`identifiers`/`sameAs`, sitemap entries, robots directives, hreflang sets. This is what Rankwright already does in `geo-artifacts` and it is not content creation in any sense a Google policy would recognise. Keep the word "generate" for exactly this and nothing else.
 
-**DRAFT — a model proposes; a human accepts per item; nothing reaches a publishable file without that accept.** Titles, meta descriptions, H1 text, answer blocks, FAQ pairs, image alt text. `claude-seo-ai` is the only project in the survey that draws this line and its reasoning is right: *"titles, descriptions, and image alt are editorial messaging, not deterministic."* Drafts land in `.omnirank/drafts/<run-id>/` as a review file, carry provenance metadata (model, prompt hash, source spans), and are applied only by `omnirank draft accept`. They are **never** reachable from `fix --write`, with or without `--unsafe`.
+**DRAFT — a model proposes; a human accepts per item; nothing reaches a publishable file without that accept.** Titles, meta descriptions, H1 text, answer blocks, FAQ pairs, image alt text. `claude-seo-ai` is the only project in the survey that draws this line and its reasoning is right: *"titles, descriptions, and image alt are editorial messaging, not deterministic."* Drafts land in `.rankwright/drafts/<run-id>/` as a review file, carry provenance metadata (model, prompt hash, source spans), and are applied only by `rankwright draft accept`. They are **never** reachable from `fix --write`, with or without `--unsafe`.
 
 **SUGGEST — a structurally-correct placeholder plus a machine-readable TODO. No prose.** This is the ESLint-codemod pattern (`schema: [] // TODO: Define schema — this rule uses context.options`) and it is the honest answer for every surface where no correct answer is derivable. `<meta name="description" content="">` with a TODO is honest; an LLM-written description silently committed is not.
 
@@ -210,7 +210,7 @@ No flag, no config key, no `--force` reaches these:
 
 ### 4.4 The part that is a liability — said plainly
 
-**Cut the programmatic-page matrix.** The README already hedges it (*"Matrices are pruned to real demand signals"*), and the hedge is doing more work than the feature can support. A tool that emits N pages from a template is a scaled-content-abuse generator with a demand filter bolted on, and the demand filter is exactly the part OmniRank has no data for — no keyword volume, no SERP data, that being the deliberate positioning against Semrush. If the owner wants it, the honest version is: OmniRank validates and audits a matrix *a human decided to build*, checks it for thin/duplicate/near-duplicate output, and fails the build when the matrix is thin. That is a genuinely valuable feature — the *anti*-slop gate — and it is the same code with the sign flipped. Ship that instead. It also fits the brand: the tool that stops you shipping 4,000 thin pages is a better story than the tool that ships them.
+**Cut the programmatic-page matrix.** The README already hedges it (*"Matrices are pruned to real demand signals"*), and the hedge is doing more work than the feature can support. A tool that emits N pages from a template is a scaled-content-abuse generator with a demand filter bolted on, and the demand filter is exactly the part Rankwright has no data for — no keyword volume, no SERP data, that being the deliberate positioning against Semrush. If the owner wants it, the honest version is: Rankwright validates and audits a matrix *a human decided to build*, checks it for thin/duplicate/near-duplicate output, and fails the build when the matrix is thin. That is a genuinely valuable feature — the *anti*-slop gate — and it is the same code with the sign flipped. Ship that instead. It also fits the brand: the tool that stops you shipping 4,000 thin pages is a better story than the tool that ships them.
 
 **Keep SMM captions as a genuine add-on.** They are off-site, disposable, carry no indexation risk, and the config already has `smm.requireHumanApproval` and a `queueDir`. Draft into the queue, never dispatch. Lowest-risk content surface in the product; ship it before any on-site drafting.
 
@@ -221,17 +221,17 @@ No flag, no config key, no `--force` reaches these:
 ## 5. The command surface
 
 ```
-omnirank audit   [URL|--config F] [--fail-on GATE...] [--out F]        # unchanged
-omnirank geo     --config F --out DIR                                  # unchanged
-omnirank locate  --report F                                            # NEW: finding → file:line, writes nothing
-omnirank fix     [--report F] [selectors] [channel] [gates]            # NEW
-omnirank suggest [--report F] [--format json|md]                       # NEW: display-only + TODO placeholders
-omnirank draft   <title|description|answer-block|faq|alt> --url U      # NEW: writes to .omnirank/drafts/
-omnirank draft accept <draft-id> [--edit]                              # NEW: the human-in-the-loop step
-omnirank undo    <run-id>                                              # NEW
-omnirank explain <finding-id>                                          # why it matters, how verified
-omnirank doctor                                                        # adapter detection + confidence report
-omnirank adapt                                                         # scaffold omnirank.adapter.json
+rankwright audit   [URL|--config F] [--fail-on GATE...] [--out F]        # unchanged
+rankwright geo     --config F --out DIR                                  # unchanged
+rankwright locate  --report F                                            # NEW: finding → file:line, writes nothing
+rankwright fix     [--report F] [selectors] [channel] [gates]            # NEW
+rankwright suggest [--report F] [--format json|md]                       # NEW: display-only + TODO placeholders
+rankwright draft   <title|description|answer-block|faq|alt> --url U      # NEW: writes to .rankwright/drafts/
+rankwright draft accept <draft-id> [--edit]                              # NEW: the human-in-the-loop step
+rankwright undo    <run-id>                                              # NEW
+rankwright explain <finding-id>                                          # why it matters, how verified
+rankwright doctor                                                        # adapter detection + confidence report
+rankwright adapt                                                         # scaffold rankwright.adapter.json
 ```
 
 Channel flags on `fix`, mutually exclusive: `--diff` (default) · `--patch FILE` · `--write` · `--pr`.
@@ -243,26 +243,26 @@ Real invocations:
 
 ```bash
 # See what it would do. The default. Writes nothing.
-omnirank fix --report .omnirank/reports/2026-08-04-audit.json
+rankwright fix --report .rankwright/reports/2026-08-04-audit.json
 
 # CI gate: fail the build if any safe fix is outstanding.
-omnirank fix --check --report report.json          # exit 1 if diff non-empty
+rankwright fix --check --report report.json          # exit 1 if diff non-empty
 
 # Apply the seven safe things, verify the build still passes.
-omnirank fix --write --verify-cmd "npm run build"
+rankwright fix --write --verify-cmd "npm run build"
 
 # One risky class, reviewed, on a branch.
-omnirank fix --pr --unsafe --only seo.og.missing
+rankwright fix --pr --unsafe --only seo.og.missing
 
 # Robots.txt. There is no --write path to this; --pr is the only channel.
-omnirank fix --pr --only geo.ai-allowlist.missing
+rankwright fix --pr --only geo.ai-allowlist.missing
 
 # Editorial. Model drafts; nothing is written until accept.
-omnirank draft description --url https://site.com/pricing
-omnirank draft accept d-4f21 --edit
+rankwright draft description --url https://site.com/pricing
+rankwright draft accept d-4f21 --edit
 ```
 
-**Skill surface.** `/omnirank:audit` and `/omnirank:locate` are read-only and model-invocable. `/omnirank:fix` carries `disable-model-invocation: true` — user-triggered only — and the skill itself has **no Write or Edit tool**; writes happen exclusively through one `omnirank-writer` subagent that shells out to the CLI. The model never edits files directly.
+**Skill surface.** `/rankwright:audit` and `/rankwright:locate` are read-only and model-invocable. `/rankwright:fix` carries `disable-model-invocation: true` — user-triggered only — and the skill itself has **no Write or Edit tool**; writes happen exclusively through one `rankwright-writer` subagent that shells out to the CLI. The model never edits files directly.
 
 That last constraint is the one most likely to be quietly violated in implementation, and it is the most important: **every safety mechanism in §2 lives in the CLI. An agent with `Edit` bypasses all of it.** The plugin must be architecturally incapable of that, not merely instructed against it.
 
@@ -273,19 +273,19 @@ That last constraint is the one most likely to be quietly violated in implementa
 Ordered by value ÷ **risk**. Each release ships something useful and the write capability arrives late, on purpose.
 
 **v0.3 — "Locate."  Risk: zero. It still writes nothing.**
-Add `sourceLocation {file, line, col, confidence}` and `fixTier` to the finding schema (replacing `autoFixable`, which is misleading today). Add the `_f(..., tier=)` parameter to *every* gate module. Ship adapters for `next-app-router`, `astro`, `static` — detection and route graph only. `omnirank locate` and `omnirank doctor`. Fix the four data-loss bugs the tiering found: capture the `Location` header on `sitemap-health.redirect`; carry JSON-path node pointers on `schema.no-type`/`no-context`; add a structured `fixTarget` to `hreflang.not-reciprocal` (the edit belongs on a *different page* than `finding.url` — any fixer keyed on `finding.url` silently edits the wrong file); stop truncating `image.no-dims` to 3 srcs. **And defuse the two live landmines: `seo.h1.multiple` and `seo.description.long` must stop advertising themselves as auto-fixable, and `_licence_block()` must stop defaulting to CC-BY-4.0.** This release alone is the market differentiator; nothing else in the world does it.
+Add `sourceLocation {file, line, col, confidence}` and `fixTier` to the finding schema (replacing `autoFixable`, which is misleading today). Add the `_f(..., tier=)` parameter to *every* gate module. Ship adapters for `next-app-router`, `astro`, `static` — detection and route graph only. `rankwright locate` and `rankwright doctor`. Fix the four data-loss bugs the tiering found: capture the `Location` header on `sitemap-health.redirect`; carry JSON-path node pointers on `schema.no-type`/`no-context`; add a structured `fixTarget` to `hreflang.not-reciprocal` (the edit belongs on a *different page* than `finding.url` — any fixer keyed on `finding.url` silently edits the wrong file); stop truncating `image.no-dims` to 3 srcs. **And defuse the two live landmines: `seo.h1.multiple` and `seo.description.long` must stop advertising themselves as auto-fixable, and `_licence_block()` must stop defaulting to CC-BY-4.0.** This release alone is the market differentiator; nothing else in the world does it.
 
 **v0.4 — "Diff." Risk: near zero. No write path exists in the binary.**
-The edit engine (byte splice, overlap policy, isolation groups, `Stylist`). `omnirank fix --diff` and `--check`. The four mechanical fixes. The two-cycle idempotency harness in the test suite from day one. `omnirank suggest`. Now OmniRank is a CI gate that says *"here is the patch,"* which is where OpenRewrite's `rewriteDryRun` sits and it is a complete product.
+The edit engine (byte splice, overlap policy, isolation groups, `Stylist`). `rankwright fix --diff` and `--check`. The four mechanical fixes. The two-cycle idempotency harness in the test suite from day one. `rankwright suggest`. Now Rankwright is a CI gate that says *"here is the patch,"* which is where OpenRewrite's `rewriteDryRun` sits and it is a complete product.
 
 **v0.5 — "Write." Risk: real, and this is where the guarantees earn their keep.**
-`--write`, safe tier only. Git guards, journal, `omnirank undo`, `--verify-cmd`, `--debug-check`, G1 revert-on-syntax-error, the fan-out guard. Artifact creation (never overwrite). `nuxt` and `sveltekit` adapters. Publish the revert rate from the start.
+`--write`, safe tier only. Git guards, journal, `rankwright undo`, `--verify-cmd`, `--debug-check`, G1 revert-on-syntax-error, the fan-out guard. Artifact creation (never overwrite). `nuxt` and `sveltekit` adapters. Publish the revert rate from the start.
 
 **v0.6 — "Propose."**
 `--pr`: branch, shard by directory, cap 5, durable rejection, inactivity pause, protected-surface routing. Every fix that touches robots/canonical-sets/hreflang becomes reachable for the first time, and only through here.
 
 **v0.7 — "Draft."**
-`omnirank draft` + `accept`, extraction-only answer blocks with source spans, SMM captions first. The thin-content gate (the inverted programmatic-matrix feature).
+`rankwright draft` + `accept`, extraction-only answer blocks with source spans, SMM captions first. The thin-content gate (the inverted programmatic-matrix feature).
 
 **v0.8 — "Unsafe."**
 `--unsafe` opens up only after there is fleet data — merge rate and revert rate per finding id — to justify each promotion. Import Ruff's versioning ratchet: promoting a fix to safe is a minor release; **demoting is always allowed, never a breaking change, shippable in a patch.**
@@ -304,15 +304,15 @@ The edit engine (byte splice, overlap policy, isolation groups, `Stylist`). `omn
 
 **The agent bypass.** Everything in §2 lives in the CLI. If the Claude Code plugin ships a skill with `Edit` access, or if a model decides the CLI is being unhelpful and edits the file itself, none of it applies. This is, realistically, the most likely way the safety model gets defeated — not by a flag, but by convenience. Single-writer subagent, no Write tool on the fix skill, `disable-model-invocation: true`, and a test that asserts it.
 
-**Idempotency rot.** Prettier has a checked-in idempotency assertion, ten years of tests, and 55 open idempotency bugs. Assume the property fails continuously. Without the two-cycle harness on every fix from v0.4, OmniRank will duplicate canonical tags in someone's repo within a month of the first `--write` release.
+**Idempotency rot.** Prettier has a checked-in idempotency assertion, ten years of tests, and 55 open idempotency bugs. Assume the property fails continuously. Without the two-cycle harness on every fix from v0.4, Rankwright will duplicate canonical tags in someone's repo within a month of the first `--write` release.
 
-**Fabrication laundering.** The moment a drafting feature exists, the pressure to auto-accept "obvious" drafts becomes constant — from users, from the roadmap, from the model. A fabricated FAQ answer or an invented `ratingCount` in a repo that OmniRank also audits for fabrication is a credibility event that no amount of correct engineering elsewhere survives. The traceable-source-span constraint is the only thing standing there; it must be enforced in code, not in a prompt.
+**Fabrication laundering.** The moment a drafting feature exists, the pressure to auto-accept "obvious" drafts becomes constant — from users, from the roadmap, from the model. A fabricated FAQ answer or an invented `ratingCount` in a repo that Rankwright also audits for fabrication is a credibility event that no amount of correct engineering elsewhere survives. The traceable-source-span constraint is the only thing standing there; it must be enforced in code, not in a prompt.
 
 **The build that stops building.** A syntactically valid TypeScript edit that fails typecheck (see the typescript-eslint `consistent-indexed-object-style` regression: *"Autofixed into code that doesn't typecheck"*). G1 catches syntax, not types. `--verify-cmd` is the mitigation and it should probably be on by default when a build script is detected.
 
 **Overwriting hand-authored artifacts.** `geo.facts-json.invalid` fires precisely when the file cannot be parsed — which is also when the tool cannot tell whether a human wrote it. Regeneration destroys evidence that cannot be inspected first. Creation-only, always; overwrite is a PR with the old file in the diff.
 
-**Nobody merges the PRs.** The quiet failure. Dependabot's 90-day pause exists because ignored automation trains people to ignore automation. If the merge rate on OmniRank PRs is below ~50%, the fixes are wrong or the diffs are too big, and the correct response is to cut fixes, not to open more PRs.
+**Nobody merges the PRs.** The quiet failure. Dependabot's 90-day pause exists because ignored automation trains people to ignore automation. If the merge rate on Rankwright PRs is below ~50%, the fixes are wrong or the diffs are too big, and the correct response is to cut fixes, not to open more PRs.
 
 ---
 

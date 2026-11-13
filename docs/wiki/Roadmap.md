@@ -1,13 +1,13 @@
 # Roadmap
 
-OmniRank version 0.4.0 ships two working Claude Code skills, `audit` and `geo-artifacts`,
-plus the `omnirank fix` CLI diff preview. Six further skills are designed and specified
+Rankwright version 0.4.0 ships two working Claude Code skills, `audit` and `geo-artifacts`,
+plus the `rankwright fix` CLI diff preview. Six further skills are designed and specified
 but not yet built. This page separates what exists today from what is planned, so nobody
 adopts the project expecting capability that has not been written yet.
 
 The ordering below reflects one maintainer's judgement about sequence, not a commitment to
 dates. It changes in response to what people actually ask for in
-[Discussions](https://github.com/bemoshiur/OmniRank/discussions), and has already changed
+[Discussions](https://github.com/mahirakash/rankwright/discussions), and has already changed
 once — see "Why the targets below have already slipped" below.
 
 ## Shipped in v0.4.0
@@ -16,9 +16,9 @@ once — see "Why the targets below have already slipped" below.
 |---|---|
 | **`audit`** | Scores a site's SEO, AEO, GEO, perf and security gates against its real HTML — including a site-level cross-URL pass and an indexability-contradictions pass — and emits a prioritised fix list with `observed` / `expected` / `fix` / `fixTier` per finding. Runs with no configuration beyond a URL. See [[Audit-Skill]], [[Security-Layer]], [[Contradictions]]. |
 | **`geo-artifacts`** | Generates `llms.txt`, `llms-full.txt` and `facts.json`, each carrying an explicit citation licence (no licence granted by default as of v0.2.1). Python crawl path works on any stack; Node path imports a site's own content layer. See [[GEO-Artifacts-Skill]]. |
-| **`omnirank fix`** *(CLI, not a registered skill)* | Resolves a finding's URL to its source file and prints the diff for the 4 `mechanical` finding ids, when locator confidence and blast radius both allow it. Writes nothing — no `--write` flag exists. See [[Fix-Preview]]. |
+| **`rankwright fix`** *(CLI, not a registered skill)* | Resolves a finding's URL to its source file and prints the diff for the 4 `mechanical` finding ids, when locator confidence and blast radius both allow it. Writes nothing — no `--write` flag exists. See [[Fix-Preview]]. |
 
-Supporting surface that also ships: the `omnirank.config.json` schema
+Supporting surface that also ships: the `rankwright.config.json` schema
 ([[Configuration-Reference]]), the shared report format including `fixTier` and
 `notEvaluated` ([[Report-Schema]]), the finding registry and fix-tier/applicability model
 ([[Finding-Reference]], [[Fix-Tiers-and-Applicability]]), the framework-aware locator
@@ -32,7 +32,7 @@ Google rich-result required-property validation, distinct from schema.org validi
 on-page accessibility-overlap gates; and a corrected per-layer scoring model where a
 layer's budget scales with its own gate count instead of a flat constant. 67 finding ids
 total (up from 48), across 42 `--fail-on` gate names (up from 28). See the [0.4.0
-changelog entry](https://github.com/bemoshiur/OmniRank/blob/main/CHANGELOG.md) for the
+changelog entry](https://github.com/mahirakash/rankwright/blob/main/CHANGELOG.md) for the
 complete list.
 
 ## Planned
@@ -49,7 +49,7 @@ complete list.
 Beyond v1.0: framework adapters for WordPress, Jekyll, Shopify, Astro, Vue and Svelte
 gain their own locators, alongside `next-app-router`, `static`, `hugo` and `jekyll`,
 which the locator already resolves as of v0.3.0 — see [[The-Locator]]. File-write
-capability (`omnirank fix --write`) ships once the locator is proven against real
+capability (`rankwright fix --write`) ships once the locator is proven against real
 repositories and the write guarantees described in
 `docs/research/2026-08-04-automation-architecture.md` §2.5 are implemented and tested —
 not on a release number. v0.4.0 deliberately spent its budget on broadening what `audit`
@@ -61,7 +61,7 @@ files later.
 Three targets have slipped so far, not one. `aeo-onpage`'s "v0.2" target predates this
 table: 0.2.0 shipped as a site-level-gates / script-aware-AnswerBlock-bands / `perf`-layer
 release instead, folded into the existing `audit` skill rather than shipped as a new one.
-v0.3.0 then shipped the locator and `omnirank fix` — also not on this table when it was
+v0.3.0 then shipped the locator and `rankwright fix` — also not on this table when it was
 first written. `offsite-entity`'s "v0.4" target has now slipped too: v0.4.0 shipped, and
 none of `offsite-entity`'s `sameAs` gap analysis or peer mention-gap detection is built —
 the release spent its budget on the `security` layer, the contradiction gates, and the
@@ -72,7 +72,7 @@ table ahead of work that was.
 ## Why the order
 
 `aeo-onpage` still comes first, though its job is narrower than it once was:
-`omnirank fix` already closes the loop mechanically for `seo.canonical.missing`,
+`rankwright fix` already closes the loop mechanically for `seo.canonical.missing`,
 `seo.canonical.relative`, `seo.canonical.chained` and `seo.schema.no-context` — 4 of the
 67 finding ids, all `mechanical`-tier. `aeo-onpage`'s remaining job is the `drafted`-tier
 surfaces no mechanical generator can touch responsibly: titles, descriptions, H1 text,
@@ -90,13 +90,13 @@ notice. Shipping it late means breakage degrades to a no-op rather than a wrong 
 ## Influencing it
 
 This ordering is a guess until people disagree with it. The
-[roadmap discussion](https://github.com/bemoshiur/OmniRank/discussions) asks three
+[roadmap discussion](https://github.com/mahirakash/rankwright/discussions) asks three
 questions worth answering: which single skill would make you adopt this tomorrow, which one
 would you never use, and what is missing from the list entirely.
 
 Contributions are welcome. Each skill is a `SKILL.md`, one or two reference documents, and
 Python behind it. The non-negotiables are in
-[CONTRIBUTING.md](https://github.com/bemoshiur/OmniRank/blob/main/.github/CONTRIBUTING.md) —
+[CONTRIBUTING.md](https://github.com/mahirakash/rankwright/blob/main/.github/CONTRIBUTING.md) —
 chiefly: never fabricate data, and never report a pass for a gate that did not run.
 
 ---

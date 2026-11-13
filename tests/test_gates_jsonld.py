@@ -1,6 +1,6 @@
 import json
 
-from omnirank.gates import jsonld
+from rankwright.gates import jsonld
 
 URL = "https://x.example/"
 
@@ -172,7 +172,7 @@ def test_malformed_block_does_not_hide_other_blocks():
     assert "seo.schema-fabrication.anonymous-review" in found
 
 
-from omnirank.gates.jsonld import RICH_RESULT_RULES, RICH_RESULT_RULES_AS_OF
+from rankwright.gates.jsonld import RICH_RESULT_RULES, RICH_RESULT_RULES_AS_OF
 
 
 def ld(payload: str) -> str:
@@ -282,7 +282,7 @@ def test_localbusiness_needs_name_and_address():
 def test_an_untyped_or_unknown_type_is_left_alone():
     html = ld('{"@context":"https://schema.org","@type":"WebPage","name":"X"}')
     assert required_findings(html) == [], (
-        "OmniRank has no rich-result rule for WebPage and must not invent one")
+        "Rankwright has no rich-result rule for WebPage and must not invent one")
 
 
 def test_a_pure_id_reference_stub_is_not_flagged():

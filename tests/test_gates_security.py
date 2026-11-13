@@ -1,9 +1,9 @@
 import httpx
 import respx
-from omnirank.fetch import make_client
-from omnirank.gates import security
-from omnirank.gates.security import HSTS_MIN_MAX_AGE
-from omnirank.page import PageData
+from rankwright.fetch import make_client
+from rankwright.gates import security
+from rankwright.gates.security import HSTS_MIN_MAX_AGE
+from rankwright.page import PageData
 
 CLEAN_HEADERS = {
     "strict-transport-security": "max-age=31536000; includeSubDomains",
@@ -51,10 +51,10 @@ def test_a_short_hsts_max_age_is_flagged_and_names_the_constant():
     assert len(found) == 1
     assert str(HSTS_MIN_MAX_AGE) in found[0].expected
     assert "HSTS_MIN_MAX_AGE" in found[0].fix, (
-        "the threshold is OmniRank's own choice and the finding must name the "
+        "the threshold is Rankwright's own choice and the finding must name the "
         "constant rather than imply an industry standard")
     assert "preload list" not in found[0].fix.lower(), (
-        "OmniRank must claim nothing about the Chromium preload list")
+        "Rankwright must claim nothing about the Chromium preload list")
 
 
 def test_an_exactly_threshold_max_age_is_not_flagged():
@@ -99,7 +99,7 @@ def test_csp_absence_is_reported_without_grading_the_policy():
     found = [f for f in security.run_page(page(headers={})) if f.id == "security.csp.absent"]
     assert "no Content-Security-Policy" in found[0].observed
     assert "weak" not in found[0].fix.lower(), (
-        "grading a policy's strength is a judgement OmniRank must not make")
+        "grading a policy's strength is a judgement Rankwright must not make")
 
 
 MIXED = ("<!doctype html><html lang='en'><head>"
@@ -130,7 +130,7 @@ def test_passive_http_subresources_on_an_https_page_are_a_warning():
     # S4: `img` is OPTIONALLY-BLOCKABLE ("passive") content -- browsers rewrite the
     # request to https before fetching it rather than blocking it outright -- so it
     # is reported separately, at a lower severity, without claiming it failed to
-    # load (which OmniRank cannot observe from the HTML alone).
+    # load (which Rankwright cannot observe from the HTML alone).
     found = [f for f in security.run_page(page(html=MIXED))
              if f.id == "security.mixed-content.passive-subresource"]
     assert len(found) == 1
@@ -140,7 +140,7 @@ def test_passive_http_subresources_on_an_https_page_are_a_warning():
     assert "1" in found[0].observed
     assert "img" in found[0].observed
     assert "not loading for your visitors at all" not in found[0].fix, (
-        "OmniRank did not observe a load failure for auto-upgraded passive content"
+        "Rankwright did not observe a load failure for auto-upgraded passive content"
     )
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render .github/assets/demo.gif from REAL `omnirank` CLI output.
+"""Render .github/assets/demo.gif from REAL `rankwright` CLI output.
 
 This does NOT hand-write a transcript. It spins up a local, disposable
 fixture site (scripts/fixtures/demo-site/) on 127.0.0.1 via
@@ -7,8 +7,8 @@ fixture site (scripts/fixtures/demo-site/) on 127.0.0.1 via
 captures the real stdout via subprocess. The GIF tells the two-command
 story that is the product:
 
-    1. omnirank audit <url>              -- the grouped summary (v0.2.1)
-    2. omnirank fix <url> --root <repo>   -- the located diff (v0.3.0)
+    1. rankwright audit <url>              -- the grouped summary (v0.2.1)
+    2. rankwright fix <url> --root <repo>   -- the located diff (v0.3.0)
 
 Using a local fixture instead of a third-party site keeps this reproducible
 (no dependence on a real site staying online or its content staying stable)
@@ -152,13 +152,13 @@ def _wait_ready(base_url: str, proc: subprocess.Popen, timeout: float = 10.0) ->
 def fixture_server():
     """Serve scripts/fixtures/demo-site/ on 127.0.0.1 for the life of the `with` block.
 
-    A real HTTP server, not a mock: `omnirank audit` and `omnirank fix` both
+    A real HTTP server, not a mock: `rankwright audit` and `rankwright fix` both
     make genuine requests against it, so what the GIF shows is what the CLI
     actually does against a real (if small) site.
     """
     port = _free_port()
     base_url = f"http://127.0.0.1:{port}"
-    with tempfile.TemporaryDirectory(prefix="omnirank-demo-site-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="rankwright-demo-site-") as tmp:
         serve_dir = Path(tmp) / "site"
         _materialise_site(serve_dir, base_url)
         proc = subprocess.Popen(
@@ -180,9 +180,9 @@ def fixture_server():
 # Step 1: capture REAL CLI output
 # ---------------------------------------------------------------------------
 def run_capture(args: list[str]) -> str:
-    """Run the real omnirank CLI and return its actual stdout, verbatim."""
+    """Run the real rankwright CLI and return its actual stdout, verbatim."""
     proc = subprocess.run(
-        [str(PYTHON), "-m", "omnirank.cli", *args],
+        [str(PYTHON), "-m", "rankwright.cli", *args],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -194,11 +194,11 @@ def run_capture(args: list[str]) -> str:
     # want to show, not a broken capture.
     if proc.returncode not in (0, 1):
         raise SystemExit(
-            f"omnirank {' '.join(args)} failed unexpectedly "
+            f"rankwright {' '.join(args)} failed unexpectedly "
             f"(exit {proc.returncode}):\n{proc.stderr}"
         )
     if not proc.stdout.strip():
-        raise SystemExit(f"omnirank {' '.join(args)} produced no stdout to capture")
+        raise SystemExit(f"rankwright {' '.join(args)} produced no stdout to capture")
     return proc.stdout.rstrip("\n")
 
 
@@ -303,8 +303,8 @@ def build_session(base_url: str) -> Session:
     fix_lines = cap_output_lines(
         run_capture(fix_args).splitlines(), MAX_FIX_BODY_LINES)
 
-    audit_cmd = f".venv/bin/python -m omnirank.cli {' '.join(audit_args)}"
-    fix_cmd = f".venv/bin/python -m omnirank.cli {' '.join(fix_args)}"
+    audit_cmd = f".venv/bin/python -m rankwright.cli {' '.join(audit_args)}"
+    fix_cmd = f".venv/bin/python -m rankwright.cli {' '.join(fix_args)}"
 
     session = Session()
     session.items.append(("cmd", audit_cmd))
@@ -395,7 +395,7 @@ def render_frame(
     for i, colour in enumerate((DOT_RED, DOT_AMBER, DOT_GREEN)):
         ccx = 44 + i * 52
         draw.ellipse([ccx - dot_r, cy - dot_r, ccx + dot_r, cy + dot_r], fill=colour)
-    label = "omnirank"
+    label = "rankwright"
     label_w = title_font.getlength(label)
     draw.text(((canvas_w - label_w) / 2, cy - FONT_SIZE * 0.42), label, font=title_font, fill=TITLE_TEXT)
 

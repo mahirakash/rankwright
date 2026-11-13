@@ -1,9 +1,9 @@
 import httpx
 import respx
 
-from omnirank import robots
-from omnirank.fetch import make_client
-from omnirank.gates import contradictions
+from rankwright import robots
+from rankwright.fetch import make_client
+from rankwright.gates import contradictions
 
 SITE = "https://x.example"
 
@@ -145,7 +145,7 @@ def test_the_finding_says_both_ways_to_resolve_the_contradiction():
         "either edit resolves it, and only the owner knows which is correct")
 
 
-from omnirank.page import PageData
+from rankwright.page import PageData
 
 HEAD = "<!doctype html><html lang='en'><head>{}</head><body><h1>H</h1></body></html>"
 
@@ -323,7 +323,7 @@ def test_a_noindexed_page_declaring_indexable_alternates_is_not_flagged():
 def test_an_alternate_outside_the_crawled_set_is_never_judged():
     pages = [alt_page(f"{SITE}/en", {"de": "https://de.example/"})]
     assert contradictions.check_hreflang_noindex(pages) == [], (
-        "OmniRank never guesses about a URL it did not fetch")
+        "Rankwright never guesses about a URL it did not fetch")
 
 
 def test_a_self_referencing_alternate_is_not_a_contradiction():

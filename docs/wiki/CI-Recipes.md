@@ -1,18 +1,18 @@
 # CI Recipes
 
-This page shows three ways to run `omnirank audit` as a build gate — GitHub Actions,
-GitLab CI, and a generic shell script — plus how `omnirank fix` fits the same pipeline as
+This page shows three ways to run `rankwright audit` as a build gate — GitHub Actions,
+GitLab CI, and a generic shell script — plus how `rankwright fix` fits the same pipeline as
 a second, distinct gate. Each recipe turns a specific class of problem into a non-zero
 exit that fails the job.
 
-OmniRank is not published to PyPI, so every example below installs straight from git. The
+Rankwright is not published to PyPI, so every example below installs straight from git. The
 `pip install "package @ git+URL#subdirectory=..."` syntax used here was verified to work
 against the real repository.
 
 ## GitHub Actions
 
 ```yaml
-name: OmniRank audit
+name: Rankwright audit
 
 on:
   pull_request:
@@ -29,27 +29,27 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install OmniRank
+      - name: Install Rankwright
         run: |
-          pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
+          pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
 
       - name: Audit
         run: |
-          omnirank audit --config omnirank.config.json \
-            --out omnirank-report.json \
+          rankwright audit --config rankwright.config.json \
+            --out rankwright-report.json \
             --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
 
       - name: Preview outstanding mechanical fixes (writes nothing)
         if: always()
         run: |
-          omnirank fix --config omnirank.config.json --root . || true
+          rankwright fix --config rankwright.config.json --root . || true
 
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: omnirank-report
-          path: omnirank-report.json
+          name: rankwright-report
+          path: rankwright-report.json
 ```
 
 `--fail-on` is what fails the audit job — the step's own exit code (`1`) fails the GitHub
@@ -65,17 +65,17 @@ This mirrors the pattern this repository's own `.github/workflows/ci.yml` uses f
 ## GitLab CI
 
 ```yaml
-omnirank-audit:
+rankwright-audit:
   image: python:3.12-slim
   stage: test
   script:
-    - pip install "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
-    - omnirank audit --config omnirank.config.json --out omnirank-report.json
+    - pip install "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
+    - rankwright audit --config rankwright.config.json --out rankwright-report.json
         --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
   artifacts:
     when: always
     paths:
-      - omnirank-report.json
+      - rankwright-report.json
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -90,11 +90,11 @@ report as a build artifact regardless of outcome (`when: always`).
 #!/usr/bin/env bash
 set -euo pipefail
 
-python3 -m venv .venv-omnirank
-source .venv-omnirank/bin/activate
-pip install -q "omnirank @ git+https://github.com/bemoshiur/OmniRank.git#subdirectory=scripts/py"
+python3 -m venv .venv-rankwright
+source .venv-rankwright/bin/activate
+pip install -q "rankwright @ git+https://github.com/mahirakash/rankwright.git#subdirectory=scripts/py"
 
-omnirank audit --config omnirank.config.json --out omnirank-report.json \
+rankwright audit --config rankwright.config.json --out rankwright-report.json \
   --fail-on h1 canonical schema llms-txt llms-full facts-json ai-allowlist
 
 status=$?
@@ -102,7 +102,7 @@ deactivate
 exit "$status"
 ```
 
-`set -euo pipefail` means the script itself exits non-zero the moment `omnirank audit`
+`set -euo pipefail` means the script itself exits non-zero the moment `rankwright audit`
 does — you generally do not even need the explicit `status=$?` capture unless you want to
 run cleanup after a failure, as shown here.
 
@@ -110,7 +110,7 @@ run cleanup after a failure, as shown here.
 
 Not every gate name in the schema's `audit.failOn` enum can actually cause `--fail-on` to
 fail a build, and putting all 42 in the list creates false confidence rather than more
-protection. Verified directly against every gate's severity in `scripts/py/omnirank/gates/`
+protection. Verified directly against every gate's severity in `scripts/py/rankwright/gates/`
 (`tests/test_repo_docs.py::test_documented_gate_counts_match_the_registry` re-derives
 these two numbers from `registry.py` and the config schema on every CI run, so they cannot
 drift silently):
@@ -142,15 +142,15 @@ Findings from gates you did **not** list in `--fail-on` are still computed and s
 in the JSON report and terminal summary — they just do not fail the build. Nothing is
 hidden; `--fail-on` only controls the exit code.
 
-## Gating on `omnirank fix` instead of, or alongside, `--fail-on`
+## Gating on `rankwright fix` instead of, or alongside, `--fail-on`
 
-`omnirank fix` answers a narrower, different question: *is there at least one
+`rankwright fix` answers a narrower, different question: *is there at least one
 mechanical, `safe` diff sitting unapplied?* It exits `1` whenever a diff exists and `0`
 otherwise, regardless of `--fail-on`:
 
 ```bash
 # Fail the build while a mechanical fix is outstanding. Writes nothing.
-python3 -m omnirank.cli fix --config omnirank.config.json --root .
+python3 -m rankwright.cli fix --config rankwright.config.json --root .
 ```
 
 This is a much narrower net than `--fail-on` — today it can only ever catch the four
@@ -161,7 +161,7 @@ This is a much narrower net than `--fail-on` — today it can only ever catch th
 ## See also
 
 - [[Audit-Skill]] — every gate, its severity, and what triggers it
-- [[Fix-Preview]] — `omnirank fix`'s flags, exit codes, and why it writes nothing
+- [[Fix-Preview]] — `rankwright fix`'s flags, exit codes, and why it writes nothing
 - [[Configuration-Reference#audit]] — setting a default `audit.failOn` in
-  `omnirank.config.json` so `--fail-on` can be omitted in CI
+  `rankwright.config.json` so `--fail-on` can be omitted in CI
 - [[Troubleshooting]] — reading a red `--fail-on` gate in CI logs
