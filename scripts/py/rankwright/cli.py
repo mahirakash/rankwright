@@ -4,8 +4,9 @@ import argparse
 import json
 import sys
 from datetime import UTC, datetime
+from urllib.parse import urlsplit
 
-from . import __version__
+from . import __version__, commands
 from .audit import audit_site, default_config
 from .config import Config, ConfigError, load_config
 from .fixes import FixOutcome, generate
@@ -288,13 +289,14 @@ def _build_parser() -> argparse.ArgumentParser:
     fix.add_argument("--write", action="store_true",
                      help="Not available: exits 2 with an explanation. This "
                           "release previews diffs and modifies nothing.")
+    commands.register(sub)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
 
-    if args.command not in {"audit", "geo", "fix"}:
+    if args.command not in {"audit", "geo", "fix"} | commands.COMMANDS:
         return 2
 
     # Before load_config and before any network call, so the refusal is instant
@@ -310,10 +312,19 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if config is None:
-        if not args.url:
+        url = getattr(args, "url", None)
+        if not url and getattr(args, "page", None) and args.command == "publish":
+            # `publish social draft <page>` needs no config: the site is the
+            # page's own origin.
+            parts = urlsplit(args.page)
+            url = f"{parts.scheme}://{parts.netloc}" if parts.netloc else None
+        if not url:
             print("rankwright: provide a URL or --config", file=sys.stderr)
             return 2
-        config = default_config(args.url.rstrip("/"))
+        config = default_config(url.rstrip("/"))
+
+    if args.command in commands.COMMANDS:
+        return commands.run(args, config)
 
     if args.command == "geo":
         from .geo_artifacts import LICENSE_ABSENT_NOTICE, generate, license_is_absent

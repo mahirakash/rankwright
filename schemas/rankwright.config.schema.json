@@ -3,34 +3,68 @@
   "$id": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
   "title": "Rankwright site configuration",
   "type": "object",
-  "required": ["site"],
+  "required": [
+    "site"
+  ],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
+    "$schema": {
+      "type": "string"
+    },
     "site": {
       "type": "object",
-      "required": ["name", "url", "entityType"],
+      "required": [
+        "name",
+        "url",
+        "entityType"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "legalName": { "type": "string" },
-        "url": { "type": "string", "format": "uri", "pattern": "^https?://" },
-        "entityType": {
-          "enum": ["Organization", "LocalBusiness", "ProfessionalService",
-                   "NewsMediaOrganization", "SoftwareApplication",
-                   "EducationalOrganization", "MedicalOrganization"]
+        "name": {
+          "type": "string",
+          "minLength": 1
         },
-        "parentOrganization": { "type": "string" },
+        "legalName": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://"
+        },
+        "entityType": {
+          "enum": [
+            "Organization",
+            "LocalBusiness",
+            "ProfessionalService",
+            "NewsMediaOrganization",
+            "SoftwareApplication",
+            "EducationalOrganization",
+            "MedicalOrganization"
+          ]
+        },
+        "parentOrganization": {
+          "type": "string"
+        },
         "locales": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["code", "path"],
+            "required": [
+              "code",
+              "path"
+            ],
             "additionalProperties": false,
             "properties": {
-              "code": { "type": "string" },
-              "path": { "type": "string" },
-              "default": { "type": "boolean" }
+              "code": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "default": {
+                "type": "boolean"
+              }
             }
           }
         }
@@ -40,45 +74,112 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "street": { "type": "string" }, "city": { "type": "string" },
-        "region": { "type": "string" }, "postalCode": { "type": "string" },
-        "country": { "type": "string" }, "phone": { "type": "string" },
-        "email": { "type": "string" },
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
         "geo": {
           "type": "object",
-          "required": ["lat", "lng"],
+          "required": [
+            "lat",
+            "lng"
+          ],
           "additionalProperties": false,
-          "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } }
+          "properties": {
+            "lat": {
+              "type": "number"
+            },
+            "lng": {
+              "type": "number"
+            }
+          }
         },
-        "openingHours": { "type": "array", "items": { "type": "string" } }
+        "openingHours": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-    "identifiers": { "type": "object", "additionalProperties": { "type": "string" } },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "sameAs": {
       "type": "object",
-      "additionalProperties": { "type": ["string", "null"] }
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
     },
     "stack": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "framework": {
-          "enum": ["next-app-router", "next-pages", "next-pages-router", "astro",
-                   "nuxt", "sveltekit", "wordpress", "jekyll", "hugo", "eleventy",
-                   "shopify", "static", "other"],
+          "enum": [
+            "next-app-router",
+            "next-pages",
+            "next-pages-router",
+            "astro",
+            "nuxt",
+            "sveltekit",
+            "wordpress",
+            "jekyll",
+            "hugo",
+            "eleventy",
+            "shopify",
+            "static",
+            "other"
+          ],
           "description": "Routing convention. `next-pages` is the historical spelling of `next-pages-router` and both remain valid. `shopify` and `other` have no locator implementation, so findings on those projects are display-only. rankwright fix detects this from disk when it is unset."
         },
-        "srcDir": { "type": "string" },
-        "publicDir": { "type": "string" },
-        "builtHtml": { "type": "string" }
+        "srcDir": {
+          "type": "string"
+        },
+        "publicDir": {
+          "type": "string"
+        },
+        "builtHtml": {
+          "type": "string"
+        }
       }
     },
     "crawlers": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "allowAI": { "type": "boolean" },
-        "disallow": { "type": "array", "items": { "type": "string" } }
+        "allowAI": {
+          "type": "boolean"
+        },
+        "disallow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "geo": {
@@ -86,11 +187,18 @@
       "additionalProperties": false,
       "properties": {
         "license": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Content reuse licence to state in llms.txt/llms-full.txt and facts.json (e.g. \"CC-BY-4.0\"). Absent: `rankwright geo` grants no reuse rights (same as \"none\" below) and prints a one-line stderr notice naming this key, so the choice isn't made silently. Set to a real licence string to grant reuse rights. Set to the string \"none\" (or JSON null) to state the no-grant choice explicitly and silence the notice -- functionally identical to leaving it unset, but a deliberate record of the choice."
         },
-        "attribution": { "type": "string" },
-        "answerBlockSelector": { "type": "string" }
+        "attribution": {
+          "type": "string"
+        },
+        "answerBlockSelector": {
+          "type": "string"
+        }
       }
     },
     "aeo": {
@@ -101,12 +209,18 @@
         "answerBlock": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["default"],
+          "required": [
+            "default"
+          ],
           "properties": {
-            "default": { "$ref": "#/$defs/band" },
+            "default": {
+              "$ref": "#/$defs/band"
+            },
             "byScript": {
               "type": "object",
-              "additionalProperties": { "$ref": "#/$defs/band" },
+              "additionalProperties": {
+                "$ref": "#/$defs/band"
+              },
               "description": "Override per script family: latin, cjk, brahmic, arabic, cyrillic."
             }
           }
@@ -117,34 +231,84 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "indexnowKeyFile": { "type": "string" },
-        "gscProperty": { "type": "string" },
-        "bing": { "type": "boolean" },
-        "wayback": { "type": "boolean" },
-        "priorityUrls": { "type": "string" }
+        "indexnowKeyFile": {
+          "type": "string"
+        },
+        "gscProperty": {
+          "type": "string"
+        },
+        "bing": {
+          "type": "boolean"
+        },
+        "wayback": {
+          "type": "boolean"
+        },
+        "priorityUrls": {
+          "type": "string"
+        }
       }
     },
-    "tracking": { "type": "object", "additionalProperties": { "type": "string" } },
+    "tracking": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "audit": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "sampleSize": { "type": "integer", "minimum": 0 },
+        "sampleSize": {
+          "type": "integer",
+          "minimum": 0
+        },
         "failOn": {
           "type": "array",
           "items": {
-            "enum": ["h1", "canonical", "title-length", "description-length", "hreflang",
-                     "og", "image-dims", "answer-block", "faq", "speakable",
-                     "llms-txt", "llms-full", "facts-json", "ai-allowlist",
-                     "citation-licence", "sitemap-health",
-                     "lastmod-inflation", "schema", "schema-fabrication",
-                     "duplicate-title", "duplicate-description", "noindex-in-sitemap",
-                     "canonical-cluster", "hreflang-reciprocity",
-                     "response-time", "page-weight", "compression", "render-blocking",
-                     "hsts", "nosniff", "csp", "referrer-policy",
-                     "mixed-content", "https-redirect", "robots-sitemap",
-                     "canonical-target", "hreflang-noindex", "schema-required",
-                     "image-alt", "heading-order", "link-text", "lang"]
+            "enum": [
+              "h1",
+              "canonical",
+              "title-length",
+              "description-length",
+              "hreflang",
+              "og",
+              "image-dims",
+              "answer-block",
+              "faq",
+              "speakable",
+              "llms-txt",
+              "llms-full",
+              "facts-json",
+              "ai-allowlist",
+              "citation-licence",
+              "sitemap-health",
+              "lastmod-inflation",
+              "schema",
+              "schema-fabrication",
+              "duplicate-title",
+              "duplicate-description",
+              "noindex-in-sitemap",
+              "canonical-cluster",
+              "hreflang-reciprocity",
+              "response-time",
+              "page-weight",
+              "compression",
+              "render-blocking",
+              "hsts",
+              "nosniff",
+              "csp",
+              "referrer-policy",
+              "mixed-content",
+              "https-redirect",
+              "robots-sitemap",
+              "canonical-target",
+              "hreflang-noindex",
+              "schema-required",
+              "image-alt",
+              "heading-order",
+              "link-text",
+              "lang"
+            ]
           }
         }
       }
@@ -155,28 +319,86 @@
       "properties": {
         "platforms": {
           "type": "array",
-          "items": { "enum": ["facebook", "instagram", "x", "linkedin", "youtube"] }
+          "items": {
+            "enum": [
+              "facebook",
+              "instagram",
+              "x",
+              "linkedin",
+              "youtube"
+            ]
+          }
         },
-        "queueDir": { "type": "string" },
-        "requireHumanApproval": { "type": "boolean" }
+        "queueDir": {
+          "type": "string"
+        },
+        "requireHumanApproval": {
+          "type": "boolean"
+        },
+        "facebookPageId": {
+          "type": "string",
+          "description": "Facebook Page id. Token: the `facebook` secret (a Page access token)."
+        },
+        "instagramUserId": {
+          "type": "string",
+          "description": "Instagram professional account id. Token: the `instagram` secret."
+        },
+        "linkedinAuthor": {
+          "type": "string",
+          "pattern": "^urn:li:(organization|person):",
+          "description": "LinkedIn author URN. Token: the `linkedin` secret."
+        },
+        "graphVersion": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+$",
+          "description": "Meta Graph API version. Default v26.0."
+        },
+        "linkedinVersion": {
+          "type": "string",
+          "pattern": "^[0-9]{6}$",
+          "description": "LinkedIn-Version header, YYYYMM. Default 202610."
+        }
       }
     },
-    "competitors": { "type": "array", "items": { "type": "string" } },
+    "competitors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "statistics": {
       "type": "array",
       "description": "First-party benchmarks. Only entries with published:true are emitted to facts.json.",
       "items": {
         "type": "object",
-        "required": ["name", "value"],
+        "required": [
+          "name",
+          "value"
+        ],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string" },
-          "value": { "type": "string" },
-          "unit": { "type": "string" },
-          "sampleSize": { "type": "integer", "minimum": 0 },
-          "methodology": { "type": "string" },
-          "asOf": { "type": "string" },
-          "source": { "type": "string" },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "sampleSize": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "methodology": {
+            "type": "string"
+          },
+          "asOf": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
           "published": {
             "type": "boolean",
             "description": "Real-only gate. Absent or false means the statistic renders nowhere."
@@ -191,17 +413,103 @@
         "pattern": "^env:[A-Z_][A-Z0-9_]*$",
         "description": "Must be an env: pointer. Literal secrets are rejected by design."
       }
+    },
+    "rank": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Rank tracking for `rankwright rank`.",
+      "properties": {
+        "provider": {
+          "enum": [
+            "gsc",
+            "serpapi"
+          ],
+          "description": "Default data source. gsc reads Search Console (free, average positions, only queries with impressions). serpapi asks a paid results API (any keyword, competitors, one or more billed searches per keyword)."
+        },
+        "gscProperty": {
+          "type": "string",
+          "description": "Search Console property, e.g. sc-domain:example.com. Defaults to indexing.gscProperty, then the site URL as a URL-prefix property."
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Keywords to track. Required for serpapi. For gsc, leave empty to keep the top queries by impressions."
+        },
+        "country": {
+          "type": "string",
+          "description": "gsc: three-letter country code filter (usa). serpapi: two-letter gl code (us)."
+        },
+        "language": {
+          "type": "string",
+          "description": "serpapi hl code, e.g. en."
+        },
+        "location": {
+          "type": "string",
+          "description": "serpapi location string, e.g. Las Vegas, Nevada, United States."
+        },
+        "days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 480,
+          "description": "gsc window in days. Default 28."
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100,
+          "description": "serpapi: how many results deep to look. Default 30. Each 10 is one billed search per keyword."
+        }
+      }
+    },
+    "publish": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Targets for `rankwright publish`.",
+      "properties": {
+        "webflow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "siteId"
+          ],
+          "properties": {
+            "siteId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Webflow site id. The API token is the `webflow` secret."
+            }
+          }
+        }
+      }
     }
   },
   "$defs": {
     "band": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["unit", "min", "max"],
+      "required": [
+        "unit",
+        "min",
+        "max"
+      ],
       "properties": {
-        "unit": { "enum": ["words", "chars"] },
-        "min": { "type": "integer", "minimum": 1 },
-        "max": { "type": "integer", "minimum": 1 }
+        "unit": {
+          "enum": [
+            "words",
+            "chars"
+          ]
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     }
   }
