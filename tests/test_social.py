@@ -194,3 +194,10 @@ def test_approval_can_be_switched_off_explicitly(tmp_path):
     with make_client() as client:
         results = social.publish(config, client, write=False)
     assert results[0]["status"] == "would-publish"
+
+
+@respx.mock
+def test_relative_og_image_is_made_absolute(tmp_path):
+    html = HTML.replace("https://x.example/og.png", "/img/og.png")
+    written, _ = make_drafts(cfg(tmp_path), html=html, only=["instagram"])
+    assert json.loads(written[0].read_text())["imageUrl"] == f"{SITE}/img/og.png"

@@ -17,7 +17,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import httpx
 from bs4 import BeautifulSoup
@@ -33,6 +33,11 @@ CONTEXT = "https://schema.org"
 # widget or a glossary entry than an FAQ section.
 MIN_FAQ_PAIRS = 2
 ARTICLE_TYPES = ("Article", "NewsArticle", "BlogPosting")
+# Every site.entityType the config accepts. A page that already declares any one
+# of them already describes the organisation, whatever subtype it chose.
+ORGANIZATION_TYPES = frozenset({
+    "Organization", "LocalBusiness", "ProfessionalService", "NewsMediaOrganization",
+    "SoftwareApplication", "EducationalOrganization", "MedicalOrganization"})
 
 
 @dataclass
@@ -61,6 +66,22 @@ def _meta_property(soup: BeautifulSoup, prop: str) -> str:
 def _meta_name(soup: BeautifulSoup, name: str) -> str:
     tag = find_meta(soup, name)
     return (tag.get("content") or "").strip() if tag else ""
+
+
+def has_identity(config: Config) -> bool:
+    """False for a bare `rankwright schema <url>` run with no config file.
+
+    That run knows the site's address and nothing else, so its "name" is just the
+    URL. An Organization named "https://example.com" is worse than none.
+    """
+    return config.raw["site"]["name"].rstrip("/") != config.site_url
+
+
+def _og_image(soup: BeautifulSoup, page_url: str) -> str:
+    """og:image as an absolute URL. A relative value is common and is useless to
+    a consumer that reads the markup away from the page."""
+    image = _meta_property(soup, "og:image")
+    return urljoin(page_url, image) if image else ""
 
 
 def org_id(config: Config) -> str:
@@ -141,8 +162,9 @@ def _is_home(config: Config, url: str) -> bool:
 
 def webpage_node(config: Config, page: PageData, canonical: str) -> dict:
     soup = page.soup()
-    node: dict = {"@type": "WebPage", "@id": f"{canonical}#webpage", "url": canonical,
-                  "isPartOf": {"@id": website_id(config)}}
+    node: dict = {"@type": "WebPage", "@id": f"{canonical}#webpage", "url": canonical}
+    if has_identity(config):
+        node["isPartOf"] = {"@id": website_id(config)}
     title = _text(soup.find("title"))
     if title:
         node["name"] = title
@@ -151,13 +173,13 @@ def webpage_node(config: Config, page: PageData, canonical: str) -> dict:
         node["description"] = description
     if page.lang:
         node["inLanguage"] = page.lang
-    image = _meta_property(soup, "og:image")
+    image = _og_image(soup, page.url)
     if image:
         node["primaryImageOfPage"] = {"@type": "ImageObject", "url": image}
     modified = _meta_property(soup, "article:modified_time")
     if modified:
         node["dateModified"] = modified
-    if _is_home(config, canonical):
+    if _is_home(config, canonical) and has_identity(config):
         node["about"] = {"@id": org_id(config)}
     return node
 
@@ -255,7 +277,7 @@ def article_node(config: Config, page: PageData,
     if not is_article:
         return None, []
     headline = _text(soup.find("h1"))
-    image = _meta_property(soup, "og:image")
+    image = _og_image(soup, page.url)
     published = _meta_property(soup, "article:published_time")
     if not published:
         scope = soup.find("article") or soup
@@ -272,8 +294,9 @@ def article_node(config: Config, page: PageData,
             "and datePublished and none of them may be invented."]
     node: dict = {"@type": "Article", "@id": f"{canonical}#article",
                   "headline": headline, "image": [image], "datePublished": published,
-                  "mainEntityOfPage": {"@id": f"{canonical}#webpage"},
-                  "publisher": {"@id": org_id(config)}}
+                  "mainEntityOfPage": {"@id": f"{canonical}#webpage"}}
+    if has_identity(config):
+        node["publisher"] = {"@id": org_id(config)}
     modified = _meta_property(soup, "article:modified_time")
     if modified:
         node["dateModified"] = modified
@@ -302,9 +325,14 @@ def build_for_page(config: Config, page: PageData,
     notes: list[str] = []
     nodes: list[dict] = []
 
-    org, org_notes = organization_node(config)
-    candidates: list[tuple[dict | None, list[str]]] = [
-        (org, org_notes), (website_node(config), []),
+    candidates: list[tuple[dict | None, list[str]]] = []
+    if has_identity(config):
+        candidates += [organization_node(config), (website_node(config), [])]
+    else:
+        notes.append(
+            "no config file, so the organisation's name is unknown: Organization "
+            "and WebSite were not generated. Re-run with --config to add them.")
+    candidates += [
         (webpage_node(config, page, canonical), []),
         breadcrumb_node(config, page, canonical, titles or {}),
         (faq_node(page, canonical), []),
@@ -315,10 +343,12 @@ def build_for_page(config: Config, page: PageData,
         if node is None:
             continue
         node_type = node["@type"]
-        clash = node_type in existing or (
-            node_type == "Article" and existing & set(ARTICLE_TYPES))
+        family = (ORGANIZATION_TYPES if node.get("@id") == org_id(config)
+                  else set(ARTICLE_TYPES) if node_type == "Article" else {node_type})
+        clash = sorted(existing & family)
         if clash:
-            notes.append(f"page already declares {node_type}: not generated again.")
+            notes.append(f"page already declares {clash[0]}: {node_type} not "
+                         "generated again.")
             continue
         nodes.append(node)
 

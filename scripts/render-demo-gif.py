@@ -68,7 +68,9 @@ CYAN = (56, 189, 248)  # #38BDF8 — overall NN/100 / diff "@@" hunks
 GREY = (148, 163, 184)  # #94A3B8 — "e.g." / observed:
 GREEN = (52, 211, 153)  # #34D399 — fix: / diff "+" lines
 
-FONT_CANDIDATES = ["/System/Library/Fonts/Menlo.ttc", "/System/Library/Fonts/Monaco.ttf"]
+FONT_CANDIDATES = ["/System/Library/Fonts/Menlo.ttc", "/System/Library/Fonts/Monaco.ttf",
+                   "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+                   "/usr/share/fonts/dejavu/DejaVuSansMono.ttf"]
 
 # Rendered at 2x supersample then downscaled -> crisp text at final size.
 SCALE = 2

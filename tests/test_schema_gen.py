@@ -137,6 +137,14 @@ def test_types_already_on_the_page_are_not_duplicated():
     assert any("already declares Organization" in n for n in result.notes)
 
 
+def test_existing_organization_blocks_a_different_subtype_too():
+    head = ('<script type="application/ld+json">{"@context":"https://schema.org",'
+            '"@type":"Organization","name":"X","url":"https://x.example"}</script>')
+    config = Config({"site": {"name": "X", "url": SITE, "entityType": "LocalBusiness"}})
+    result = build_for_page(config, page(f"{SITE}/", "<h1>X</h1>", head))
+    assert "LocalBusiness" not in types(result)
+
+
 def test_generated_markup_passes_the_audit_schema_gate():
     head = ('<meta property="og:type" content="article">'
             '<meta property="og:image" content="https://x.example/a.png">'
@@ -179,3 +187,18 @@ def test_generate_writes_files_and_reports_unreachable(tmp_path):
     manifest = json.loads((tmp_path / "manifest.json").read_text())
     assert manifest["unreachable"] == [f"{SITE}/gone"]
     assert manifest["pages"][0]["snippet"] == "index.html"
+
+
+def test_relative_og_image_is_made_absolute():
+    result = build_for_page(cfg(), page(
+        f"{SITE}/a/b", "<h1>B</h1>", '<meta property="og:image" content="/img/og.png">'))
+    assert node(result, "WebPage")["primaryImageOfPage"]["url"] == f"{SITE}/img/og.png"
+
+
+def test_zero_config_run_does_not_invent_an_organization():
+    from rankwright.audit import default_config
+    result = build_for_page(default_config(SITE), page(f"{SITE}/", "<h1>X</h1>"))
+    assert types(result) == ["WebPage"]
+    webpage = node(result, "WebPage")
+    assert "isPartOf" not in webpage and "about" not in webpage
+    assert any("--config" in n for n in result.notes)

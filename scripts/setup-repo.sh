@@ -11,7 +11,7 @@ set -euo pipefail
 
 REPO="mahirakash/rankwright"
 HOMEPAGE="https://github.com/mahirakash/rankwright"
-DESCRIPTION="Rankwright -- SEO / AEO / GEO / SMM growth engine for Claude Code and Cursor. v0.1.0 ships two skills: audit (score SEO, AEO, GEO and crawl-hygiene gates) and geo-artifacts (generate llms.txt, llms-full.txt and facts.json for AI crawlers). More on the roadmap."
+DESCRIPTION="Rankwright -- open-source SEO / AEO / GEO toolkit for Claude Code and the command line: audit, llms.txt and facts.json, JSON-LD generation, IndexNow, rank tracking, and gated publishing to Webflow and social. A fork of OmniRank."
 
 TOPICS=(
   seo

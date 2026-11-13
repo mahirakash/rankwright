@@ -20,7 +20,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import httpx
 from bs4 import BeautifulSoup
@@ -91,7 +91,8 @@ def read_source(client: httpx.Client, config: Config, url: str) -> Source:
         description=_meta(soup, "name", "description")
         or _meta(soup, "property", "og:description"),
         answer=_text(soup.select_one(config.answer_block_selector)),
-        image=_meta(soup, "property", "og:image"),
+        # Absolute, because Instagram fetches this URL itself.
+        image=urljoin(url, image) if (image := _meta(soup, "property", "og:image")) else "",
     )
 
 

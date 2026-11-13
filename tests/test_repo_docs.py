@@ -122,7 +122,7 @@ def test_every_version_declaration_agrees():
 
     init = (ROOT / "scripts" / "py" / "rankwright" / "__init__.py").read_text()
     version = re.search(r'__version__ = "([^"]+)"', init).group(1)
-    assert version == "0.4.0"
+    assert version == "0.5.0"
 
     pyproject = (ROOT / "scripts" / "py" / "pyproject.toml").read_text()
     assert f'version = "{version}"' in pyproject

@@ -1,7 +1,7 @@
 {
   "name": "rankwright",
-  "version": "0.4.0",
-  "description": "Audit any website across SEO, answer-engine and generative-engine criteria, and generate llms.txt, llms-full.txt and facts.json so AI engines can ingest it as ground truth.",
+  "version": "0.5.0",
+  "description": "Audit a website across SEO, answer-engine and generative-engine criteria, generate llms.txt, facts.json and JSON-LD, submit changed URLs through IndexNow, track rankings, and publish approved changes to Webflow and social platforms.",
   "author": {
     "name": "mahirakash",
     "url": "https://github.com/mahirakash"
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Rankwright",
     "shortDescription": "One page. Every engine.",
-    "longDescription": "Score a site's SEO, AEO and GEO gates against its real HTML, then generate the machine-ingestible ground truth that generative engines read. Ships two skills: audit and geo-artifacts.",
+    "longDescription": "Score a site's SEO, AEO and GEO gates against its real HTML and generate the ground truth generative engines read. Then act on it: JSON-LD built from each page's real content, IndexNow submission by content hash, rank tracking from Search Console or SerpAPI, and publishing to Webflow, Facebook, Instagram and LinkedIn that previews by default and needs explicit approval. Six skills: audit, geo-artifacts, schema, indexing, rank, publish.",
     "developerName": "mahirakash",
     "capabilities": [
       "Read",

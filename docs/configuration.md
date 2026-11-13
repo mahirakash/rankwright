@@ -198,9 +198,30 @@ the CJK band sets `byScript.cjk` explicitly (step 1), which always wins.
 | `wayback` | boolean | Enable Wayback Machine submission |
 | `priorityUrls` | string | Path to a priority-URL list |
 
-**Status: Schema-only.** This entire section belongs to the `indexing` skill on the
-roadmap (target v0.3, per the README) and is validated but not read by anything shipped
-in v0.2.0.
+**Status:** `indexnowKeyFile` is read by `rankwright index` (a local file holding the
+IndexNow key) and `gscProperty` by `rankwright rank`. `bing`, `wayback` and
+`priorityUrls` are still schema-only: validated, not read.
+
+## `rank`
+
+| Field | Type | Description |
+|---|---|---|
+| `provider` | `gsc` or `serpapi` | Default data source for `rankwright rank` |
+| `gscProperty` | string | Search Console property, e.g. `sc-domain:example.com`. Falls back to `indexing.gscProperty`, then the site URL |
+| `keywords` | array of strings | Keywords to track. Required for `serpapi`; optional for `gsc` |
+| `country` | string | `gsc`: three-letter code (`usa`). `serpapi`: two-letter `gl` code (`us`) |
+| `language` | string | `serpapi` `hl` code |
+| `location` | string | `serpapi` location string |
+| `days` | integer 1–480 | `gsc` window. Default `28` |
+| `depth` | integer 10–100 | `serpapi` results to scan. Default `30`; each 10 is a billed search per keyword |
+
+## `publish`
+
+| Field | Type | Description |
+|---|---|---|
+| `webflow.siteId` | string, required within `webflow` | The Webflow site to plan against and write to. Token: the `webflow` secret |
+
+See [schema-index-rank-publish.md](schema-index-rank-publish.md) for both.
 
 ## `tracking`
 
@@ -242,7 +263,14 @@ left inert — see
 | `queueDir` | string | Directory for a publish queue |
 | `requireHumanApproval` | boolean | Gate publishing behind human approval |
 
-**Status: Schema-only.** Belongs to the `smm-publish` skill on the roadmap (target v0.7).
+| `facebookPageId` | string | Facebook Page id. Token: the `facebook` secret |
+| `instagramUserId` | string | Instagram professional account id. Token: the `instagram` secret |
+| `linkedinAuthor` | string, `urn:li:organization:…` or `urn:li:person:…` | LinkedIn author. Token: the `linkedin` secret |
+| `graphVersion` | string like `v26.0` | Meta Graph API version. Default `v26.0` |
+| `linkedinVersion` | string, `YYYYMM` | `LinkedIn-Version` header. Default `202610` |
+
+**Status:** read by `rankwright publish social`. `requireHumanApproval` defaults to
+`true`. `x` and `youtube` are accepted in `platforms` but have no publishing adapter.
 
 ## `competitors`
 

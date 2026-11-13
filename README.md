@@ -25,7 +25,26 @@ ground truth an AI engine can cite directly.
 
 ![Terminal recording of `rankwright audit` scoring a live site and printing a prioritised fix list](.github/assets/demo.gif)
 
-*Real terminal output from `rankwright audit https://example.com` — nothing staged, nothing cropped.*
+*Real terminal output from `rankwright audit` and `rankwright fix`, run against the demo site bundled in `scripts/fixtures/demo-site/`.*
+
+## What this fork adds
+
+Rankwright is a fork of [OmniRank](https://github.com/bemoshiur/OmniRank) by S M Moshiur
+Rahman. The audit, GEO-artifact and fix-preview engine is his work. This fork adds the
+commands OmniRank had on its roadmap:
+
+| Command | What it does | Writes outside your machine? |
+|---|---|---|
+| `rankwright schema` | Generates JSON-LD from each page's real content and your config | Never |
+| `rankwright index` | Submits new and changed URLs through IndexNow, by content hash | Only with `--submit` |
+| `rankwright rank` | Records keyword positions from Search Console or SerpAPI and shows movement | Never |
+| `rankwright publish webflow` | Applies approved SEO titles, descriptions and JSON-LD to a Webflow site | Only with `--apply` |
+| `rankwright publish social` | Drafts posts from a page; sends approved ones to Facebook, Instagram, LinkedIn | Only with `--apply` |
+
+Every one of them previews by default. `schema` and `index` were run end to end against a
+locally served site. `rank` and both `publish` commands are tested against mocked API
+responses and **have not yet been run against live accounts** — preview first and start
+small. Full guide: [docs/schema-index-rank-publish.md](docs/schema-index-rank-publish.md).
 
 ## SEO, AEO and GEO read the same HTML
 
@@ -50,7 +69,7 @@ into a virtual environment. Homebrew and other PEP 668-managed Python installs r
 bare `pip install`, so activate a venv first:
 
 ```bash
-git clone https://github.com/mahirakash/rankwright.git && cd Rankwright
+git clone https://github.com/mahirakash/rankwright.git && cd rankwright
 python3 -m venv .venv && source .venv/bin/activate && make install
 python3 -m rankwright.cli audit https://example.com
 ```
@@ -130,26 +149,26 @@ with its own gate count instead of a flat constant — **scores from 0.3.0 and 0
 not comparable.** `rankwright fix` still writes nothing to your project; file
 modification ships once the locator is proven against real repositories and the write
 guarantees in `docs/research/2026-08-04-automation-architecture.md` §2.5 are
-implemented and tested. Everything under Roadmap below is not present in v0.4.0.
+implemented and tested. Everything under Roadmap below is not present in v0.4.0. The commands added after it, in
+0.5.0, are listed under "What this fork adds" above.
 
 ## Roadmap
 
-| Skill | Target | What it will do |
-|---|---|---|
-| `aeo-onpage` | v0.2 | Emit JSON-LD by entity type; draft AnswerBlocks and FAQs; Next.js codegen |
-| `indexing` | v0.3 | IndexNow, GSC URL Inspection, Bing Submit, Wayback, hash-based freshness |
-| `offsite-entity` | v0.4 | `sameAs` gap analysis, peer mention-gap detection, outreach drafts for human review |
-| `measure` | v0.5 | Rank tracking plus real AI-citation testing across engines |
-| `smm-content` | v0.6 | Repurpose published pages into platform-native assets |
-| `smm-publish` | v0.7 | Gated publishing — dry-run by default, human approval required |
+OmniRank's roadmap named six skills. This is where each stands in Rankwright 0.5.0.
 
-`aeo-onpage`'s "v0.2" target above predates this plan and has already slipped: 0.2.0
-shipped as a site-gates/AnswerBlock-bands/perf release instead, folded into the existing
-`audit` skill rather than a new one. Treat every target version in this table as
-directional, not a commitment — none has a firm date. Adapters for WordPress, Jekyll,
-Shopify, Astro, Vue and Svelte land at v1.0. None of the skills in this table exist in the
-installed package today — asking Claude Code to "write our JSON-LD" or "submit this URL to
-Google" will not trigger anything, because `aeo-onpage` and `indexing` are not built yet.
+| Roadmap skill | Status | Notes |
+|---|---|---|
+| `aeo-onpage` | Partly built | JSON-LD generation ships as `rankwright schema`. Drafting AnswerBlocks and FAQs, and Next.js codegen, are not built. |
+| `indexing` | Partly built | IndexNow with hash-based freshness ships as `rankwright index`. GSC URL Inspection, Bing Submit and Wayback are not built. |
+| `offsite-entity` | Not built | `sameAs` gap analysis, mention-gap detection, outreach drafts. |
+| `measure` | Partly built | Rank tracking ships as `rankwright rank`. Testing whether AI engines cite a brand is not built. |
+| `smm-content` | Partly built | `rankwright publish social draft` assembles a draft from the page's own text. It does not write platform-native copy. |
+| `smm-publish` | Built | `rankwright publish social send`: preview by default, per-draft approval, explicit `--apply`. |
+
+Also new and not on the original roadmap: `rankwright publish webflow`.
+
+Nothing here has a date. Framework adapters beyond the ones the locator already resolves,
+and `rankwright fix --write`, are in the same position as before the fork.
 
 ## Every gate Rankwright checks, grouped by layer
 
@@ -464,6 +483,8 @@ More questions, including secrets handling and where the JSON report schema live
 answered in [docs/faq.md](docs/faq.md).
 
 ## Documentation and guides
+
+New in 0.5.0: [docs/schema-index-rank-publish.md](docs/schema-index-rank-publish.md).
 
 Every page is verified against the v0.2.0 source, generated from the JSON Schema where
 applicable, and every command shown was actually run.

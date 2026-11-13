@@ -4,7 +4,7 @@
 
 | Version | Supported |
 |---|---|
-| 0.1.x | Yes |
+| 0.5.x | Yes |
 
 ## Reporting a vulnerability
 
@@ -16,17 +16,19 @@ within seven days.
 
 ## Scope
 
-v0.1.0 ships only the `audit` and `geo-artifacts` skills, and neither reads a credential
-or calls a third-party API today — `Config.secret()` exists and is exercised by tests, but
-no shipped skill calls it yet. The config schema already reserves the shape for when that
-changes. The areas most worth your attention, now and as later skills land:
+As of 0.5.0 Rankwright reads credentials and makes network writes: `index --submit`
+posts to IndexNow, `rank` calls Search Console or SerpAPI, and `publish` writes to
+Webflow, Facebook, Instagram and LinkedIn. The areas most worth your attention:
 
-- **Credential leakage** — a secret appearing in a report, log, or committed file. Config
-  will hold `env:` pointers only; a literal secret is rejected at schema validation.
+- **Credential leakage** — a secret appearing in a report, plan file, draft, log, error
+  message or committed file. Config holds `env:` pointers only; a literal secret is
+  rejected at schema validation.
+- **A write without consent** — any path by which `index`, `publish webflow` or
+  `publish social` sends, saves or posts something without `--submit` / `--apply`, or
+  publishes an item not marked `approved: true` while approval is required.
 - **SSRF via configured URLs** — the crawler follows URLs from config and sitemaps.
-- **Write-scope escalation** — anything letting a non-publishing skill perform a network
-  write. No publishing skill ships until v0.7; when one does, it will be gated by design:
-  dry-run default, explicit human approval, and confirmation before any outward write.
+- **Script injection through generated JSON-LD** — page text escaping the generated
+  `<script>` block or the Webflow inline script.
 
 ## Out of scope
 

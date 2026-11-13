@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mahirakash/rankwright/main/schemas/rankwright.config.schema.json",
+  "site": {
+    "name": "Example Flight School",
+    "legalName": "Example Flight School LLC",
+    "url": "https://www.example.com",
+    "entityType": "LocalBusiness"
+  },
+  "nap": {
+    "street": "100 Runway Rd",
+    "city": "Las Vegas",
+    "region": "NV",
+    "postalCode": "89119",
+    "country": "US",
+    "phone": "+1 702 555 0100"
+  },
+  "sameAs": {
+    "facebook": "https://www.facebook.com/example",
+    "instagram": "https://www.instagram.com/example",
+    "linkedin": null
+  },
+  "geo": { "license": "none" },
+  "audit": { "sampleSize": 200, "failOn": ["h1", "canonical", "schema"] },
+  "rank": {
+    "provider": "gsc",
+    "gscProperty": "sc-domain:example.com",
+    "keywords": ["flight school las vegas", "private pilot license cost"],
+    "country": "usa",
+    "days": 28
+  },
+  "competitors": ["rival.example"],
+  "publish": { "webflow": { "siteId": "REPLACE_WITH_WEBFLOW_SITE_ID" } },
+  "smm": {
+    "platforms": ["facebook", "instagram", "linkedin"],
+    "requireHumanApproval": true,
+    "facebookPageId": "REPLACE",
+    "instagramUserId": "REPLACE",
+    "linkedinAuthor": "urn:li:organization:REPLACE"
+  },
+  "secrets": {
+    "webflow": "env:WEBFLOW_TOKEN",
+    "indexnow": "env:INDEXNOW_KEY",
+    "gsc": "env:GSC_ACCESS_TOKEN",
+    "serpapi": "env:SERPAPI_KEY",
+    "facebook": "env:FB_PAGE_TOKEN",
+    "instagram": "env:IG_TOKEN",
+    "linkedin": "env:LINKEDIN_TOKEN"
+  }
+}

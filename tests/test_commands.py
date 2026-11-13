@@ -45,7 +45,7 @@ def test_schema_command_writes_snippets_and_publishes_nothing(tmp_path, capsys):
     mock_site()
     assert main(["schema", SITE, "--out", str(tmp_path / "out")]) == 0
     out = capsys.readouterr().out
-    assert "Organization, WebSite, WebPage" in out and "Nothing was published" in out
+    assert "WebPage" in out and "Nothing was published" in out
     assert (tmp_path / "out" / "index.jsonld").exists()
     assert writes() == []
 
@@ -289,3 +289,13 @@ def test_new_config_sections_validate(tmp_path):
                 {"secrets": {"webflow": "literal-token"}}):
         with pytest.raises(ConfigError):
             load_config(write_config(tmp_path, **bad))
+
+
+def test_webflow_client_template_is_a_valid_config():
+    from pathlib import Path
+
+    from rankwright.config import load_config
+    root = Path(__file__).resolve().parents[1]
+    config = load_config(root / "templates" / "rankwright.webflow-client.example.json")
+    assert config.raw["publish"]["webflow"]["siteId"]
+    assert all(v.startswith("env:") for v in config.raw["secrets"].values())

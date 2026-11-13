@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rankwright"
-version = "0.4.0"
-description = "SEO, AEO, GEO and SMM growth engine"
+version = "0.5.0"
+description = "SEO, AEO and GEO toolkit: audit, JSON-LD, IndexNow, rank tracking, gated publishing"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "mahirakash" }, { name = "S M Moshiur Rahman" }]
@@ -18,6 +18,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.2", "respx>=0.21", "ruff>=0.5", "rfc3339-validator>=0.1.4", "pyyaml>=6.0", "pillow>=10.0"]
+
+gsc = ["google-auth>=2.30", "requests>=2.31"]
 
 [project.scripts]
 rankwright = "rankwright.cli:main"

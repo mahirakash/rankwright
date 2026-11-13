@@ -16,6 +16,7 @@ DOC_PAGES = [
     "audit-guide.md",
     "fix-preview.md",
     "geo-artifacts-guide.md",
+    "schema-index-rank-publish.md",
     "ci-integration.md",
     "claude-code-setup.md",
     "troubleshooting.md",

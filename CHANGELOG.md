@@ -4,7 +4,56 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Versions up to and including 0.4.0 were released as
+[OmniRank](https://github.com/bemoshiur/OmniRank) by S M Moshiur Rahman. The entries
+below for those versions are his, with the project name updated. Rankwright starts at
+0.5.0.
+
 ## [Unreleased]
+
+## [0.5.0] - 2026-11-14
+
+First Rankwright release. The fork adds the commands that write, each of which previews
+by default.
+
+### Added
+
+- `rankwright schema` — JSON-LD generated from each page's real content and the site
+  config: the organisation, WebSite, WebPage, BreadcrumbList, FAQPage and Article. A
+  node whose required values are not on the page is skipped with the reason. Types the
+  page already declares are not duplicated.
+- `rankwright index` — IndexNow submission. Tracks a content hash per URL and submits
+  only new and changed pages; verifies the key file before sending; records only
+  accepted batches. Sends nothing without `--submit`. `--keygen` creates a key file.
+- `rankwright rank` — keyword positions from Google Search Console or SerpAPI, appended
+  to a history file, reported as movement since the previous run of the same provider.
+  SerpAPI runs also record competitor positions.
+- `rankwright publish webflow` — a plan file of every static page's SEO title and
+  description with issues flagged; `apply` writes approved entries through the Webflow
+  Data API and can attach generated JSON-LD. Refuses entries that changed in Webflow
+  since the plan. `--publish` makes only the changed pages live.
+- `rankwright publish social` — drafts from a page's own title, description and answer
+  block; `send` posts approved drafts to Facebook Pages, Instagram and LinkedIn and
+  marks each so it cannot post twice.
+- Config: new `rank` and `publish` sections; `smm` gains account ids and API versions;
+  `indexing.indexnowKeyFile` and `indexing.gscProperty` are now read.
+- Four Claude Code skills: `schema`, `indexing`, `rank`, `publish`.
+- `rankwright[gsc]` optional dependency for Search Console service-account auth.
+
+### Changed
+
+- Renamed from OmniRank to Rankwright: the package, the CLI, `rankwright.config.json`
+  and the `.rankwright/` working directory.
+- Security and conduct reports go to this repository's private vulnerability reporting.
+
+### Not verified
+
+- `rank`, `publish webflow` and `publish social` are tested against mocked API
+  responses only. None has been run against a live account.
+
+### Removed
+
+- The original author's personal LinkedIn drafting workflow and internal planning notes.
 
 ## [0.4.0] - 2026-08-04
 

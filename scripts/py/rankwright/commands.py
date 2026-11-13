@@ -41,6 +41,9 @@ def register(sub) -> None:
                                      "or indexing.indexnowKeyFile)")
     index.add_argument("--key-location", help="URL of the key file "
                                               "(default: <site>/<key>.txt)")
+    index.add_argument("--endpoint", default=indexing.ENDPOINT,
+                       help="IndexNow endpoint (default: api.indexnow.org, which "
+                            "shares submissions with every participating engine)")
     index.add_argument("--state", default=indexing.DEFAULT_STATE,
                        help=f"Hash state file (default: {indexing.DEFAULT_STATE})")
     index.add_argument("--all", action="store_true",
@@ -148,7 +151,8 @@ def _index(args, config: Config) -> int:
             location = indexing.key_location(config, key, args.key_location)
             blocked = indexing.verify_key_file(client, key, location)
             if blocked is None:
-                results = indexing.submit(client, config, key, location, urls)
+                results = indexing.submit(client, config, key, location, urls,
+                                          endpoint=args.endpoint)
                 indexing.save_state(args.state, indexing.record(state, found, results))
                 output["submitted"] = any(r.accepted for r in results)
                 output["batches"] = [r.to_dict() for r in results]

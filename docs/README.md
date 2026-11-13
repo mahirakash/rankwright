@@ -15,6 +15,7 @@ Where a claim could not be verified, it was left out rather than guessed; see
 | [audit-guide.md](audit-guide.md) | The `audit` skill and CLI in depth: every gate, the scoring formula, a worked example |
 | [fix-preview.md](fix-preview.md) | `rankwright fix`: the two-axis fix model, what is fixable today, and why this release writes nothing |
 | [geo-artifacts-guide.md](geo-artifacts-guide.md) | Generating `llms.txt` / `llms-full.txt` / `facts.json`, the OpenNext/CloudFront 403 trap, verifying production |
+| [schema-index-rank-publish.md](schema-index-rank-publish.md) | The 0.5.0 commands: `schema`, `index`, `rank`, `publish webflow`, `publish social` — what each writes, the approval flow, and what was only tested against mocks |
 | [ci-integration.md](ci-integration.md) | GitHub Actions, GitLab CI, and shell examples; choosing `--fail-on` gates without gating on inert or warning-only ones |
 | [claude-code-setup.md](claude-code-setup.md) | Installing as a Claude Code plugin (ZIP or clone) and the real trigger phrases for each skill |
 | [troubleshooting.md](troubleshooting.md) | Real error text for the most likely failures, with the fix for each |

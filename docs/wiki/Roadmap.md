@@ -1,9 +1,10 @@
 # Roadmap
 
-Rankwright version 0.4.0 ships two working Claude Code skills, `audit` and `geo-artifacts`,
-plus the `rankwright fix` CLI diff preview. Six further skills are designed and specified
-but not yet built. This page separates what exists today from what is planned, so nobody
-adopts the project expecting capability that has not been written yet.
+This page describes the roadmap as it stood at v0.4.0, before the fork. For what 0.5.0
+added and what is still unbuilt, see the Roadmap section of the
+[README](https://github.com/mahirakash/rankwright#roadmap) and
+`docs/schema-index-rank-publish.md`. Everything below is kept for the reasoning behind
+the original order.
 
 The ordering below reflects one maintainer's judgement about sequence, not a commitment to
 dates. It changes in response to what people actually ask for in

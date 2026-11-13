@@ -17,8 +17,8 @@ facts). Each carries an explicit citation licence.
 ## When NOT to use
 
 - Diagnosing whether the files are already served correctly — that is `audit`.
-- Page-level JSON-LD or AnswerBlocks — that is `aeo-onpage` *(planned, not in v0.1.0)*.
-- Submitting URLs to search engines — that is `indexing` *(planned, not in v0.1.0)*.
+- Page-level JSON-LD or AnswerBlocks — JSON-LD is `schema`; AnswerBlock drafting is not built.
+- Submitting URLs to search engines — that is `indexing`.
 
 Generation only writes the three artifacts. It never verifies they are actually served
 in production — that is `audit`, and the "After generating" section below.
@@ -57,7 +57,7 @@ microseconds, Node emits milliseconds — both valid RFC 3339 UTC).
    `published: true`. No published entries means the key is omitted entirely, not emitted
    empty.
 4. **Null `sameAs` values are dropped, not emitted as null.** A null is an entity gap to
-   fill, and `offsite-entity` *(planned, not in v0.1.0)* reports on it.
+   fill, and `offsite-entity` *(planned, not built)* reports on it.
 5. **Never infer a content licence — but never refuse to generate either.** `geo.license`
    has no default. These files are written into `publicDir` and published on the open
    web, so the licence text inside them is a real, standing grant of reuse rights over
