@@ -27,5 +27,8 @@ rankwright = "rankwright.cli:main"
 [tool.setuptools.packages.find]
 include = ["rankwright*"]
 
+[tool.setuptools.package-data]
+rankwright = ["schemas/*.json"]
+
 [tool.ruff]
 line-length = 100

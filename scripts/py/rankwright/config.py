@@ -6,9 +6,12 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-SCHEMA_PATH = (
-    Path(__file__).resolve().parents[3] / "schemas" / "rankwright.config.schema.json"
-)
+# The schema ships inside the package (rankwright/schemas/) so a plain `pip install` works.
+# The repo-root schemas/ folder stays the editable source for docs and editors;
+# tests/test_schema_packaging.py fails if the two copies drift apart.
+_PACKAGED = Path(__file__).resolve().parent / "schemas" / "rankwright.config.schema.json"
+_REPO_ROOT = Path(__file__).resolve().parents[3] / "schemas" / "rankwright.config.schema.json"
+SCHEMA_PATH = _PACKAGED if _PACKAGED.exists() else _REPO_ROOT
 
 
 class ConfigError(Exception):
